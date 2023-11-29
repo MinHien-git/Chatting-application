@@ -21,7 +21,7 @@ public class ServerThreadBus {
         listServerThreads.add(serverThread);
     }
     
-    public void mutilCastSend(String message){ //like sockets.emit in socket.io
+    public void multiCastSend(String message){ //like sockets.emit in socket.io
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             try {
                 serverThread.write(message);
@@ -31,7 +31,7 @@ public class ServerThreadBus {
         }
     }
     
-    public void boardCast(int id, String message){
+    public void broadCast(int id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if (serverThread.getClientNumber() == id) {
                 continue;
@@ -54,9 +54,9 @@ public class ServerThreadBus {
         for(ServerThread serverThread : threadbus){
             res+=serverThread.getClientNumber()+"-";
         }
-        Server.serverThreadBus.mutilCastSend("update-online-list"+","+res);
+        Server.serverThreadBus.multiCastSend("update-online-list"+","+res);
     }
-    public void sendMessageToPersion(int id, String message){
+    public void sendMessageToPerson(int id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if(serverThread.getClientNumber()==id){
                 try {
