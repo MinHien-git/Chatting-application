@@ -123,6 +123,26 @@ public class chatting {
 		panel_2.add(textArea);
 		
 		JButton btnNewButton = new JButton("Gửi");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String messageContent = textArea.getText();
+//		        if(messageContent.isEmpty()){
+//		            JOptionPane.showMessageDialog(rootPane, "Bạn chưa nhập tin nhắn");
+//		            return;
+//		        }
+		        
+		            try {
+//		                String[] parner = ((String)jComboBox1.getSelectedItem()).split(" ");
+		                write("send-to-person"+","+messageContent+",");
+//		                textArea1.setText(textArea.getText()+ "Bạn (tới Client Sever"): "+ messageContent+ "\n");
+//		                textArea1.setCaretPosition(textArea.getDocument().getLength());
+		            } catch (IOException ex) {
+		                //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+		            }
+		        
+		            textArea.setText("");
+			}
+		});
 		btnNewButton.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
 		btnNewButton.setBounds(10, 50, 199, 37);
 		btnNewButton.setForeground(Color.WHITE);
@@ -223,9 +243,7 @@ public class chatting {
                         String message;
                         
                         while (true) {
-                        	
-                        	System.out.println(id);
-                        	
+                            
                             message = is.readLine();
                             if(message==null){
                                 break;
