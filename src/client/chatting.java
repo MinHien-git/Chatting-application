@@ -1,3 +1,4 @@
+package client;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -28,32 +29,60 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.UIManager;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import java.net.*;
+import java.io.*;
 
 public class chatting {
 
-	private JFrame frmChatting;
-
+	public JFrame frmChatting;
+	private Thread thread;
+	private Thread thread2;
+    private BufferedWriter os;
+    private BufferedReader is;
+    private Socket socketOfClient;
+    private List<String> onlineList;
+    public String id;
+    JTextArea textArea;
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					chatting window = new chatting();
-					window.frmChatting.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		
+		chatting window = new chatting();
 	}
 
 	/**
 	 * Create the application.
 	 */
 	public chatting() {
+		initialize();  
+		onlineList = new ArrayList<>();
+		frmChatting.setVisible(true);
+		setUpSocket();
+	}
+	
+	public chatting(JFrame frame,String _id) {
+		id = _id;
 		initialize();
+		onlineList = new ArrayList<>();
+		frmChatting.setVisible(true);
+		frame.setVisible(false);
+		frame.dispose();
+		
+		//setUpSocket();
 	}
 
 	/**
@@ -65,16 +94,15 @@ public class chatting {
 		frmChatting.getContentPane().setForeground(Color.WHITE);
 		frmChatting.setFont(new Font("Source Code Pro", Font.PLAIN, 12));
 		frmChatting.setResizable(false);
-		frmChatting.setType(Type.UTILITY);
-		frmChatting.setTitle("Chatting");
-		frmChatting.setBounds(100, 100, 919, 545);
+		frmChatting.setTitle("Chatting " + id);
+		frmChatting.setBounds(100, 100, 440, 545);
 		frmChatting.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmChatting.getContentPane().setLayout(null);
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(null);
 		panel_1.setAutoscrolls(true);
-		panel_1.setBounds(229, 0, 674, 506);
+		panel_1.setBounds(205, 0, 230, 506);
 		panel_1.setPreferredSize(new Dimension(8, 10));
 		panel_1.setBackground(Color.WHITE);
 		frmChatting.getContentPane().add(panel_1);
@@ -82,21 +110,21 @@ public class chatting {
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
-		panel_2.setBounds(10, 454, 654, 52);
+		panel_2.setBounds(0, 411, 230, 95);
 		panel_1.add(panel_2);
 		panel_2.setLayout(null);
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setBounds(10, 8, 534, 37);
+		textArea = new JTextArea();
+		textArea.setBounds(10, 11, 199, 37);
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		textArea.setColumns(5);
 		textArea.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		panel_2.add(textArea);
 		
-		JButton btnNewButton = new JButton("Send");
+		JButton btnNewButton = new JButton("Gửi");
 		btnNewButton.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
-		btnNewButton.setBounds(554, 8, 94, 37);
+		btnNewButton.setBounds(10, 50, 199, 37);
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setBorder(null);
 		btnNewButton.setBackground(new Color(30, 144, 255));
@@ -104,8 +132,8 @@ public class chatting {
 		
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(null);
-		panel_3.setBackground(new Color(100, 149, 237));
-		panel_3.setBounds(0, 0, 674, 34);
+		panel_3.setBackground(Color.DARK_GRAY);
+		panel_3.setBounds(0, 0, 220, 34);
 		panel_1.add(panel_3);
 		panel_3.setLayout(null);
 		
@@ -138,7 +166,7 @@ public class chatting {
 		JPanel panel = new JPanel();
 		panel.setBorder(new MatteBorder(0, 0, 0, 2, (Color) new Color(192, 192, 192)));
 		panel.setBackground(Color.WHITE);
-		panel.setBounds(0, 0, 229, 506);
+		panel.setBounds(0, 0, 206, 506);
 		frmChatting.getContentPane().add(panel);
 		panel.setLayout(null);
 		
@@ -149,22 +177,76 @@ public class chatting {
 		panel.add(panel_4);
 		panel_4.setLayout(null);
 		
-		JLabel lblusernameabc = new JLabel("@usernameABC");
+		JLabel lblusernameabc = new JLabel("Danh sách");
 		lblusernameabc.setForeground(new Color(255, 255, 255));
 		lblusernameabc.setBounds(10, 10, 120, 14);
 		lblusernameabc.setFont(new Font("Source Code Pro ExtraBold", Font.BOLD, 11));
 		panel_4.add(lblusernameabc);
 		
-		JButton btnNewButton_1_2 = new JButton("logout");
-		btnNewButton_1_2.setBounds(10, 472, 84, 23);
-		panel.add(btnNewButton_1_2);
-		btnNewButton_1_2.addActionListener(new ActionListener() {
+		JButton btnngXut = new JButton("Đăng xuất");
+		btnngXut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnNewButton_1_2.setForeground(Color.WHITE);
-		btnNewButton_1_2.setFont(new Font("Source Code Pro Black", Font.BOLD, 11));
-		btnNewButton_1_2.setBorder(null);
-		btnNewButton_1_2.setBackground(new Color(255, 69, 0));
+		btnngXut.setForeground(Color.WHITE);
+		btnngXut.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
+		btnngXut.setBorder(null);
+		btnngXut.setBackground(new Color(255, 0, 0));
+		btnngXut.setBounds(10, 458, 186, 37);
+		panel.add(btnngXut);
+		
+		System.out.println("Complete init!");
 	}
+	
+	private void write(String message) throws IOException{
+        os.write(message);
+        os.newLine();
+        os.flush();
+    }
+	
+    public void setUpSocket() {
+        try {
+            thread = new Thread() {
+                @Override
+                public void run() {
+                	
+                    try {
+                        // Gửi yêu cầu kết nối tới Server đang lắng nghe
+                        // trên máy 'localhost' cổng 7777.
+                        socketOfClient = new Socket("127.0.0.1", 7777);
+                        System.out.println("Kết nối thành công!");
+                        // Tạo luồng đầu ra tại client (Gửi dữ liệu tới server)
+                        os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));
+                        // Luồng đầu vào tại Client (Nhận dữ liệu từ server).
+                        is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
+                     
+                        String message;
+                        
+                        while (true) {
+                        	
+                        	System.out.println(id);
+                        	
+                            message = is.readLine();
+                            if(message==null){
+                                break;
+                            }
+                            
+                        }
+//                    os.close();
+//                    is.close();
+//                    socketOfClient.close();
+                    } catch (UnknownHostException e) {
+                    	e.printStackTrace();
+                    	return;
+                    } catch (IOException e) {
+                    	e.printStackTrace();
+                        return;
+                    }
+                }
+            };
+            thread.sleep(1000);
+            thread.run();
+        } catch (Exception e) {
+        }
+    }
 }

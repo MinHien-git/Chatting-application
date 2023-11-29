@@ -1,3 +1,4 @@
+package client;
 import java.util.*;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ public class UserAuthentication {
 	
 	private static final String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
 	
-	public static boolean SignIn(User user) {
+	public static String SignIn(User user) {
 		try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 	            // Step 2:Create a statement using connection object
 				PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL)) { 
@@ -26,15 +27,14 @@ public class UserAuthentication {
 	            // Step 3: Execute the query or update query
 	            ResultSet rs = preparedStatement.executeQuery();
 	            if(rs.next()) {
-	            	System.out.print("existed");
-	            	return true;
+	            	return rs.getString("id");
 	            };
-	            return false;
+	            return "";
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
 	            // print SQL exception information
-	           return false;
+	           return "";
 	        }
 	}
 	
@@ -52,7 +52,7 @@ public class UserAuthentication {
 	            stmt.setString(1, user.email);
 	            ResultSet rs = stmt.executeQuery();
 	            if(rs.next()) {
-	            	System.out.print("existed");
+	            	System.out.print(rs.getString("id"));
 	            	return false;
 	            }
 	            

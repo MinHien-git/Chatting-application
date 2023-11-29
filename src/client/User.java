@@ -1,3 +1,4 @@
+package client;
 
 public class User {
 	public String id;
@@ -29,7 +30,7 @@ public class User {
 		return UserAuthentication.SignUp(this);
 	}
 	
-	public boolean LogIn() {
+	public String LogIn() {
 		return UserAuthentication.SignIn(this);
 	}
 }

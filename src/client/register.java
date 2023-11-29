@@ -1,3 +1,4 @@
+package client;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -58,7 +59,6 @@ public class register {
 	private void initialize() {
 		frmRegister = new JFrame();
 		frmRegister.setResizable(false);
-		frmRegister.setType(Type.UTILITY);
 		frmRegister.setForeground(Color.BLACK);
 		frmRegister.setTitle("Register");
 		frmRegister.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));

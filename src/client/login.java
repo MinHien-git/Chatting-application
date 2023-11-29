@@ -1,3 +1,4 @@
+package client;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -9,10 +10,11 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import javax.swing.JSplitPane;
 import java.awt.Color;
-import javax.swing.JLabel;
+import javax.swing.*;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.security.Identity;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
 import javax.swing.UIManager;
@@ -29,7 +31,7 @@ public class login {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					login window = new login();
@@ -53,7 +55,6 @@ public class login {
 	 */
 	private void initialize() {
 		frmLogin = new JFrame();
-		frmLogin.setType(Type.UTILITY);
 		frmLogin.setForeground(Color.BLACK);
 		frmLogin.setTitle("Login");
 		frmLogin.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
@@ -107,8 +108,10 @@ public class login {
 			public void actionPerformed(ActionEvent e) {
 				if(password.getText() != "" && email.getText() != "") {
 					User user = new User(email.getText(),password.getText());
-					if(user.LogIn()) {
-						System.out.print("Login completed");
+					
+					String _id = user.LogIn();
+					if(!_id.equals("")) {
+						chatting chatting =new chatting(frmLogin,_id);
 					}
 				}
 			}
