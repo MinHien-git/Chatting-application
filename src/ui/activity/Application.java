@@ -1,13 +1,11 @@
 package ui.activity;
 
-import presentation.presenter.loginPresenter;
-import presentation.view.login;
-import presentation.view.register;
+import presentation.presenter.login_registerPresenter;
 
 import javax.swing.*;
 
 public class Application {
-    private loginPresenter control = new loginPresenter();
+    private final login_registerPresenter control = new login_registerPresenter();
     Application() {
         JFrame app = new JFrame();
         JPanel mainPanel = new JPanel();
@@ -15,10 +13,18 @@ public class Application {
         mainPanel.add(control.getRenderPanel());
 
         control.setSubmitListenerToRegister(() -> {
-            System.out.println("IN");
             mainPanel.removeAll();
             mainPanel.revalidate();
-            control.renderView();
+            mainPanel.repaint();
+            control.renderViewRegister();
+            mainPanel.add(control.getRenderPanel());
+        });
+
+        control.setSubmitListenerToLogin(() -> {
+            mainPanel.removeAll();
+            mainPanel.revalidate();
+            mainPanel.repaint();
+            control.renderViewLogin();
             mainPanel.add(control.getRenderPanel());
         });
 

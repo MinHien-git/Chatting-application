@@ -1,11 +1,10 @@
 package presentation.view;
 
-import presentation.presenter.loginPresenter;
+import presentation.presenter.login_registerPresenter;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.Objects;
 
 public class login {
@@ -78,7 +77,7 @@ public class login {
         smallerRightPanel.add(login, gbc);
 
         JButton register = new JButton("New user?");
-        register.addActionListener(new loginPresenter.btnRegisterActionListener());
+        register.addActionListener(new login_registerPresenter.btnRegisterActionListener());
         setButton(register);
         gbc.gridx = 1;
         gbc.gridy = 5;

@@ -1,12 +1,11 @@
 package presentation.view;
 
-import org.w3c.dom.html.HTMLImageElement;
+import presentation.presenter.login_registerPresenter;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Objects;
-import java.util.zip.GZIPInputStream;
 
 public class register {
     public JPanel registerAccount() {
@@ -129,6 +128,7 @@ public class register {
         smallerRightPanel.add(register, gbc);
 
         JButton login = new JButton("Back to login");
+        login.addActionListener(new login_registerPresenter.btnLoginActionListener());
         setButton(login);
         gbc.gridx = 1;
         gbc.gridy = 11;
