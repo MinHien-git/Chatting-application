@@ -1,11 +1,13 @@
 package ui.activity;
 
+import presentation.presenter.chatPresenter;
 import presentation.presenter.login_registerPresenter;
 
 import javax.swing.*;
 
 public class Application {
     private final login_registerPresenter control = new login_registerPresenter();
+    private final chatPresenter chatControl = new chatPresenter();
     Application() {
         JFrame app = new JFrame();
         JPanel mainPanel = new JPanel();
