@@ -54,7 +54,7 @@ public class chatting {
     private BufferedReader is;
     private Socket socketOfClient;
     private List<String> onlineList;
-    public String id;
+    public String id = "1";
     JTextArea textArea;
 	/**
 	 * Launch the application.
@@ -76,13 +76,14 @@ public class chatting {
 	
 	public chatting(JFrame frame,String _id) {
 		id = _id;
+		
 		initialize();
 		onlineList = new ArrayList<>();
 		frmChatting.setVisible(true);
 		frame.setVisible(false);
 		frame.dispose();
 		
-		//setUpSocket();
+		setUpSocket();
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class chatting {
 
 				try {
 //		                String[] parner = ((String)jComboBox1.getSelectedItem()).split(" ");
-					write("send-to-person"+","+messageContent+",");
+					write("1|"+"1|"+messageContent);
 //		                textArea1.setText(textArea.getText()+ "Bạn (tới Client Sever"): "+ messageContent+ "\n");
 //		                textArea1.setCaretPosition(textArea.getDocument().getLength());
 				} catch (IOException ex) {
