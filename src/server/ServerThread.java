@@ -28,8 +28,11 @@ public class ServerThread implements Runnable {
     private static final String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
     private static final String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,content) values (?,?)";
     private static final String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
-    private static final String GET_MESSAGE_SQL = "Update INTO public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
-    
+    private static final String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
+   
+    private static final String GET_FRIEND_SQL = "select u.id,p.id,p.name from public.\"users\" u "
+    		+ "join public.\"users\" p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id"; //ID người chủ + ID bạn + Tên người
+    private static final String REMOVE_FRIEND_SQL = "select u.name,p.id from public.\"users\" u left join public.\"users\" p on p.id = any(u.friends) group by p.id";
     public BufferedReader getIs() {
         return is;
     }
