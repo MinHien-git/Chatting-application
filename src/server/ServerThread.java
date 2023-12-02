@@ -1,5 +1,6 @@
 package server;
 
+import java.awt.Taskbar.State;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -28,11 +29,25 @@ public class ServerThread implements Runnable {
     private static final String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
     private static final String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,content) values (?,?)";
     private static final String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
-    private static final String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
-   
-    private static final String GET_FRIEND_SQL = "select u.id,p.id,p.name from public.\"users\" u "
-    		+ "join public.\"users\" p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id"; //ID người chủ + ID bạn + Tên người
-    private static final String REMOVE_FRIEND_SQL = "select u.name,p.id from public.\"users\" u left join public.\"users\" p on p.id = any(u.friends) group by p.id";
+    private static final String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = '' WHERE idchat = ?";
+    private static final String GET_FRIEND_LIST_SQL = "select u.id,p.id,p.name from public.\"users\" u join public.\"users\" "
+    		+ "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
+    private static final String REMOVE_FRIEND_LIST_SQL = "UPDATE\r\n"
+    		+ "  public.\"users\" "
+    		+ "SET "
+    		+ "friends = array_remove(friends, ?)"
+    		+ "WHERE id = ?";
+    private static final String UPDATE_PASSWORD_SQL = "UPDATE public.\"users\" SET password = '?' WHERE id = ?";
+    private static final String LOCK_UNLOCK_SQL = "UPDATE public.\"users\" SET  lock = ? WHERE id = ?";
+    private static final String ACCOUNT_HISTORY_SQL = "UPDATE public.\"users\" SET history = ? WHERE id = ?";
+    private static final String REMOVE_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_remove(friends, ?) WHERE id = ?";
+    private static final String ADD_FRIEND_SQL="UPDATE public.\"users\" SET friends = array_append(friends,?)"
+    		+ 									"WHERE id =? and exists (select * from public.\"users\" where id = ?)";
+    private static final String DELETE_MESSAGE_SQL 	= "DELETE FROM public.\"messages\" WHERE id = ?";
+    private static final String GET_ADMIN_INGROUP_SQL = "select p.id,p.name from public.\"groups\" u join public.\"users\" "
+    		+ "p on p.id = any(u.admin) where u.id = '?' group by p.id,p.name";
+    
+    
     public BufferedReader getIs() {
         return is;
     }
