@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import client.User;
 
@@ -28,26 +29,44 @@ public class ServerThread implements Runnable {
     private boolean isClosed;
     private static final String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
     private static final String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,content) values (?,?)";
+    
     private static final String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content = ? WHERE idchat = ? or idchat = ?";
     private static final String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = '' WHERE idchat = ?";
-    private static final String GET_FRIEND_LIST_SQL = "select u.id,p.id,p.name from public.\"users\" u join public.\"users\" "
+    private static final String GET_FRIEND_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
     		+ "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
-    private static final String REMOVE_FRIEND_LIST_SQL = "UPDATE\r\n"
-    		+ "  public.\"users\" "
-    		+ "SET "
-    		+ "friends = array_remove(friends, ?)"
-    		+ "WHERE id = ?";
+    private static final String REMOVE_FRIEND_LIST_SQL = "UPDATE public.\"users\" SET friends = array_remove(friends, ?) WHERE id = ?";
     private static final String UPDATE_PASSWORD_SQL = "UPDATE public.\"users\" SET password = '?' WHERE id = ?";
     private static final String LOCK_UNLOCK_SQL = "UPDATE public.\"users\" SET  lock = ? WHERE id = ?";
     private static final String ACCOUNT_HISTORY_SQL = "UPDATE public.\"users\" SET history = ? WHERE id = ?";
-    private static final String REMOVE_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_remove(friends, ?) WHERE id = ?";
     private static final String ADD_FRIEND_SQL="UPDATE public.\"users\" SET friends = array_append(friends,?)"
     		+ 									"WHERE id =? and exists (select * from public.\"users\" where id = ?)";
-    private static final String DELETE_MESSAGE_SQL 	= "DELETE FROM public.\"messages\" WHERE id = ?";
     private static final String GET_ADMIN_INGROUP_SQL = "select p.id,p.name from public.\"groups\" u join public.\"users\" "
     		+ "p on p.id = any(u.admin) where u.id = '?' group by p.id,p.name";
     
+    private static final String GET_USER_SQL = "select * from public.\"users\" ";
+    private static final String INSERT_USER_SQL = "INSERT INTO public.\"users\" (id,name,email,password,friends,isAdmin,lock,history)"
+    		+ "values (?,?,?,?,{},?,false,'')";
+    private static final String DELETE_USER_SQL = "DELETE FROM public.\"users\" WHERE id = ?";
     
+    private static final String GET_ALL_GROUPCHAT_SQL = "select * from public.\"groups\" ";
+    private static final String GET_SPAMLIST_SQL = "select * from public.\"spams\" ";
+    private static final String GET_ONLINE_FRIEND_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
+    		+ "p on p.id = any(u.friends) where u.id = ? and p.isOnline = true group by p.id,u.name,u.id";
+    private static final String REPORT_SPAM_SQL = "insert into public.\"spams\" (id,time) values (?,?)" ;
+    private static final String BLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET friends = array_append(blocks,?)"
+    		+ 									"WHERE id =? and exists (select * from public.\"users\" where id = ?)";
+    private static final String CREATE_GROUP_SQL = "INSERT INTO public.groups "
+									    		+ "	groupid, admin, groupname, users, content)\r\n"
+									    		+ "	VALUES (?, {?}, ?, {?}, '');" ;
+    private static final String UPDATE_GROUP_NAME_SQL = "UPDATE public.groups"
+    		+ "SET groupname=?"
+    		+"WHERE groupid = ? and ? = any(admin)";
+    private static final String ADD_ADMIN_SQL = "UPDATE public.groups"
+    		+ "SET admin =  array_append(admin,?)"
+    		+"WHERE groupid = ? and ? = any(admin)"; // dấu hỏi đầu là tên user muốn add 2 là id group 3 là người add có phải admin hay không
+    private static final String REMOVE_ADMIN_SQL = "UPDATE public.groups"
+    		+ "SET admin =  array_remove(admin,?)"
+    		+"WHERE groupid = ? and ? = any(admin)"; // dấu hỏi đầu là tên user muốn add 2 là id group 3 là người add có phải admin hay không
     public BufferedReader getIs() {
         return is;
     }
@@ -89,25 +108,65 @@ public class ServerThread implements Runnable {
                 }
                 System.out.print(message);
                 String[] messageSplit = message.split("\\|");
-                String id1 = messageSplit[0];//Người gửi
-                String id2 = messageSplit[1];//Người nhận
-                String content = messageSplit[2];
-                String[] mess = ServerThread.CheckMessageExists(id1, id2);
-                if(mess[0] != "") {
-                	System.out.println("Update");
-                	String newContent = mess[1] + "|" + content;
-                	ServerThread.UpdateExistsMessage(id1, id2, newContent);
-                }else {
-                	System.out.println("Insert");
-                	ServerThread.InsertMessage(id1, id2, content);
+                String commandString =  messageSplit[0];
+                if(commandString == "DirectMessage") {
+	                String id1 = messageSplit[1];//Người gửi
+	                String id2 = messageSplit[2];//Người nhận
+	                String content = messageSplit[3];
+	                String[] mess = ServerThread.CheckMessageExists(id1, id2);
+	                if(mess[0] != "") {
+	                	System.out.println("Update");
+	                	String newContent = mess[1] + "|" + content;
+	                	ServerThread.UpdateExistsMessage(id1, id2, newContent);
+	                }else {
+	                	System.out.println("Insert");
+	                	ServerThread.InsertMessage(id1, id2, content);
+	                }
                 }
-//                if(messageSplit[0].equals("send-to-global")){
-//                    Server.serverThreadBus.boardCast(this.getClientNumber(),"global-message"+","+"Client "+messageSplit[2]+": "+messageSplit[1]);
-//                }
-//                if(messageSplit[0].equals("send-to-person")){
-//                    Server.serverThreadBus.sendMessageToPersion(Integer.parseInt(messageSplit[3]),"Client "+ messageSplit[2]+" (tới bạn): "+messageSplit[1]);
-//                }
-                System.out.println(id1 + " " + id2 + " " + content);
+                else if(commandString == "AddFriend") {
+	                String id1 = messageSplit[1];//Người gửi
+	                String id2 = messageSplit[2];//Người nhận
+	                String content = messageSplit[3];
+	                String[] mess = ServerThread.CheckMessageExists(id1, id2);
+	                if(mess[0] != "") {
+	                	System.out.println("Update");
+	                	String newContent = mess[1] + "|" + content;
+	                	ServerThread.UpdateExistsMessage(id1, id2, newContent);
+	                }else {
+	                	System.out.println("Insert");
+	                	ServerThread.InsertMessage(id1, id2, content);
+	                }
+                }
+                else if(commandString == "RemoveFriend") {
+	                String id1 = messageSplit[1];//Người gửi
+	                String id2 = messageSplit[2];//Người nhận
+	                String content = messageSplit[3];
+	                String[] mess = ServerThread.CheckMessageExists(id1, id2);
+	                if(mess[0] != "") {
+	                	System.out.println("Update");
+	                	String newContent = mess[1] + "|" + content;
+	                	ServerThread.UpdateExistsMessage(id1, id2, newContent);
+	                }else {
+	                	System.out.println("Insert");
+	                	ServerThread.InsertMessage(id1, id2, content);
+	                }
+                }
+                else if(commandString == "RemoveMessage") {
+	                String id1 = messageSplit[1];//Người gửi
+	                String id2 = messageSplit[2];//Người nhận
+	                String content = messageSplit[3];
+	                String[] mess = ServerThread.CheckMessageExists(id1, id2);
+	                if(mess[0] != "") {
+	                	System.out.println("Update");
+	                	String newContent = mess[1] + "|" + content;
+	                	ServerThread.UpdateExistsMessage(id1, id2, newContent);
+	                }else {
+	                	System.out.println("Insert");
+	                	ServerThread.InsertMessage(id1, id2, content);
+	                }
+                }
+
+                
             }
         } catch (IOException e) {
             isClosed = true;
@@ -186,4 +245,144 @@ public class ServerThread implements Runnable {
 	           return false;
 	        }
 	}
+    
+    public static boolean RemoveMessage(String id) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+
+				PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_MESSAGE_SQL)) { 
+				preparedStatement.setString(1, id);    
+	            
+	            int count = preparedStatement.executeUpdate();
+	            return count > 0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static ArrayList<String> GetFriendList(String id) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(GET_FRIEND_LIST_SQL)) { 
+				preparedStatement.setString(1, id);    
+				ArrayList<String> result = new ArrayList<String>();
+	            
+	            ResultSet rs = preparedStatement.executeQuery();
+	            while(rs.next()) {
+	            	String tempString = rs.getString("id") + rs.getString("name");
+					result.add(tempString);
+	            }
+	            return result;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
+	        }
+    }
+    
+    public static boolean RemoveFriend(String userId,String FriendId) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+    			PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_FRIEND_LIST_SQL);
+				PreparedStatement preparedStatement1 = connection.prepareStatement(REMOVE_FRIEND_LIST_SQL)) { 
+				preparedStatement.setString(1, userId);    
+				preparedStatement.setString(2, FriendId);   
+				preparedStatement1.setString(1, FriendId);    
+				preparedStatement1.setString(2, userId);   
+				
+	            int count = preparedStatement.executeUpdate();
+	            int count1 = preparedStatement1.executeUpdate();
+	            return count > 0 && count1>0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static boolean UpdatePassword(String id,String newPassword) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+
+				PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PASSWORD_SQL)) { 
+				preparedStatement.setString(1, newPassword);    
+				preparedStatement.setString(2, id); 
+				
+	            int count = preparedStatement.executeUpdate();
+	            return count > 0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static boolean LockAccount(String id,boolean lock) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+
+				PreparedStatement preparedStatement = connection.prepareStatement(LOCK_UNLOCK_SQL)) { 
+				preparedStatement.setBoolean(1, lock);    
+				preparedStatement.setString(2, id); 
+				
+	            int count = preparedStatement.executeUpdate();
+	            return count > 0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static boolean UpdateAccountHistroy(String id,String history) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(ACCOUNT_HISTORY_SQL)) { 
+				preparedStatement.setString(1, history);    
+				preparedStatement.setString(2, id); 
+				
+	            int count = preparedStatement.executeUpdate();
+	            return count > 0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static boolean AddFriend(String userId,String FriendId) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+    			PreparedStatement preparedStatement = connection.prepareStatement(ADD_FRIEND_SQL);
+				PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_FRIEND_SQL)) { 
+				preparedStatement.setString(1, userId);    
+				preparedStatement.setString(2, FriendId);  
+				preparedStatement.setString(3, userId);  
+				preparedStatement1.setString(1, FriendId);    
+				preparedStatement1.setString(2, userId);   
+				preparedStatement1.setString(3, userId);  
+				
+	            int count = preparedStatement.executeUpdate();
+	            int count1 = preparedStatement1.executeUpdate();
+	            return count > 0 && count1>0;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
+    
+    public static ArrayList<String> GetAdminInGroup(String groupID) {
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(GET_ADMIN_INGROUP_SQL)) { 
+				preparedStatement.setString(1, groupID);    
+				ArrayList<String> result = new ArrayList<String>();
+	            ResultSet rs = preparedStatement.executeQuery();
+	            while (rs.next()) {
+					String tempString = rs.getString("id") + rs.getString("name");
+					result.add(tempString);
+				}
+	            return result;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
+	        }
+    }
+    
 }
