@@ -51,21 +51,19 @@ public class testwindow {
 	private JTextField GROUPCHAT_ID;
 	private JTextField GROUPCHAT_MEMBERID;
 	private JTextField GROUPCHAT_ID_CONTENT;
+	private JTextField ReportSpam_name;
+	private JTextField ReportSpam_byusername;
+	private JTextField CHANGEGROUPNAME_AdminId;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					testwindow window = new testwindow();
-					window.frmClientDemo.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		
+		testwindow window = new testwindow();
+		window.frmClientDemo.setVisible(true);
+		window.setUpSocket();
+				
 	}
 
 	/**
@@ -73,7 +71,6 @@ public class testwindow {
 	 */
 	public testwindow() {
 		initialize();
-		setUpSocket();
 	}
 
 	/**
@@ -82,7 +79,7 @@ public class testwindow {
 	private void initialize() {
 		frmClientDemo = new JFrame();
 		frmClientDemo.setTitle("User demo");
-		frmClientDemo.setBounds(100, 100, 657, 588);
+		frmClientDemo.setBounds(100, 100, 657, 651);
 		frmClientDemo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -142,7 +139,7 @@ public class testwindow {
 				String id1 = Add_User.getText(); //gửi đến user
 				String id2 = Current_Add_user.getText(); // từ user
 				try {
-					write("DeleteFriend|"+id1+"|"+id2);
+					write("AddFriend|"+id1+"|"+id2);
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
@@ -195,8 +192,8 @@ public class testwindow {
 		JButton DELETE_MESSAGE = new JButton("Xoá tin nhắn");
 		DELETE_MESSAGE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = Current_DELETE_MESSAGE_USER.getText();//gửi đến user
-				String id2 = FROM_DELETE_MESSAGE_USER.getText();// từ user
+				String id1 = Current_DELETE_MESSAGE_USER.getText();//người muốn xoá
+				String id2 = FROM_DELETE_MESSAGE_USER.getText();// người xoá
 				try {
 					write("DeleteMessage|"+id1+"|"+id2);
 				}catch (IOException ex) {
@@ -441,22 +438,26 @@ public class testwindow {
 		panel.add(lblFrom_1_1_1_1_2);
 		
 		JButton CHANGEGROPNAME_BTN = new JButton("Đổi tên");
-		CHANGEGROPNAME_BTN.setBounds(303, 382, 110, 23);
+		CHANGEGROPNAME_BTN.setBounds(451, 382, 110, 23);
 		panel.add(CHANGEGROPNAME_BTN);
 		
 		CHANGEGROUPNAME_NEWNAME = new JTextField();
 		CHANGEGROUPNAME_NEWNAME.setColumns(10);
 		CHANGEGROUPNAME_NEWNAME.setBounds(202, 381, 97, 24);
 		panel.add(CHANGEGROUPNAME_NEWNAME);
-		
+		CHANGEGROUPNAME_AdminId = new JTextField();
+		CHANGEGROUPNAME_AdminId.setColumns(10);
+		CHANGEGROUPNAME_AdminId.setBounds(345, 380, 97, 24);
+		panel.add(CHANGEGROUPNAME_AdminId);
 		
 		//CHANGE GROUP NAME
 		CHANGEGROPNAME_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = CHANGEGROUPNAMEID.getText();//nguoi muon block đến user
+				String groupid = CHANGEGROUPNAMEID.getText();
+				String adminid = CHANGEGROUPNAMEID.getText();//nguoi muon block đến user
 				String newName = CHANGEGROUPNAME_NEWNAME.getText();// từ user
 				try {
-					write("ChangeGroupName|"+id1+"|"+newName);
+					write("ChangeGroupName|"+groupid+"|"+adminid+"|"+newName);
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
@@ -484,10 +485,10 @@ public class testwindow {
 		//Add member to group
 		ADDMEMBER_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = ADDMEMEBER_ID.getText();//nguoi muon block đến user
-				String id2 = ADDMEMEBER_USERID.getText();// từ user
+				String groupID = ADDMEMEBER_ID.getText();//nguoi muon block đến user
+				String memberID = ADDMEMEBER_USERID.getText();// từ user
 				try {
-					write("AddMemberToGroup|"+id1+"|"+id2);
+					write("AddMemberToGroup|"+groupID+"|"+memberID);
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
@@ -510,10 +511,10 @@ public class testwindow {
 		//Remove member
 		btnXoTinNhn_1_3_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = DELETEMEMBER_GROUPID.getText();//nguoi muon block đến user
-				String id2 = DELETEMEMBER_MEMBERID.getText();// từ user
+				String groupID = DELETEMEMBER_GROUPID.getText();//nguoi muon block đến user
+				String id = DELETEMEMBER_MEMBERID.getText();// từ user
 				try {
-					write("RemoveMemberGroup|"+id1+"|"+id2);
+					write("RemoveMemberGroup|"+groupID+"|"+id);
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
@@ -571,11 +572,11 @@ public class testwindow {
 		//Send Message in group
 		GROUPCHAT_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = GROUPCHAT_ID.getText();//nguoi muon block đến user
-				String id2 = GROUPCHAT_MEMBERID.getText();// từ user
+				String groupId = GROUPCHAT_ID.getText();//id group chat
+				String id = GROUPCHAT_MEMBERID.getText();// id người gửi
 				String content = GROUPCHAT_ID_CONTENT.getText();
 				try {
-					write("GroupChat|"+id1+"|"+id2+"|"+content);
+					write("GroupChat|"+groupId+"|"+id+"|"+content);
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
@@ -590,6 +591,45 @@ public class testwindow {
 		JLabel lblNewLabel_1_2_2_2 = new JLabel("Dùng id");
 		lblNewLabel_1_2_2_2.setBounds(518, 484, 65, 14);
 		panel.add(lblNewLabel_1_2_2_2);
+		
+		ReportSpam_name = new JTextField();
+		ReportSpam_name.setColumns(10);
+		ReportSpam_name.setBounds(74, 519, 97, 24);
+		panel.add(ReportSpam_name);
+		
+		JLabel label = new JLabel("User name");
+		label.setBounds(10, 524, 65, 14);
+		panel.add(label);
+		
+		JButton ReportSpam_BTN = new JButton("Gửi");
+		ReportSpam_BTN.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String userString = ReportSpam_name.getText();
+				String byUserString = ReportSpam_name.getText();
+				try {
+					write("ReportSpam|" + userString + "|" + byUserString);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+			}
+		});
+		ReportSpam_BTN.setBounds(423, 520, 89, 23);
+		panel.add(ReportSpam_BTN);
+		
+		ReportSpam_byusername = new JTextField();
+		ReportSpam_byusername.setColumns(10);
+		ReportSpam_byusername.setBounds(245, 519, 97, 24);
+		panel.add(ReportSpam_byusername);
+		
+		JLabel ReportSpam_name_1 = new JLabel("User name");
+		ReportSpam_name_1.setBounds(181, 524, 65, 14);
+		panel.add(ReportSpam_name_1);
+		
+		
+		
+		JLabel lblFrom_1_1_1_1_2_2 = new JLabel("Admin Id");
+		lblFrom_1_1_1_1_2_2.setBounds(303, 385, 52, 14);
+		panel.add(lblFrom_1_1_1_1_2_2);
 	}
 	private void write(String message) throws IOException{
         os.write(message);

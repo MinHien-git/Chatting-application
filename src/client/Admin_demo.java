@@ -63,16 +63,9 @@ public class Admin_demo {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Admin_demo window = new Admin_demo();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		Admin_demo window = new Admin_demo();
+		window.frame.setVisible(true);
+		window.setUpSocket();
 	}
 
 	/**
@@ -80,7 +73,6 @@ public class Admin_demo {
 	 */
 	public Admin_demo() {
 		initialize();
-		setUpSocket();
 	}
 
 	/**
