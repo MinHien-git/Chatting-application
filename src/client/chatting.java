@@ -133,7 +133,7 @@ public class chatting {
 
 				try {
 //		                String[] parner = ((String)jComboBox1.getSelectedItem()).split(" ");
-					write("1|"+"1|"+messageContent);
+					write("DirectMessage"+"1|"+"2|"+messageContent);
 //		                textArea1.setText(textArea.getText()+ "Bạn (tới Client Sever"): "+ messageContent+ "\n");
 //		                textArea1.setCaretPosition(textArea.getDocument().getLength());
 				} catch (IOException ex) {
