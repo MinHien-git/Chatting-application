@@ -10,37 +10,47 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 
 public class testwindow {
-
+	private Thread thread;
+    private BufferedWriter os;
+    private BufferedReader is;
+    private Socket socketOfClient;
 	private JFrame frmClientDemo;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
-	private JTextField textField_4;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_8;
-	private JTextField textField_9;
-	private JTextField textField_10;
-	private JTextField textField_12;
-	private JTextField textField_11;
-	private JTextField textField_13;
-	private JTextField textField_14;
-	private JTextField textField_15;
-	private JTextField textField_16;
-	private JTextField textField_18;
-	private JTextField textField_17;
-	private JTextField textField_19;
-	private JTextField textField_20;
-	private JTextField textField_21;
-	private JTextField textField_22;
-	private JTextField textField_23;
-	private JTextField textField_24;
+	private JTextField userId1_send_message;
+	private JTextField message_send_direct;
+	private JTextField Add_User;
+	private JTextField Delete_User;
+	private JTextField Current_DELETE_MESSAGE_USER;
+	private JTextField userId2_send_message;
+	private JTextField Current_Add_user;
+	private JTextField Current_Delete_user;
+	private JTextField FROM_DELETE_MESSAGE_USER;
+	private JTextField CREATE_GROUP_NAME;
+	private JTextField ID_ADMIN_GROUP_NAME;
+	private JTextField GETONLINE_USER;
+	private JTextField SETUSERID_ONLINE;
+	private JTextField SETUSERID_OFFLINE;
+	private JTextField CURRENTUSERBLOCK;
+	private JTextField BLOCKEDUSER;
+	private JTextField CHANGEGROUPNAMEID;
+	private JTextField CHANGEGROUPNAME_NEWNAME;
+	private JTextField ADDMEMEBER_USERID;
+	private JTextField ADDMEMEBER_ID;
+	private JTextField DELETEMEMBER_MEMBERID;
+	private JTextField DELETEMEMBER_GROUPID;
+	private JTextField GROUPCHAT_ID;
+	private JTextField GROUPCHAT_MEMBERID;
+	private JTextField GROUPCHAT_ID_CONTENT;
 
 	/**
 	 * Launch the application.
@@ -63,6 +73,7 @@ public class testwindow {
 	 */
 	public testwindow() {
 		initialize();
+		setUpSocket();
 	}
 
 	/**
@@ -78,84 +89,140 @@ public class testwindow {
 		frmClientDemo.getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 		
-		textField = new JTextField();
-		textField.setBounds(53, 27, 35, 24);
-		panel.add(textField);
-		textField.setColumns(10);
 		
-		JButton btnNewButton = new JButton("Gửi");
-		btnNewButton.setBounds(423, 28, 89, 23);
-		panel.add(btnNewButton);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(181, 27, 232, 24);
-		panel.add(textField_1);
+		//SEND MESSAGE
+		userId1_send_message = new JTextField();
+		userId1_send_message.setBounds(53, 27, 35, 24);
+		panel.add(userId1_send_message);
+		userId1_send_message.setColumns(10);
+		message_send_direct = new JTextField();
+		message_send_direct.setColumns(10);
+		message_send_direct.setBounds(181, 27, 232, 24);
+		panel.add(message_send_direct);
+		
+		JButton send_direct_message = new JButton("Gửi");
+		
+		send_direct_message.setBounds(423, 28, 89, 23);
+		panel.add(send_direct_message);
+		
+		send_direct_message.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = userId1_send_message.getText();//gửi đến user
+				String id2 = userId2_send_message.getText();// từ user
+				try {
+					write("DirectMessage|"+id1+"|"+id2+"|"+message_send_direct.getText());
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				userId1_send_message.setText("");
+				userId2_send_message.setText("");
+			}
+		}); 
 		
 		JLabel lblNewLabel = new JLabel("send to");
 		lblNewLabel.setBounds(10, 32, 46, 14);
 		panel.add(lblNewLabel);
 		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBounds(53, 62, 35, 24);
-		panel.add(textField_2);
+		Add_User = new JTextField();
+		Add_User.setColumns(10);
+		Add_User.setBounds(53, 62, 35, 24);
+		panel.add(Add_User);
 		
 		JLabel lblNewLabel_1 = new JLabel("send to");
 		lblNewLabel_1.setBounds(10, 67, 46, 14);
 		panel.add(lblNewLabel_1);
 		
-		JButton btnThmBnB = new JButton("Thêm bạn bè");
-		btnThmBnB.setBounds(181, 63, 110, 23);
-		panel.add(btnThmBnB);
+		JButton AddFriendButton = new JButton("Thêm bạn bè");
 		
-		JButton btnXoKtBn = new JButton("Xoá kết bạn");
-		btnXoKtBn.addActionListener(new ActionListener() {
+		
+		//Thêm bạn 
+		AddFriendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String id1 = Add_User.getText(); //gửi đến user
+				String id2 = Current_Add_user.getText(); // từ user
+				try {
+					write("DeleteFriend|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				Add_User.setText("");
+				Current_Add_user.setText("");
 			}
 		});
-		btnXoKtBn.setBounds(181, 98, 110, 23);
-		panel.add(btnXoKtBn);
+		AddFriendButton.setBounds(181, 63, 110, 23);
+		panel.add(AddFriendButton);
 		
-		textField_3 = new JTextField();
-		textField_3.setColumns(10);
-		textField_3.setBounds(53, 97, 35, 24);
-		panel.add(textField_3);
+		JButton DeleteFriend = new JButton("Xoá kết bạn");
+		DeleteFriend.setBounds(181, 98, 110, 23);
+		panel.add(DeleteFriend);
 		
+		Delete_User = new JTextField();
+		Delete_User.setColumns(10);
+		Delete_User.setBounds(53, 97, 35, 24);
+		panel.add(Delete_User);
 		JLabel lblNewLabel_1_1 = new JLabel("send to");
 		lblNewLabel_1_1.setBounds(10, 102, 46, 14);
 		panel.add(lblNewLabel_1_1);
 		
-		textField_4 = new JTextField();
-		textField_4.setColumns(10);
-		textField_4.setBounds(74, 132, 35, 24);
-		panel.add(textField_4);
+		
+		//Xoá kết bạn
+		DeleteFriend.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = Delete_User.getText();//gửi đến user
+				String id2 = Current_Delete_user.getText();// từ user
+				try {
+					write("DeleteFriend|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				Delete_User.setText("");
+				Current_Delete_user.setText("");
+			}
+		});
+		
 		
 		JLabel lblNewLabel_1_1_1 = new JLabel("current user");
 		lblNewLabel_1_1_1.setBounds(10, 136, 65, 14);
 		panel.add(lblNewLabel_1_1_1);
+		Current_DELETE_MESSAGE_USER = new JTextField();
+		Current_DELETE_MESSAGE_USER.setColumns(10);
+		Current_DELETE_MESSAGE_USER.setBounds(74, 132, 35, 24);
+		panel.add(Current_DELETE_MESSAGE_USER);
 		
-		JButton btnXoTinNhn = new JButton("Xoá tin nhắn");
-		btnXoTinNhn.addActionListener(new ActionListener() {
+		
+		//Xoá tin nhắn 
+		JButton DELETE_MESSAGE = new JButton("Xoá tin nhắn");
+		DELETE_MESSAGE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String id1 = Current_DELETE_MESSAGE_USER.getText();//gửi đến user
+				String id2 = FROM_DELETE_MESSAGE_USER.getText();// từ user
+				try {
+					write("DeleteMessage|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				Current_DELETE_MESSAGE_USER.setText("");
+				FROM_DELETE_MESSAGE_USER.setText("");
 			}
 		});
-		btnXoTinNhn.setBounds(202, 132, 110, 23);
-		panel.add(btnXoTinNhn);
 		
-		textField_5 = new JTextField();
-		textField_5.setColumns(10);
-		textField_5.setBounds(125, 27, 46, 24);
-		panel.add(textField_5);
+		DELETE_MESSAGE.setBounds(202, 132, 110, 23);
+		panel.add(DELETE_MESSAGE);
+		
+		userId2_send_message = new JTextField();
+		userId2_send_message.setColumns(10);
+		userId2_send_message.setBounds(125, 27, 46, 24);
+		panel.add(userId2_send_message);
 		
 		JLabel lblFrom = new JLabel("from");
 		lblFrom.setBounds(97, 32, 46, 14);
 		panel.add(lblFrom);
 		
-		textField_6 = new JTextField();
-		textField_6.setColumns(10);
-		textField_6.setBounds(125, 62, 46, 24);
-		panel.add(textField_6);
+		Current_Add_user = new JTextField();
+		Current_Add_user.setColumns(10);
+		Current_Add_user.setBounds(125, 62, 46, 24);
+		panel.add(Current_Add_user);
 		
 		JLabel lblFrom_1 = new JLabel("from");
 		lblFrom_1.setBounds(98, 67, 22, 14);
@@ -165,45 +232,58 @@ public class testwindow {
 		lblFrom_1_1.setBounds(98, 102, 22, 14);
 		panel.add(lblFrom_1_1);
 		
-		textField_7 = new JTextField();
-		textField_7.setColumns(10);
-		textField_7.setBounds(125, 97, 46, 24);
-		panel.add(textField_7);
+		Current_Delete_user = new JTextField();
+		Current_Delete_user.setColumns(10);
+		Current_Delete_user.setBounds(125, 97, 46, 24);
+		panel.add(Current_Delete_user);
 		
 		JLabel lblFrom_1_1_1 = new JLabel("from");
 		lblFrom_1_1_1.setBounds(119, 137, 22, 14);
 		panel.add(lblFrom_1_1_1);
 		
-		textField_8 = new JTextField();
-		textField_8.setColumns(10);
-		textField_8.setBounds(146, 132, 46, 24);
-		panel.add(textField_8);
+		FROM_DELETE_MESSAGE_USER = new JTextField();
+		FROM_DELETE_MESSAGE_USER.setColumns(10);
+		FROM_DELETE_MESSAGE_USER.setBounds(146, 132, 46, 24);
+		panel.add(FROM_DELETE_MESSAGE_USER);
 		
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("group name");
 		lblNewLabel_1_1_1_1.setBounds(10, 171, 65, 14);
 		panel.add(lblNewLabel_1_1_1_1);
 		
-		textField_9 = new JTextField();
-		textField_9.setColumns(10);
-		textField_9.setBounds(74, 167, 97, 24);
-		panel.add(textField_9);
+		CREATE_GROUP_NAME = new JTextField();
+		CREATE_GROUP_NAME.setColumns(10);
+		CREATE_GROUP_NAME.setBounds(74, 167, 97, 24);
+		panel.add(CREATE_GROUP_NAME);
 		
-		textField_10 = new JTextField();
-		textField_10.setColumns(10);
-		textField_10.setBounds(247, 166, 46, 24);
-		panel.add(textField_10);
+		ID_ADMIN_GROUP_NAME = new JTextField();
+		ID_ADMIN_GROUP_NAME.setColumns(10);
+		ID_ADMIN_GROUP_NAME.setBounds(247, 166, 46, 24);
+		panel.add(ID_ADMIN_GROUP_NAME);
 		
 		JLabel lblFrom_1_1_1_1 = new JLabel("created by");
 		lblFrom_1_1_1_1.setBounds(181, 172, 52, 14);
 		panel.add(lblFrom_1_1_1_1);
 		
-		JButton btnXoTinNhn_1 = new JButton("Tạo nhóm");
-		btnXoTinNhn_1.addActionListener(new ActionListener() {
+		JButton CREATEGROUPBUTTON = new JButton("Tạo nhóm");
+		
+		
+		//Tạo nhóm
+		CREATEGROUPBUTTON.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String name = CREATE_GROUP_NAME.getText();//gửi đến user
+				String id = ID_ADMIN_GROUP_NAME.getText();// từ user
+				try {
+					write("CreateGroup|"+name+"|"+id);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				CREATE_GROUP_NAME.setText("");
+				ID_ADMIN_GROUP_NAME.setText("");
 			}
 		});
-		btnXoTinNhn_1.setBounds(303, 167, 110, 23);
-		panel.add(btnXoTinNhn_1);
+		
+		CREATEGROUPBUTTON.setBounds(303, 167, 110, 23);
+		panel.add(CREATEGROUPBUTTON);
 		
 		JLabel lblNewLabel_1_2 = new JLabel("Dùng tên đăng nhập");
 		lblNewLabel_1_2.setBounds(301, 67, 174, 14);
@@ -221,72 +301,125 @@ public class testwindow {
 		lblNewLabel_1_2_2_1.setBounds(322, 137, 65, 14);
 		panel.add(lblNewLabel_1_2_2_1);
 		
-		textField_12 = new JTextField();
-		textField_12.setColumns(10);
-		textField_12.setBounds(42, 226, 46, 24);
-		panel.add(textField_12);
+		GETONLINE_USER = new JTextField();
+		GETONLINE_USER.setColumns(10);
+		GETONLINE_USER.setBounds(42, 226, 46, 24);
+		panel.add(GETONLINE_USER);
 		
 		JLabel lblFrom_1_1_1_1_1 = new JLabel("id");
 		lblFrom_1_1_1_1_1.setBounds(10, 231, 78, 14);
 		panel.add(lblFrom_1_1_1_1_1);
 		
-		JButton btnXoTinNhn_1_1 = new JButton("Lấy bạn bè online");
-		btnXoTinNhn_1_1.addActionListener(new ActionListener() {
+		JButton GETONLINEFRIEND = new JButton("Lấy bạn bè online");
+		
+		
+		//GET BAN BE ONLINE
+		GETONLINEFRIEND.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String id1 = GETONLINE_USER.getText();
+				try {
+					write("GetOnline|"+id1);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				GETONLINE_USER.setText("");
 			}
 		});
-		btnXoTinNhn_1_1.setBounds(97, 227, 152, 23);
-		panel.add(btnXoTinNhn_1_1);
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setBounds(10, 261, 403, 74);
-		panel.add(textArea);
+		GETONLINEFRIEND.setBounds(97, 227, 152, 23);
+		panel.add(GETONLINEFRIEND);
+		
+		JTextArea ONLINEUSER = new JTextArea();
+		ONLINEUSER.setBounds(10, 261, 403, 74);
+		panel.add(ONLINEUSER);
 		
 		JLabel lblFrom_1_1_1_1_1_1 = new JLabel("id");
 		lblFrom_1_1_1_1_1_1.setBounds(10, 201, 78, 14);
 		panel.add(lblFrom_1_1_1_1_1_1);
 		
-		textField_11 = new JTextField();
-		textField_11.setColumns(10);
-		textField_11.setBounds(42, 196, 46, 24);
-		panel.add(textField_11);
+		SETUSERID_ONLINE = new JTextField();
+		SETUSERID_ONLINE.setColumns(10);
+		SETUSERID_ONLINE.setBounds(42, 196, 46, 24);
+		panel.add(SETUSERID_ONLINE);
 		
-		JButton btnXoTinNhn_1_2 = new JButton("set user online");
-		btnXoTinNhn_1_2.setBounds(97, 197, 136, 23);
-		panel.add(btnXoTinNhn_1_2);
+		JButton SETUSERONLINE = new JButton("set user online");
 		
-		textField_13 = new JTextField();
-		textField_13.setColumns(10);
-		textField_13.setBounds(279, 196, 46, 24);
-		panel.add(textField_13);
+		
+		//SET NGƯỜI DÙNG ONLINE
+		SETUSERONLINE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = SETUSERID_ONLINE.getText();
+				try {
+					write("Online|"+id1);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				SETUSERID_ONLINE.setText("");
+			}
+		});
+		
+		SETUSERONLINE.setBounds(97, 197, 136, 23);
+		panel.add(SETUSERONLINE);
+		
+		SETUSERID_OFFLINE = new JTextField();
+		SETUSERID_OFFLINE.setColumns(10);
+		SETUSERID_OFFLINE.setBounds(279, 196, 46, 24);
+		panel.add(SETUSERID_OFFLINE);
 		
 		JLabel lblFrom_1_1_1_1_1_1_1 = new JLabel("id");
 		lblFrom_1_1_1_1_1_1_1.setBounds(247, 201, 78, 14);
 		panel.add(lblFrom_1_1_1_1_1_1_1);
 		
-		JButton btnXoTinNhn_1_2_1 = new JButton("set user offline");
-		btnXoTinNhn_1_2_1.addActionListener(new ActionListener() {
+		JButton SETUSEROFFLINE = new JButton("set user offline");
+		
+		
+		//SET NGƯỜI DÙNG Offline
+		SETUSEROFFLINE.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String id1 = SETUSERID_OFFLINE.getText();
+				try {
+					write("Offline|"+id1);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				SETUSERID_OFFLINE.setText("");
 			}
 		});
-		btnXoTinNhn_1_2_1.setBounds(334, 197, 136, 23);
-		panel.add(btnXoTinNhn_1_2_1);
+		SETUSEROFFLINE.setBounds(334, 197, 136, 23);
+		panel.add(SETUSEROFFLINE);
 		
-		textField_14 = new JTextField();
-		textField_14.setColumns(10);
-		textField_14.setBounds(74, 346, 35, 24);
-		panel.add(textField_14);
+		CURRENTUSERBLOCK = new JTextField();
+		CURRENTUSERBLOCK.setColumns(10);
+		CURRENTUSERBLOCK.setBounds(74, 346, 35, 24);
+		panel.add(CURRENTUSERBLOCK);
 		
 		JLabel lblNewLabel_1_1_1_2 = new JLabel("current user");
 		lblNewLabel_1_1_1_2.setBounds(10, 350, 65, 14);
 		panel.add(lblNewLabel_1_1_1_2);
 		
-		textField_15 = new JTextField();
-		textField_15.setColumns(10);
-		textField_15.setBounds(146, 346, 46, 24);
-		panel.add(textField_15);
+		BLOCKEDUSER = new JTextField();
+		BLOCKEDUSER.setColumns(10);
+		BLOCKEDUSER.setBounds(146, 346, 46, 24);
+		panel.add(BLOCKEDUSER);
 		
 		JButton btnBlockTk = new JButton("Block tk");
+		
+		
+		//Block ACCOUNT
+		btnBlockTk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = BLOCKEDUSER.getText();//nguoi muon block đến user
+				String id2 = CURRENTUSERBLOCK.getText();// từ user
+				try {
+					write("BlockAccount|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				CURRENTUSERBLOCK.setText("");
+				CURRENTUSERBLOCK.setText("");
+			}
+		});
+		
 		btnBlockTk.setBounds(202, 346, 110, 23);
 		panel.add(btnBlockTk);
 		
@@ -298,63 +431,112 @@ public class testwindow {
 		lblNewLabel_1_1_1_1_1.setBounds(10, 386, 65, 14);
 		panel.add(lblNewLabel_1_1_1_1_1);
 		
-		textField_16 = new JTextField();
-		textField_16.setColumns(10);
-		textField_16.setBounds(53, 381, 97, 24);
-		panel.add(textField_16);
+		CHANGEGROUPNAMEID = new JTextField();
+		CHANGEGROUPNAMEID.setColumns(10);
+		CHANGEGROUPNAMEID.setBounds(53, 381, 97, 24);
+		panel.add(CHANGEGROUPNAMEID);
 		
 		JLabel lblFrom_1_1_1_1_2 = new JLabel("Tên mới");
 		lblFrom_1_1_1_1_2.setBounds(160, 386, 52, 14);
 		panel.add(lblFrom_1_1_1_1_2);
 		
-		JButton btnXoTinNhn_1_3 = new JButton("Đổi tên");
-		btnXoTinNhn_1_3.setBounds(303, 382, 110, 23);
-		panel.add(btnXoTinNhn_1_3);
+		JButton CHANGEGROPNAME_BTN = new JButton("Đổi tên");
+		CHANGEGROPNAME_BTN.setBounds(303, 382, 110, 23);
+		panel.add(CHANGEGROPNAME_BTN);
 		
-		textField_18 = new JTextField();
-		textField_18.setColumns(10);
-		textField_18.setBounds(202, 381, 97, 24);
-		panel.add(textField_18);
+		CHANGEGROUPNAME_NEWNAME = new JTextField();
+		CHANGEGROUPNAME_NEWNAME.setColumns(10);
+		CHANGEGROUPNAME_NEWNAME.setBounds(202, 381, 97, 24);
+		panel.add(CHANGEGROUPNAME_NEWNAME);
 		
-		JButton btnXoTinNhn_1_3_1 = new JButton("Thêm");
-		btnXoTinNhn_1_3_1.setBounds(328, 411, 110, 23);
-		panel.add(btnXoTinNhn_1_3_1);
 		
-		textField_17 = new JTextField();
-		textField_17.setColumns(10);
-		textField_17.setBounds(223, 411, 97, 24);
-		panel.add(textField_17);
+		//CHANGE GROUP NAME
+		CHANGEGROPNAME_BTN.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = CHANGEGROUPNAMEID.getText();//nguoi muon block đến user
+				String newName = CHANGEGROUPNAME_NEWNAME.getText();// từ user
+				try {
+					write("ChangeGroupName|"+id1+"|"+newName);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				CHANGEGROUPNAMEID.setText("");
+				CHANGEGROUPNAME_NEWNAME.setText("");
+			}
+		});
+		
+		JButton ADDMEMBER_BTN = new JButton("Thêm");
+		ADDMEMEBER_USERID = new JTextField();
+		ADDMEMEBER_USERID.setColumns(10);
+		ADDMEMEBER_USERID.setBounds(223, 411, 97, 24);
+		panel.add(ADDMEMEBER_USERID);
 		
 		JLabel lblFrom_1_1_1_1_2_1 = new JLabel("id thành viên");
 		lblFrom_1_1_1_1_2_1.setBounds(160, 416, 73, 14);
 		panel.add(lblFrom_1_1_1_1_2_1);
 		
-		textField_19 = new JTextField();
-		textField_19.setColumns(10);
-		textField_19.setBounds(53, 411, 97, 24);
-		panel.add(textField_19);
+		ADDMEMEBER_ID = new JTextField();
+		ADDMEMEBER_ID.setColumns(10);
+		ADDMEMEBER_ID.setBounds(53, 411, 97, 24);
+		panel.add(ADDMEMEBER_ID);
+		
+		
+		//Add member to group
+		ADDMEMBER_BTN.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = ADDMEMEBER_ID.getText();//nguoi muon block đến user
+				String id2 = ADDMEMEBER_USERID.getText();// từ user
+				try {
+					write("AddMemberToGroup|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				ADDMEMEBER_ID.setText("");
+				ADDMEMEBER_USERID.setText("");
+			}
+		});
+		ADDMEMBER_BTN.setBounds(328, 411, 110, 23);
+		panel.add(ADDMEMBER_BTN);
+		
+		
 		
 		JLabel lblNewLabel_1_1_1_1_1_1 = new JLabel("group id");
 		lblNewLabel_1_1_1_1_1_1.setBounds(10, 416, 65, 14);
 		panel.add(lblNewLabel_1_1_1_1_1_1);
 		
 		JButton btnXoTinNhn_1_3_1_1 = new JButton("Xoá");
+		
+		
+		//Remove member
+		btnXoTinNhn_1_3_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = DELETEMEMBER_GROUPID.getText();//nguoi muon block đến user
+				String id2 = DELETEMEMBER_MEMBERID.getText();// từ user
+				try {
+					write("RemoveMemberGroup|"+id1+"|"+id2);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				DELETEMEMBER_GROUPID.setText("");
+				DELETEMEMBER_MEMBERID.setText("");
+			}
+		});
 		btnXoTinNhn_1_3_1_1.setBounds(328, 445, 110, 23);
 		panel.add(btnXoTinNhn_1_3_1_1);
 		
-		textField_20 = new JTextField();
-		textField_20.setColumns(10);
-		textField_20.setBounds(223, 445, 97, 24);
-		panel.add(textField_20);
+		DELETEMEMBER_MEMBERID = new JTextField();
+		DELETEMEMBER_MEMBERID.setColumns(10);
+		DELETEMEMBER_MEMBERID.setBounds(223, 445, 97, 24);
+		panel.add(DELETEMEMBER_MEMBERID);
 		
 		JLabel lblFrom_1_1_1_1_2_1_1 = new JLabel("id thành viên");
 		lblFrom_1_1_1_1_2_1_1.setBounds(160, 450, 73, 14);
 		panel.add(lblFrom_1_1_1_1_2_1_1);
 		
-		textField_21 = new JTextField();
-		textField_21.setColumns(10);
-		textField_21.setBounds(53, 445, 97, 24);
-		panel.add(textField_21);
+		DELETEMEMBER_GROUPID = new JTextField();
+		DELETEMEMBER_GROUPID.setColumns(10);
+		DELETEMEMBER_GROUPID.setBounds(53, 445, 97, 24);
+		panel.add(DELETEMEMBER_GROUPID);
 		
 		JLabel lblNewLabel_1_1_1_1_1_1_1 = new JLabel("group id");
 		lblNewLabel_1_1_1_1_1_1_1.setBounds(10, 450, 65, 14);
@@ -364,31 +546,99 @@ public class testwindow {
 		lblGroupId.setBounds(10, 484, 46, 14);
 		panel.add(lblGroupId);
 		
-		textField_22 = new JTextField();
-		textField_22.setColumns(10);
-		textField_22.setBounds(53, 479, 35, 24);
-		panel.add(textField_22);
+		GROUPCHAT_ID = new JTextField();
+		GROUPCHAT_ID.setColumns(10);
+		GROUPCHAT_ID.setBounds(53, 479, 35, 24);
+		panel.add(GROUPCHAT_ID);
 		
 		JLabel lblFrom_2 = new JLabel("from");
 		lblFrom_2.setBounds(97, 484, 46, 14);
 		panel.add(lblFrom_2);
 		
-		textField_23 = new JTextField();
-		textField_23.setColumns(10);
-		textField_23.setBounds(125, 479, 46, 24);
-		panel.add(textField_23);
+		GROUPCHAT_MEMBERID = new JTextField();
+		GROUPCHAT_MEMBERID.setColumns(10);
+		GROUPCHAT_MEMBERID.setBounds(125, 479, 46, 24);
+		panel.add(GROUPCHAT_MEMBERID);
 		
-		textField_24 = new JTextField();
-		textField_24.setColumns(10);
-		textField_24.setBounds(181, 479, 232, 24);
-		panel.add(textField_24);
+		GROUPCHAT_ID_CONTENT = new JTextField();
+		GROUPCHAT_ID_CONTENT.setColumns(10);
+		GROUPCHAT_ID_CONTENT.setBounds(181, 479, 232, 24);
+		panel.add(GROUPCHAT_ID_CONTENT);
 		
-		JButton btnNewButton_1 = new JButton("Gửi");
-		btnNewButton_1.setBounds(423, 480, 89, 23);
-		panel.add(btnNewButton_1);
+		JButton GROUPCHAT_BTN = new JButton("Gửi");
+		
+		
+		//Send Message in group
+		GROUPCHAT_BTN.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String id1 = GROUPCHAT_ID.getText();//nguoi muon block đến user
+				String id2 = GROUPCHAT_MEMBERID.getText();// từ user
+				String content = GROUPCHAT_ID_CONTENT.getText();
+				try {
+					write("GroupChat|"+id1+"|"+id2+"|"+content);
+				}catch (IOException ex) {
+					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+				}
+				GROUPCHAT_ID.setText("");
+				GROUPCHAT_MEMBERID.setText("");
+				GROUPCHAT_ID_CONTENT.setText("");
+			}
+		});
+		GROUPCHAT_BTN.setBounds(423, 480, 89, 23);
+		panel.add(GROUPCHAT_BTN);
 		
 		JLabel lblNewLabel_1_2_2_2 = new JLabel("Dùng id");
 		lblNewLabel_1_2_2_2.setBounds(518, 484, 65, 14);
 		panel.add(lblNewLabel_1_2_2_2);
 	}
+	private void write(String message) throws IOException{
+        os.write(message);
+        os.newLine();
+        os.flush();
+    }
+	
+	
+	 public void setUpSocket() {
+	        try {
+	            thread = new Thread() {
+	                @Override
+	                public void run() {
+	                	
+	                    try {
+	                        // Gửi yêu cầu kết nối tới Server đang lắng nghe
+	                        // trên máy 'localhost' cổng 7777.
+	                        socketOfClient = new Socket("127.0.0.1", 7777);
+	                        System.out.println("Kết nối thành công!");
+	                        // Tạo luồng đầu ra tại client (Gửi dữ liệu tới server)
+	                        os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));
+	                        // Luồng đầu vào tại Client (Nhận dữ liệu từ server).
+	                        is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
+	                     
+	                        String message;
+	                        
+	                        while (true) {
+	                        	
+	                            message = is.readLine();
+	                            if(message==null){
+	                                break;
+	                            }
+	                            
+	                        }
+//	                    os.close();
+//	                    is.close();
+//	                    socketOfClient.close();
+	                    } catch (UnknownHostException e) {
+	                    	e.printStackTrace();
+	                    	return;
+	                    } catch (IOException e) {
+	                    	e.printStackTrace();
+	                        return;
+	                    }
+	                }
+	            };
+	            thread.sleep(1000);
+	            thread.run();
+	        } catch (Exception e) {
+	        }
+	    }
 }
