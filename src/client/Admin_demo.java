@@ -244,10 +244,10 @@ public class Admin_demo {
 		//DELETE ACCOUNT
 		DELETEACCOUNT_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String groupString = DELETEACCOUNT_name.getText();
+				String username = DELETEACCOUNT_name.getText();
 				
 				try {
-					write("AdminDeleteAccount|"+groupString);
+					write("AdminDeleteAccount|"+username);
 					
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");

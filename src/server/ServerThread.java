@@ -172,10 +172,13 @@ public class ServerThread implements Runnable {
 					String byUser = messageSplit[2];
 					ReportSpam(username, byUser);
 				}else if (commandString.equals("AdminGetLoginActivities")) {
+					
 					System.out.println("AdminGetLoginActivities");
 				}else if (commandString.equals("AdminGetGroup")) {
 					System.out.println("AdminGetGroup");
 				}else if (commandString.equals("AdminDeleteAccount")) {
+					String username = messageSplit[1];
+					AdminDeleteAccount(username);
 					System.out.println("AdminDeleteAccount");
 				}else if (commandString.equals("AdminAddAccount")) {
 					System.out.println("AdminAddAccount");
@@ -644,4 +647,38 @@ public class ServerThread implements Runnable {
 	        }
     }
     
+    
+    public static ArrayList<String> GetAdminLoginActivities (){
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(GET_ADMIN_INGROUP_SQL)) { 
+				preparedStatement.setString(1, groupID);    
+				ArrayList<String> result = new ArrayList<String>();
+	            ResultSet rs = preparedStatement.executeQuery();
+	            while (rs.next()) {
+					String tempString = rs.getString("id") + rs.getString("name");
+					result.add(tempString);
+				}
+	            return result;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
+	        }
+    }
+    
+    public static boolean AdminDeleteAccount(String username) {
+    	String DELETE_SQL = "delete public.\"users\" where email = ?";
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) { 
+				preparedStatement.setString(1, username);    
+				ArrayList<String> result = new ArrayList<String>();
+	            ResultSet rs = preparedStatement.executeQuery();
+	           return rs.next();
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return false;
+	        }
+    }
 }
+
