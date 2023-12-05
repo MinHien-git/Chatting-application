@@ -172,8 +172,8 @@ public class ServerThread implements Runnable {
 					String byUser = messageSplit[2];
 					ReportSpam(username, byUser);
 				}else if (commandString.equals("AdminGetLoginActivities")) {
-					
 					System.out.println("AdminGetLoginActivities");
+					AdminGetLoginActivities();
 				}else if (commandString.equals("AdminGetGroup")) {
 					System.out.println("AdminGetGroup");
 				}else if (commandString.equals("AdminDeleteAccount")) {
@@ -182,20 +182,28 @@ public class ServerThread implements Runnable {
 					System.out.println("AdminDeleteAccount");
 				}else if (commandString.equals("AdminAddAccount")) {
 					System.out.println("AdminAddAccount");
+					//complete
 				}else if (commandString.equals("AdminEditAccount")) {
 					System.out.println("AdminEditAccount");
+					//complete
 				}else if (commandString.equals("AdminGetGroupAdmin")) {
 					System.out.println("AdminGetGroupAdmin");
+					
 				}else if (commandString.equals("AdminGetGroupMember")) {
 					System.out.println("AdminGetGroupMember");
+					
 				}else if (commandString.equals("AdminSpamlist")) {
 					System.out.println("AdminSpamlist");
+					//complete
 				}else if (commandString.equals("AdminRegisterStatistic")) {
 					System.out.println("AdminRegisterStatistic");
+					//complete
 				}else if (commandString.equals("AdminLockAccount")) {
 					System.out.println("AdminLockAccount");
+					//complete
 				}else if (commandString.equals("AdminUnLockAccount")) {
 					System.out.println("AdminUnLockAccount");
+					//complete
 				}else if (commandString.equals("AdminGetUserFriends")) {
 					System.out.println("AdminGetUserFriends");
 				}else if (commandString.equals("AdminGetRegisterAmountByYear")) {
@@ -560,12 +568,52 @@ public class ServerThread implements Runnable {
 	           return false;
 	        }
 	}
-    //AdminGetUser
+    
+    
+    //Admin Get Login Activities
+    public static ArrayList<String> AdminGetLoginActivities() {
+    	String GET_LOGIN_ACTIVITES_SQL = "SELECT * FROM public.\"logs\" JOIN public.\"users\" ON username = email";
+		try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(GET_LOGIN_ACTIVITES_SQL)) { 
+	        ArrayList<String> resultArrayList = new ArrayList<String>();    
+			ResultSet rs = preparedStatement.executeQuery();
+	        while(rs.next()) {    
+	            String logString = rs.getString("id") +"|"+ rs.getString("name") +"|" + rs.getDate("date").toString();
+	            resultArrayList.add(logString);
+	        }
+	        return resultArrayList;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
+	        }
+    }
+    
+    
+    //Admin Get Active user
+//    public static ArrayList<String> AdminGetActiveUser() {
+//    	String GET_ACTIVEUSER_SQL = "SELECT distinct name, COUNT() FROM public.\"systems\" JOIN public.\"users\" "
+//    			+ "ON email = username GROUP BY name,";
+//		try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+//				PreparedStatement preparedStatement = connection.prepareStatement(GET_ACTIVEUSER_SQL)) { 
+//	        ArrayList<String> resultArrayList = new ArrayList<String>();    
+//			ResultSet rs = preparedStatement.executeQuery();
+//	        while(rs.next()) {    
+//	            String logString = rs.getString("id") +"|"+ rs.getString("name") +"|" + rs.getDate("date").toString();
+//	            resultArrayList.add(logString);
+//	        }
+//	        return resultArrayList;
+//	        } catch (SQLException e) {
+//	        	e.printStackTrace();
+//                System.exit(1);
+//	           return null;
+//	        }
+//    }
     
     public static boolean EditAccount(String name,String email,String password) {
-    	String UPDATE_PASSWORD_SQL = "UPDATE public.\"users\" SET name=?, email=?, password=? WHERE email = ?";
+    	String UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET name=?, email=?, password=? WHERE email = ?";
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
-				PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PASSWORD_SQL)) { 
+				PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_ACCOUNT_SQL)) { 
 				preparedStatement.setString(1, name);    
 				preparedStatement.setString(2, email); 
 				preparedStatement.setString(3, password);
@@ -596,27 +644,13 @@ public class ServerThread implements Runnable {
 	           return false;
 	        }
     }
+    
     public static boolean UnLockAccount(String id,boolean lock) {
     	String UNLOCK_SQL = "UPDATE public.\"users\" SET  lock = false WHERE id = ?";
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 
 				PreparedStatement preparedStatement = connection.prepareStatement(UNLOCK_SQL)) { 
 				preparedStatement.setBoolean(1, lock);    
-				preparedStatement.setString(2, id); 
-				
-	            int count = preparedStatement.executeUpdate();
-	            return count > 0;
-	        } catch (SQLException e) {
-	        	e.printStackTrace();
-                System.exit(1);
-	           return false;
-	        }
-    }
-    
-    public static boolean UpdateAccountHistroy(String id,String history) {
-    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
-				PreparedStatement preparedStatement = connection.prepareStatement(ACCOUNT_HISTORY_SQL)) { 
-				preparedStatement.setString(1, history);    
 				preparedStatement.setString(2, id); 
 				
 	            int count = preparedStatement.executeUpdate();
@@ -650,8 +684,7 @@ public class ServerThread implements Runnable {
     
     public static ArrayList<String> GetAdminLoginActivities (){
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
-				PreparedStatement preparedStatement = connection.prepareStatement(GET_ADMIN_INGROUP_SQL)) { 
-				preparedStatement.setString(1, groupID);    
+				PreparedStatement preparedStatement = connection.prepareStatement(GET_ADMIN_INGROUP_SQL)) {    
 				ArrayList<String> result = new ArrayList<String>();
 	            ResultSet rs = preparedStatement.executeQuery();
 	            while (rs.next()) {
@@ -678,6 +711,46 @@ public class ServerThread implements Runnable {
 	        	e.printStackTrace();
                 System.exit(1);
 	           return false;
+	        }
+    }
+    
+    public static ArrayList<String> AdminSpamlist() {
+    	String DELETE_SQL = "delete public.\"spams\" where email = ?";
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) { 
+				
+				ArrayList<String> result = new ArrayList<String>();
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+					String tempString = rs.getString("id") +"|" + rs.getString("name");
+					result.add(tempString);
+				}
+	            return result;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
+	        }
+    }
+    
+    public static ArrayList<String> AdminRegisterStatistic(int year) {
+    	String DELETE_SQL = "select * public.\"users\" where Year(created) = ?";
+    	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
+				PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) { 
+				
+				ArrayList<String> result = new ArrayList<String>();
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+					String tempString = rs.getString("id")  +"|" + rs.getString("name") +"|" +rs.getDate("created").toString();
+					result.add(tempString);
+				}
+	            return result;
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+                System.exit(1);
+	           return null;
 	        }
     }
 }

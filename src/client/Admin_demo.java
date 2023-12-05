@@ -165,7 +165,6 @@ public class Admin_demo {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					write("AdminGetLoginActivities");
-					
 				}catch (IOException ex) {
 					//JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
 				}
