@@ -4,6 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -49,6 +51,8 @@ public class Admin_demo {
     private JTextField GETACTIVEAMOUNT_YEAR;
 
     private JTabbedPane allTab;
+
+    private JTextField inputSearch;
 
     /**
      * Launch the application.
@@ -753,6 +757,7 @@ public class Admin_demo {
 //        panel.add(lblTrngThi_2_2_2_1);
 
         JPanel defaultPanel = new JPanel();
+
         JPanel panel1 = new JPanel();
         JPanel panel2 = new JPanel();
         JPanel panel3 = new JPanel();
@@ -822,12 +827,16 @@ public class Admin_demo {
     }
 
     private JPanel trang1() {
-        JPanel panel = new JPanel();
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
 
+        // chức năng 1a
         JPanel listUser = new JPanel();
+        listUser.setSize(800, 800);
         listUser.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 2, 2);
+        gbc.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ tên");
@@ -845,22 +854,116 @@ public class Admin_demo {
 
         gbc.gridx = 0;
         gbc.gridy = 0;
+        listUser.add(uname, gbc);
 
-        panel.add(uname, gbc);
-        panel.add(fname, gbc);
-        panel.add(addr, gbc);
-        panel.add(dob, gbc);
-        panel.add(gender, gbc);
-        panel.add(email, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listUser.add(fname, gbc);
 
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        listUser.add(addr, gbc);
 
-        return panel;
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        listUser.add(dob, gbc);
+
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        listUser.add(gender, gbc);
+
+        gbc.gridx = 5;
+        gbc.gridy = 0;
+        listUser.add(email, gbc);
+
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 6; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listUser.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listUser.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listUser);
+        myScroll.setPreferredSize(new Dimension(1000, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        mainPanel.add(myScroll, gbcMain);
+
+        inputSearch = new JTextField("Nhập tên cần tìm kiếm");
+        JCheckBox checkBox = new JCheckBox("Tên đăng nhập");
+        JRadioButton btn1 = new JRadioButton("Trực tuyến & ngoại tuyến");
+        JRadioButton btn2 = new JRadioButton("Trực tuyến");
+        JRadioButton btn3 = new JRadioButton("Ngoại tuyến");
+        JButton btn = new JButton("Tìm kiếm");
+
+        setTextfield(inputSearch);
+        inputSearch.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                inputSearch.setText("");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                inputSearch.setText("Nhập tên cần tìm kiếm");
+            }
+        });
+
+        ButtonGroup btnGroup = new ButtonGroup();
+        btnGroup.add(btn1);
+        btnGroup.add(btn2);
+        btnGroup.add(btn3);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+        mainPanel.add(inputSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(checkBox, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn1, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn2, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn3, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        gbcMain.gridy += 1;
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        mainPanel.add(sep, gbcMain);
+
+        // chức năng 1b
+        
+
+        return mainPanel;
+    }
+
+    private void setTextfield(JTextField textfield) {
+        textfield.setFont(new Font("Serif", Font.PLAIN, 20));
+        textfield.setPreferredSize(new Dimension(260, 30));
     }
 
     private void setLabel(JLabel label) {
-        label.setFont(new Font("Serif", Font.BOLD, 17));
-        label.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        label.setFont(new Font("Serif", Font.BOLD, 20));
     }
 
     private ArrayList<JButton> getButton() {
