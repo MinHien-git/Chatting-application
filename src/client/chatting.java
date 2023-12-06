@@ -45,7 +45,7 @@ import javax.swing.JOptionPane;
 import java.net.*;
 import java.io.*;
 
-public class chatting {
+public class chatting{
 
 	public JFrame frmChatting;
 	private Thread thread;
