@@ -1,6 +1,8 @@
 package client;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,13 +19,24 @@ public class onlineUsers extends JPanel {
         this.setLayout(new BorderLayout());
         navigation = new JLabel("Welcome, User");
         navigation.setFont(new Font("Source Code Pro", Font.BOLD, 14));
+        navigation.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Padding
+        navigation.setOpaque(true);
+        navigation.setBackground(Color.LIGHT_GRAY);
+
         searchBar = new JTextField();
         searchBar.setMargin(new Insets(15,10,15,10));
+        searchBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY), // Border color
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
         JPanel userListPanel = new JPanel(new BorderLayout());
 
         listModel = new DefaultListModel<>();
+        //we can dynamically add users here
+        listModel.add(0, "user1");
         userList = new JList<>(listModel);
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem blockedList = new JMenuItem("Blocked List");
@@ -86,10 +99,9 @@ public class onlineUsers extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(userList);
         userListPanel.add(scrollPane, BorderLayout.CENTER);
-        userListPanel.setSize(new Dimension(500, 1000));
         this.add(navigation, BorderLayout.NORTH);
         this.add(searchBar, BorderLayout.CENTER);
-        this.add(userListPanel, BorderLayout.AFTER_LAST_LINE);
+        this.add(userListPanel, BorderLayout.SOUTH);
     }
 
     private class AddUserListener implements ActionListener {

@@ -41,7 +41,7 @@ public class home extends JPanel {
                 JPanel chat = new JPanel();
                 mainFrame.add(new home(mainFrame, onl ,chat));
                 mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                mainFrame.setSize(800, 600);
+                mainFrame.setSize(600, 400);
                 mainFrame.setLocationRelativeTo(null);
                 mainFrame.setVisible(true);
             }
