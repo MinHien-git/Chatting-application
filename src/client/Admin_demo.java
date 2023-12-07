@@ -783,6 +783,7 @@ public class Admin_demo {
 
         defaultPanel.add(this.trangChu());
         panel1.add(this.trang1());
+        panel2.add(this.trang2());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -908,6 +909,8 @@ public class Admin_demo {
 
         inputSearch = new JTextField("Nhập tên cần tìm kiếm");
         JCheckBox checkBox = new JCheckBox("Tên đăng nhập");
+        JCheckBox sortName = new JCheckBox("Sắp xếp theo tên");
+        JCheckBox sortCreate = new JCheckBox("Sắp xếp theo ngày tạo");
         JRadioButton btn1 = new JRadioButton("Trực tuyến & ngoại tuyến");
         JRadioButton btn2 = new JRadioButton("Trực tuyến");
         JRadioButton btn3 = new JRadioButton("Ngoại tuyến");
@@ -948,6 +951,21 @@ public class Admin_demo {
 
         gbcMain.gridy += 1;
         mainPanel.add(btn3, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(sortName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(sortCreate, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
@@ -1134,9 +1152,9 @@ public class Admin_demo {
         JLabel label1 = new JLabel("Tên đăng nhập");
         JLabel label2 = new JLabel("Cập nhật mật khẩu mới");
         JLabel label3 = new JLabel("Nhập lại mật khẩu");
-        JTextField inputLabel1 = new JTextField(20);
-        JTextField inputLabel2 = new JTextField(20);
-        JTextField inputLabel3 = new JTextField(20);
+        JTextField inputLabel1 = new JTextField(18);
+        JTextField inputLabel2 = new JTextField(18);
+        JTextField inputLabel3 = new JTextField(18);
         JButton btnUpdatePass = new JButton("Cập nhật");
 
         JPanel tempPanel1 = new JPanel();
@@ -1314,6 +1332,80 @@ public class Admin_demo {
         return outerScrollPane;
     }
 
+    private JScrollPane trang2() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 2
+        JPanel listLogin = new JPanel();
+        listLogin.setSize(800, 800);
+        listLogin.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel time = new JLabel("Thời gian");
+        JLabel uname = new JLabel("Tên đăng nhập");
+        JLabel fname = new JLabel("Họ tên");
+
+        setLabel(uname);
+        setLabel(fname);
+        setLabel(time);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listLogin.add(time, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listLogin.add(uname, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        listLogin.add(fname, gbc);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 3; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listLogin.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listLogin.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listLogin);
+        myScroll.setPreferredSize(new Dimension(600, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScroll, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JButton btn = new JButton("Xem danh sách đăng nhâp");
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
+    }
     private void setTextfield(JTextField textfield) {
         textfield.setFont(new Font("Serif", Font.PLAIN, 20));
         textfield.setPreferredSize(new Dimension(260, 30));
