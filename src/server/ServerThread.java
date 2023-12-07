@@ -24,7 +24,7 @@ public class ServerThread implements Runnable {
     static final String PW = "123456";
     
     private Socket socketOfServer;
-    private int clientNumber;
+    private String clientNumber;
     private BufferedReader is;
     private BufferedWriter os;
     private boolean isClosed;
@@ -60,7 +60,7 @@ public class ServerThread implements Runnable {
         return is;
     }
     
-    public void setclientNumber(int id) {
+    public void setclientNumber(String id) {
     	clientNumber= id;
     }
 
@@ -68,11 +68,11 @@ public class ServerThread implements Runnable {
         return os;
     }
 
-    public int getClientNumber() {
+    public String getClientNumber() {
         return clientNumber;
     }
 
-    public ServerThread(Socket socketOfServer, int clientNumber) {
+    public ServerThread(Socket socketOfServer, String clientNumber) {
         this.socketOfServer = socketOfServer;
         this.clientNumber = clientNumber;
         System.out.println("Server thread number " + clientNumber + " Started");
@@ -86,8 +86,8 @@ public class ServerThread implements Runnable {
             is = new BufferedReader(new InputStreamReader(socketOfServer.getInputStream()));
             os = new BufferedWriter(new OutputStreamWriter(socketOfServer.getOutputStream()));
             System.out.println("Khời động luông mới thành công, ID là: " + clientNumber);
-            Server.serverThreadBus.sendOnlineList();
-            Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.clientNumber+" đã đăng nhập---");
+//            Server.serverThreadBus.sendOnlineList();
+            //Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.clientNumber+" đã đăng nhập---");
             String message;
             while (!isClosed) {
                 message = is.readLine();
@@ -103,12 +103,16 @@ public class ServerThread implements Runnable {
 	                String id2 = messageSplit[2];//Từ user
 	                String content = messageSplit[3];
 	                String[] mess = ServerThread.CheckMessageExists(id1, id2);
-	                if(mess[0] != "") {
+	                if(!mess[0].equals("")) {
+	                	System.out.println("Update");
 	                	ServerThread.UpdateExistsMessage(id1, id2, content);
 	                }else {
 	                	System.out.println("Insert");
 	                	ServerThread.InsertMessage(id1, id2, content);
 	                }
+	                mess = ServerThread.CheckMessageExists(id1, id2);
+	                Server.serverThreadBus.boardCast(id1,"send-to-user|" + String.join( ", " ,mess[1]));
+	                Server.serverThreadBus.boardCast(id2,"send-to-user|" + String.join( ", " ,mess[1]));
                 }else if (commandString.equals("AddFriend")) {
                 	String id1 = messageSplit[1];//Người gửi
 	                String id2 = messageSplit[2];//Từ user
@@ -130,7 +134,8 @@ public class ServerThread implements Runnable {
 					InsertGroup(name,id);
 				}else if (commandString.equals("GetOnline")) {
 					System.out.println("GetOnline");
-					
+					ArrayList<String> result = GetFriendListOnline(messageSplit[1]);
+					Server.serverThreadBus.boardCast(messageSplit[1],"get-online-friend|" + String.join( ", " ,result));
 				}else if (commandString.equals("Online")) {
 					System.out.println("Online");
 					String id = messageSplit[1];//Từ user
@@ -218,7 +223,7 @@ public class ServerThread implements Runnable {
             isClosed = true;
             Server.serverThreadBus.remove(clientNumber);
             System.out.println(this.clientNumber+" đã thoát");
-            Server.serverThreadBus.sendOnlineList();
+//            Server.serverThreadBus.sendOnlineList();
             Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.clientNumber+" đã thoát---");
         }
     }
@@ -244,9 +249,10 @@ public class ServerThread implements Runnable {
 	            ResultSet rs = preparedStatement.executeQuery();
 	            if(rs.next()) {
 	            	result[0] =rs.getString("idChat");
-	            	result[1] = rs.getString("content");
-	            	return result;
-	            };
+	            	result[1] = rs.getArray("content").toString();
+	            }else {
+	            	result[0] = "";
+	            }
 	            return result;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
@@ -278,19 +284,29 @@ public class ServerThread implements Runnable {
     public static boolean InsertMessage(String id,String id2,String content) {
     	String idChat1=id+"|" + id2;
     	String idChat2=id2+"|" + id;
-    	String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,content) values (?,{?})";
+    	String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,users,content) values (?,?,?)";
 		try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 				PreparedStatement preparedStatement = connection.prepareStatement(INSERT_MESSAGE_SQL);
 				PreparedStatement preparedStatement1 = connection.prepareStatement(INSERT_MESSAGE_SQL)) { 
+				String[] contents = new String[1];
+				contents[0] = content;
+				Array array = connection.createArrayOf("TEXT", contents);
+				
+				String[] users = new String[2];
+				users[0] = id;
+				users[1] = id2;
+				Array u = connection.createArrayOf("TEXT", users);
 				preparedStatement.setString(1, idChat1);    
-				preparedStatement.setString(2, content);
+				preparedStatement.setArray(2, u);  
+				preparedStatement.setArray(3, array);
 	            
-				preparedStatement.setString(1, idChat2);    
-				preparedStatement.setString(2, content);
+				preparedStatement1.setString(1, idChat2);    
+				preparedStatement1.setArray(2, u);
+				preparedStatement1.setArray(3, array);
 				
 	            int count = preparedStatement.executeUpdate();
 	            int count2 = preparedStatement1.executeUpdate();
-	            return count > 0 && count >0 ;
+	            return count > 0 && count2 >0 ;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -362,21 +378,21 @@ public class ServerThread implements Runnable {
     //CREATE GROUP
     public static boolean InsertGroup(String group_name,String creator) {
     	String CREATE_GROUP_SQL = "INSERT INTO public.groups "
-		    		+ "	groupid, admin, groupname, users, content)\r\n"
-		    		+ "	VALUES (?, {?}, ?, {?}, '{}');" ;
+		    		+ "	(groupid, admin, groupname, users, content)\r\n"
+		    		+ "	VALUES (?, ?, ?, ?, '{}');" ;
     	long id = (long) (Math.random() * (10000000000l - 1)) + 1;
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 				PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GROUP_SQL)) { 
 	            preparedStatement.setString(1, id+"");
-	            preparedStatement.setString(2, creator);
+	            String[] user = new String[1];
+	            user[0] = creator;
+	            preparedStatement.setArray(2, connection.createArrayOf("TEXT", user));
 	            preparedStatement.setString(3, group_name);
-	            preparedStatement.setString(4, creator);
+	            preparedStatement.setArray(4, connection.createArrayOf("TEXT", user));
 
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            };
-	            return false;
+	            int count = preparedStatement.executeUpdate();
+	           
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -396,7 +412,7 @@ public class ServerThread implements Runnable {
 	            
 	            ResultSet rs = preparedStatement.executeQuery();
 	            while(rs.next()) {
-	            	String tempString = rs.getString("id") + rs.getString("name");
+	            	String tempString = rs.getString("id") +"&"+ rs.getString("name");
 					result.add(tempString);
 	            }
 	            return result;
@@ -414,11 +430,9 @@ public class ServerThread implements Runnable {
 				PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) { 
 				preparedStatement.setString(1, id);    
 	            
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+	            int count = preparedStatement.executeUpdate();
+	            
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -433,11 +447,9 @@ public class ServerThread implements Runnable {
 				PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) { 
 				preparedStatement.setString(1, id);    
 	            
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+				int count = preparedStatement.executeUpdate();
+	            
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -447,18 +459,16 @@ public class ServerThread implements Runnable {
     
     //BLOCK ACCOUNT 
     public static boolean BlockAccount(String id,String id2) {
-    	String BLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET friends = array_append(blocks,?)"
+    	String BLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET blocks = array_append(blocks,?)"
         		+ 									"WHERE id =? and exists (select * from public.\"users\" where id = ?)";
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 				PreparedStatement preparedStatement = connection.prepareStatement(BLOCK_ACCOUNT_SQL)) { 
-				preparedStatement.setString(1, id);    
-				preparedStatement.setString(2, id2); 
-				
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+				preparedStatement.setString(1, id2);    
+				preparedStatement.setString(2, id); 
+				preparedStatement.setString(3, id2); 
+				int count = preparedStatement.executeUpdate();
+	            
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -469,20 +479,18 @@ public class ServerThread implements Runnable {
     //Change Group Name
     public static boolean ChangeGroupName(String groupID,String adminId,String newName) {
     	String UPDATE_GROUP_NAME_SQL = "UPDATE public.groups"
-        		+ "SET groupname=?"
-        		+"WHERE groupid = ? and ? = any(admin)";
+        		+ " SET groupname = ?"
+        		+" WHERE groupid = ? and ? = any(admin) ";
     	
     	try (Connection connection =  DriverManager.getConnection(URL, USER, PW);
 				PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_GROUP_NAME_SQL)) { 
 				preparedStatement.setString(1, newName);    
 				preparedStatement.setString(2, groupID); 
 				preparedStatement.setString(3, adminId); 
+	            System.out.print(preparedStatement);
+				int count = preparedStatement.executeUpdate();
 	            
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -500,11 +508,9 @@ public class ServerThread implements Runnable {
 				preparedStatement.setString(1, memeberid);    
 				preparedStatement.setString(2, groupID); 
 	            
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+				int count = preparedStatement.executeUpdate();
+	            
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);
@@ -522,11 +528,9 @@ public class ServerThread implements Runnable {
 				preparedStatement.setString(1, memeberid);    
 				preparedStatement.setString(2, groupID); 
 	            
-	            ResultSet rs = preparedStatement.executeQuery();
-	            if(rs.next()) {
-	            	return true;
-	            }
-	            return false;
+	            int count = preparedStatement.executeUpdate();
+	            
+	            return count > 0;
 	        } catch (SQLException e) {
 	        	e.printStackTrace();
                 System.exit(1);

@@ -35,9 +35,10 @@ public class Server {
         try {
             while (true) {
                 socketOfServer = listener.accept();
-                ServerThread serverThread = new ServerThread(socketOfServer, clientNumber++);
+                //ID là client Number nhớ thay đổi tham số 2 của serverThread
+                ServerThread serverThread = new ServerThread(socketOfServer, "1");
                 serverThreadBus.add(serverThread);
-                System.out.println("Số thread đang chạy là: "+ serverThreadBus.getLength());
+                System.out.println("Số thread đang chạy là: "+serverThreadBus.getLength());
                 executor.execute(serverThread);
                 
             }

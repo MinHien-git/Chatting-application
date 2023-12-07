@@ -31,9 +31,9 @@ public class ServerThreadBus {
         }
     }
     
-    public void boardCast(int id, String message){
+    public void boardCast(String id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
-            if (serverThread.getClientNumber() == id) {
+            if (!serverThread.getClientNumber().equals(id)) {
                 continue;
             } else {
                 try {
@@ -48,27 +48,27 @@ public class ServerThreadBus {
         return listServerThreads.size();
     }
     
-    public void sendOnlineList(){
-        String res = "";
-        List<ServerThread> threadbus = Server.serverThreadBus.getListServerThreads();
-        for(ServerThread serverThread : threadbus){
-            res+=serverThread.getClientNumber()+"-";
-        }
-        Server.serverThreadBus.mutilCastSend("update-online-list"+","+res);
-    }
-    public void sendMessageToPersion(int id, String message){
-        for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
-            if(serverThread.getClientNumber()==id){
-                try {
-                    serverThread.write("global-message"+","+message);
-                    break;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
-    public void remove(int id){
+//    public void sendOnlineList(){
+//        String res = "";
+//        List<ServerThread> threadbus = Server.serverThreadBus.getListServerThreads();
+//        for(ServerThread serverThread : threadbus){
+//            res+=serverThread.getClientNumber()+"-";
+//        }
+//        Server.serverThreadBus.mutilCastSend("update-online-list"+","+res);
+//    }
+//    public void sendMessageToPersion(String id, String message){
+//        for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
+//            if(serverThread.getClientNumber()==id){
+//                try {
+//                    serverThread.write("global-message"+","+message);
+//                    break;
+//                } catch (IOException ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//        }
+//    }
+    public void remove(String id){
         for(int i=0; i<Server.serverThreadBus.getLength(); i++){
             if(Server.serverThreadBus.getListServerThreads().get(i).getClientNumber()==id){
                 Server.serverThreadBus.listServerThreads.remove(i);
