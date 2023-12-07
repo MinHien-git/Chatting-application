@@ -1,5 +1,15 @@
 package client;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import java.awt.*;
 
 import javax.swing.*;
@@ -787,6 +797,7 @@ public class Admin_demo {
         panel3.add(this.trang3());
         panel4.add(this.trang4());
         panel5.add(this.trang5());
+        panel6.add(this.trang6());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -1574,7 +1585,7 @@ public class Admin_demo {
         gbcMain.gridwidth = 1;
 
         JTextField inputMemSearch = new JTextField();
-        JButton btnMem = new JButton("Xem danh sách quản trị viên");
+        JButton btnMem = new JButton("Xem danh sách thành viên");
         JLabel labelGName1 = new JLabel("Tên nhóm");
 
         setTextfield(inputMemSearch);
@@ -1648,7 +1659,7 @@ public class Admin_demo {
         gbcMain.gridwidth = 1;
 
         JTextField inputAdminSearch = new JTextField();
-        JButton btnAdmin = new JButton("Xem danh sách thành viên");
+        JButton btnAdmin = new JButton("Xem danh sách quản trị viên");
         JLabel labelGName2 = new JLabel("Tên nhóm");
 
         setTextfield(inputAdminSearch);
@@ -1957,6 +1968,73 @@ public class Admin_demo {
         outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
 
         return outerScrollPane;
+    }
+
+    private JPanel trang6() {
+        JFreeChart chart = this.createChart(this.createDataset());
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryAxis xAxis = plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        // Customize axis as needed
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
+
+        JLabel year = new JLabel("Năm");
+        JTextField inputYear = new JTextField();
+        JButton btn = new JButton("Xem biểu đồ");
+
+        setLabel(year);
+        setTextfield(inputYear);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        mainPanel.add(chartPanel, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(year, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputYear, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        return mainPanel;
+    }
+    private CategoryDataset createDataset() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(10, "Người đăng ký mới", "1");
+        dataset.addValue(15, "Người đăng ký mới", "2");
+        dataset.addValue(20, "Người đăng ký mới", "3");
+        dataset.addValue(35, "Người đăng ký mới", "4");
+        dataset.addValue(46, "Người đăng ký mới", "5");
+        dataset.addValue(25, "Người đăng ký mới", "6");
+        dataset.addValue(76, "Người đăng ký mới", "7");
+        dataset.addValue(88, "Người đăng ký mới", "8");
+        dataset.addValue(109, "Người đăng ký mới", "9");
+        dataset.addValue(51, "Người đăng ký mới", "10");
+        dataset.addValue(10, "Người đăng ký mới", "11");
+        dataset.addValue(25, "Người đăng ký mới", "12");
+
+        return dataset;
+    }
+    private JFreeChart createChart(CategoryDataset dataset) {
+        return ChartFactory.createBarChart(
+                "Biểu đồ số lượng người đăng ký mới năm 2023",
+                "Tháng",
+                "Số lượng",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
     }
     private void setTextfield(JTextField textfield) {
         textfield.setFont(new Font("Serif", Font.PLAIN, 20));
