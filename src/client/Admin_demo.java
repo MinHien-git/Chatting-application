@@ -785,6 +785,7 @@ public class Admin_demo {
         panel1.add(this.trang1());
         panel2.add(this.trang2());
         panel3.add(this.trang3());
+        panel4.add(this.trang4());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -1661,14 +1662,140 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         mainPanel.add(btnAdmin, gbcMain);
 
-        JSeparator sep3 = new JSeparator(SwingConstants.HORIZONTAL);
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
+    }
+
+    private JScrollPane trang4() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 4a & 4b & 4c
+        JPanel listSpam = new JPanel();
+        listSpam.setSize(800, 800);
+        listSpam.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel uname = new JLabel("Tên đăng nhập");
+        JLabel timespam = new JLabel("Thời gian báo cáo");
+
+        setLabel(uname);
+        setLabel(timespam);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listSpam.add(uname, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listSpam.add(timespam, gbc);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 2; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listSpam.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listSpam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScrollSpam = new JScrollPane(listSpam);
+        myScrollSpam.setPreferredSize(new Dimension(400, 300));
+        myScrollSpam.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScrollSpam.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScrollSpam.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+        mainPanel.add(myScrollSpam, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên đăng nhập");
+        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian báo cáo");
+        JRadioButton btnName = new JRadioButton("Lọc theo tên đăng nhập");
+        JRadioButton btnTime = new JRadioButton("Lọc theo thời gian");
+        JTextField inputSpamSearch = new JTextField();
+        JButton btn = new JButton("Xem danh sách báo cáo spam");
+
+        setTextfield(inputSpamSearch);
+
+        ButtonGroup btnG = new ButtonGroup();
+        btnG.add(btnname);
+        btnG.add(btntime);
+
+        ButtonGroup btnG1 = new ButtonGroup();
+        btnG1.add(btnName);
+        btnG1.add(btnTime);
+
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+        gbcMain.gridy += 1;
+        mainPanel.add(btnname, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btntime, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnTime, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputSpamSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        JSeparator sep1 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep3, gbcMain);
+        mainPanel.add(sep1, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        JPanel accountLock = new JPanel();
+        JLabel label = new JLabel("Tên đăng nhập");
+        JTextField inputLock = new JTextField(20);
+        JButton lock = new JButton("Khóa tài khoản");
+
+        setLabel(label);
+        setTextfield(inputLock);
+
+        accountLock.add(label);
+        accountLock.add(inputLock);
+        accountLock.add(lock);
+
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 2;
+        mainPanel.add(accountLock, gbcMain);
 
         JScrollPane outerScrollPane = new JScrollPane(mainPanel);
         outerScrollPane.setPreferredSize(new Dimension(1600, 750));
