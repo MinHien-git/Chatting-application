@@ -54,7 +54,9 @@ public class testwindow {
 	private JTextField ReportSpam_name;
 	private JTextField ReportSpam_byusername;
 	private JTextField CHANGEGROUPNAME_AdminId;
-
+	JTextArea ONLINEUSER;
+	private String id= new String("1");
+	
 	/**
 	 * Launch the application.
 	 */
@@ -114,6 +116,7 @@ public class testwindow {
 				}
 				userId1_send_message.setText("");
 				userId2_send_message.setText("");
+				message_send_direct.setText("");
 			}
 		}); 
 		
@@ -326,7 +329,7 @@ public class testwindow {
 		GETONLINEFRIEND.setBounds(97, 227, 152, 23);
 		panel.add(GETONLINEFRIEND);
 		
-		JTextArea ONLINEUSER = new JTextArea();
+		ONLINEUSER = new JTextArea();
 		ONLINEUSER.setBounds(10, 261, 403, 74);
 		panel.add(ONLINEUSER);
 		
@@ -454,7 +457,7 @@ public class testwindow {
 		CHANGEGROPNAME_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String groupid = CHANGEGROUPNAMEID.getText();
-				String adminid = CHANGEGROUPNAMEID.getText();//nguoi muon block đến user
+				String adminid = CHANGEGROUPNAME_AdminId.getText();//nguoi muon block đến user
 				String newName = CHANGEGROUPNAME_NEWNAME.getText();// từ user
 				try {
 					write("ChangeGroupName|"+groupid+"|"+adminid+"|"+newName);
@@ -601,7 +604,7 @@ public class testwindow {
 		label.setBounds(10, 524, 65, 14);
 		panel.add(label);
 		
-		JButton ReportSpam_BTN = new JButton("Gửi");
+		JButton ReportSpam_BTN = new JButton("Báo cáo spam");
 		ReportSpam_BTN.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String userString = ReportSpam_name.getText();
@@ -662,7 +665,14 @@ public class testwindow {
 	                            if(message==null){
 	                                break;
 	                            }
-	                            
+	                            String[] messageSplit = message.split("\\|");
+	                            System.out.print(message);
+	                            if(messageSplit[0].equals("get-online-friend")){
+	                            	
+	                            	ONLINEUSER.setText(messageSplit[1]);
+	                            }else if(messageSplit[0].equals("send-to-user")) {
+	                            	System.out.print(messageSplit[1]);
+	                            }
 	                        }
 //	                    os.close();
 //	                    is.close();
