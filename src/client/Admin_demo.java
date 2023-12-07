@@ -786,6 +786,7 @@ public class Admin_demo {
         panel2.add(this.trang2());
         panel3.add(this.trang3());
         panel4.add(this.trang4());
+        panel5.add(this.trang5());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -1796,6 +1797,158 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 2;
         mainPanel.add(accountLock, gbcMain);
+
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
+    }
+
+    private JScrollPane trang5() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 5a & 5b
+        JPanel listNew = new JPanel();
+        listNew.setSize(800, 800);
+        listNew.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel uname = new JLabel("Tên đăng nhập");
+        JLabel fname = new JLabel("Họ & tên");
+        JLabel addr = new JLabel("Địa chỉ");
+        JLabel dob = new JLabel("Ngày sinh");
+        JLabel gender = new JLabel("Giới tính");
+        JLabel email = new JLabel("Email");
+        JLabel timecreate = new JLabel("Thời gian tạo tài khoản");
+
+        setLabel(uname);
+        setLabel(fname);
+        setLabel(addr);
+        setLabel(dob);
+        setLabel(gender);
+        setLabel(email);
+        setLabel(timecreate);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listNew.add(uname, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listNew.add(fname, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        listNew.add(addr, gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        listNew.add(dob, gbc);
+
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        listNew.add(gender, gbc);
+
+        gbc.gridx = 5;
+        gbc.gridy = 0;
+        listNew.add(email, gbc);
+
+        gbc.gridx = 6;
+        gbc.gridy = 0;
+        listNew.add(timecreate, gbc);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 7; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listNew.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listNew.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listNew);
+        myScroll.setPreferredSize(new Dimension(1200, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScroll, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
+        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        JTextField inputNSearch = new JTextField();
+        JButton btn = new JButton("Xem danh sách đăng ký mới");
+        JLabel labelGName = new JLabel("Tên người dùng");
+        JLabel fromDate = new JLabel("Từ ngày");
+        JLabel toDate = new JLabel("Đến ngày");
+        JTextField inputFromDate = new JTextField();
+        JTextField inputToDate = new JTextField();
+
+        setLabel(fromDate);
+        setLabel(toDate);
+        setTextfield(inputFromDate);
+        setTextfield(inputToDate);
+        setTextfield(inputNSearch);
+        setLabel(labelGName);
+
+        ButtonGroup btnG = new ButtonGroup();
+        btnG.add(btnname);
+        btnG.add(btntime);
+
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+        gbcMain.gridy += 1;
+        mainPanel.add(fromDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputFromDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(toDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputToDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnname, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btntime, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelGName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputNSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
 
         JScrollPane outerScrollPane = new JScrollPane(mainPanel);
         outerScrollPane.setPreferredSize(new Dimension(1600, 750));
