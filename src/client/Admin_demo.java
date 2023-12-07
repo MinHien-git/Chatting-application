@@ -784,6 +784,7 @@ public class Admin_demo {
         defaultPanel.add(this.trangChu());
         panel1.add(this.trang1());
         panel2.add(this.trang2());
+        panel3.add(this.trang3());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -1397,6 +1398,277 @@ public class Admin_demo {
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
+
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
+    }
+
+    private JScrollPane trang3() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 3a & 3b
+        JPanel listGroup = new JPanel();
+        listGroup.setSize(800, 800);
+        listGroup.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel gname = new JLabel("Tên nhóm");
+        JLabel nummember = new JLabel("Số thành viên");
+        JLabel gadmin = new JLabel("Quản trị viên");
+        JLabel timecreate = new JLabel("Thời gian tạo");
+
+        setLabel(gname);
+        setLabel(nummember);
+        setLabel(gadmin);
+        setLabel(timecreate);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listGroup.add(gname, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listGroup.add(nummember, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        listGroup.add(gadmin, gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        listGroup.add(timecreate, gbc);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 4; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listGroup.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listGroup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listGroup);
+        myScroll.setPreferredSize(new Dimension(900, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScroll, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
+        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        JTextField inputGSearch = new JTextField();
+        JButton btn = new JButton("Xem danh sách nhóm");
+        JLabel labelGName = new JLabel("Tên nhóm");
+
+        setTextfield(inputGSearch);
+        setLabel(labelGName);
+
+        ButtonGroup btnG = new ButtonGroup();
+        btnG.add(btnname);
+        btnG.add(btntime);
+
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+        gbcMain.gridy += 1;
+        mainPanel.add(btnname, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btntime, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelGName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputGSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        JSeparator sep1 = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 3;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep1, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 3c
+        JPanel listMember = new JPanel();
+        listMember.setSize(800, 800);
+        listMember.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMemer = new GridBagConstraints();
+        gbcMemer.insets = new Insets(0, 2, 5, 2);
+
+        JLabel unameMember = new JLabel("Tên đăng nhập (thành viên)");
+        JLabel roleMember = new JLabel("Vai trò");
+
+        setLabel(unameMember);
+        setLabel(roleMember);
+
+        gbcMemer.gridx = 0;
+        gbcMemer.gridy = 0;
+        listMember.add(unameMember, gbcMemer);
+
+        gbcMemer.gridx = 1;
+        gbcMemer.gridy = 0;
+        listMember.add(roleMember, gbcMemer);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbcMemer.gridy += 1;
+            gbcMemer.gridx = 0;
+            for (int j = 0; j < 2; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listMember.add(label, gbcMemer);
+
+                gbcMemer.gridx += 1;
+            }
+        }
+
+        listMember.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScrollMember = new JScrollPane(listMember);
+        myScrollMember.setPreferredSize(new Dimension(600, 300));
+        myScrollMember.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScrollMember.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScrollMember.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScrollMember, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JTextField inputMemSearch = new JTextField();
+        JButton btnMem = new JButton("Xem danh sách quản trị viên");
+        JLabel labelGName1 = new JLabel("Tên nhóm");
+
+        setTextfield(inputMemSearch);
+        setLabel(labelGName1);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelGName1, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputMemSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnMem, gbcMain);
+
+        JSeparator sep2 = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 3;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep2, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 3d
+        JPanel listAdmin = new JPanel();
+        listAdmin.setSize(800, 800);
+        listAdmin.setLayout(new GridBagLayout());
+        GridBagConstraints gbcAdmin = new GridBagConstraints();
+        gbcAdmin.insets = new Insets(0, 2, 5, 2);
+
+        JLabel unameAdmin = new JLabel("Tên đăng nhập (Quản trị viên)");
+        JLabel gnameAdmin = new JLabel("Tên nhóm");
+
+        setLabel(unameAdmin);
+        setLabel(gnameAdmin);
+
+        gbcAdmin.gridx = 0;
+        gbcAdmin.gridy = 0;
+        listAdmin.add(unameAdmin, gbcAdmin);
+
+        gbcAdmin.gridx = 1;
+        gbcAdmin.gridy = 0;
+        listAdmin.add(gnameAdmin, gbcAdmin);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbcAdmin.gridy += 1;
+            gbcAdmin.gridx = 0;
+            for (int j = 0; j < 2; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listAdmin.add(label, gbcAdmin);
+
+                gbcAdmin.gridx += 1;
+            }
+        }
+
+        listAdmin.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScrollAdmin = new JScrollPane(listAdmin);
+        myScrollAdmin.setPreferredSize(new Dimension(600, 300));
+        myScrollAdmin.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScrollAdmin.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScrollAdmin.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScrollAdmin, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JTextField inputAdminSearch = new JTextField();
+        JButton btnAdmin = new JButton("Xem danh sách thành viên");
+        JLabel labelGName2 = new JLabel("Tên nhóm");
+
+        setTextfield(inputAdminSearch);
+        setLabel(labelGName2);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelGName2, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputAdminSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnAdmin, gbcMain);
+
+        JSeparator sep3 = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 3;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep3, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
 
         JScrollPane outerScrollPane = new JScrollPane(mainPanel);
         outerScrollPane.setPreferredSize(new Dimension(1600, 750));
