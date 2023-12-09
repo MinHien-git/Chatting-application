@@ -799,6 +799,8 @@ public class Admin_demo {
         panel5.add(this.trang5());
         panel6.add(this.trang6());
         panel7.add(this.trang7());
+        panel8.add(this.trang8());
+        panel9.add(this.trang9());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -2015,7 +2017,7 @@ public class Admin_demo {
         GridBagConstraints gbcMain = new GridBagConstraints();
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
-        // chức năng 6a & 6b & 6c
+        // chức năng 7a & 7b & 7c
         JPanel listFriend = new JPanel();
         listFriend.setSize(800, 800);
         listFriend.setLayout(new GridBagLayout());
@@ -2127,6 +2129,165 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
+
+    private JScrollPane trang8() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 8a & 8b & 8c
+        JPanel listOpen = new JPanel();
+        listOpen.setSize(800, 800);
+        listOpen.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel uname = new JLabel("Tên đăng nhập");
+        JLabel open = new JLabel("Số lần mở ứng dụng");
+        JLabel chatPeop = new JLabel("Số lượng người đã chat");
+        JLabel chatGroup = new JLabel("Số lượng nhóm đã chat");
+
+        setLabel(uname);
+        setLabel(open);
+        setLabel(chatPeop);
+        setLabel(chatGroup);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listOpen.add(uname, gbc);
+
+        gbc.gridx = 1;
+        listOpen.add(open, gbc);
+
+        gbc.gridx = 2;
+        listOpen.add(chatPeop, gbc);
+
+        gbc.gridx = 3;
+        listOpen.add(chatGroup, gbc);
+
+        // list of user will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 4; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listOpen.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listOpen.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listOpen);
+        myScroll.setPreferredSize(new Dimension(900, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScroll, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
+        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        JButton btn = new JButton("Xem danh sách người dùng hoạt động");
+        JLabel labelNName = new JLabel("Tên người dùng");
+        JTextField inputNSearch = new JTextField();
+        JLabel dir_open = new JLabel("Số lượng hoạt động");
+        JTextField inputDir_open = new JTextField();
+
+        setLabel(dir_open);
+        setLabel(labelNName);
+        setTextfield(inputDir_open);
+        setTextfield(inputNSearch);
+
+        ButtonGroup btnG = new ButtonGroup();
+        btnG.add(btnname);
+        btnG.add(btntime);
+
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnname, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btntime, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelNName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputNSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(dir_open, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputDir_open, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
+    }
+    private JPanel trang9() {
+        JFreeChart chart = this.createChart1(this.createDataset1());
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryAxis xAxis = plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        // Customize axis as needed
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
+
+        JLabel year = new JLabel("Năm");
+        JTextField inputYear = new JTextField();
+        JButton btn = new JButton("Xem biểu đồ");
+
+        setLabel(year);
+        setTextfield(inputYear);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        mainPanel.add(chartPanel, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(year, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputYear, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        return mainPanel;
+    }
     private CategoryDataset createDataset() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         dataset.addValue(10, "Người đăng ký mới", "1");
@@ -2147,6 +2308,37 @@ public class Admin_demo {
     private JFreeChart createChart(CategoryDataset dataset) {
         return ChartFactory.createBarChart(
                 "Biểu đồ số lượng người đăng ký mới năm 2023",
+                "Tháng",
+                "Số lượng",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+    }
+
+    private CategoryDataset createDataset1() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(10, "Người mở ứng dụng", "1");
+        dataset.addValue(15, "Người mở ứng dụng", "2");
+        dataset.addValue(20, "Người mở ứng dụng", "3");
+        dataset.addValue(35, "Người mở ứng dụng", "4");
+        dataset.addValue(46, "Người mở ứng dụng", "5");
+        dataset.addValue(25, "Người mở ứng dụng", "6");
+        dataset.addValue(76, "Người mở ứng dụng", "7");
+        dataset.addValue(88, "Người mở ứng dụng", "8");
+        dataset.addValue(109, "Người mở ứng dụng", "9");
+        dataset.addValue(51, "Người mở ứng dụng", "10");
+        dataset.addValue(10, "Người mở ứng dụng", "11");
+        dataset.addValue(25, "Người mở ứng dụng", "12");
+
+        return dataset;
+    }
+
+    private JFreeChart createChart1(CategoryDataset dataset) {
+        return ChartFactory.createBarChart(
+                "Biểu đồ số lượng người mở ứng dụng năm 2023",
                 "Tháng",
                 "Số lượng",
                 dataset,
