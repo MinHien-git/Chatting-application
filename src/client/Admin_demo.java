@@ -798,6 +798,7 @@ public class Admin_demo {
         panel4.add(this.trang4());
         panel5.add(this.trang5());
         panel6.add(this.trang6());
+        panel7.add(this.trang7());
 
         frame.add(allTab);
         frame.setSize(1200, 1000);
@@ -2006,6 +2007,125 @@ public class Admin_demo {
         mainPanel.add(btn, gbcMain);
 
         return mainPanel;
+    }
+
+    private JScrollPane trang7() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        // chức năng 6a & 6b & 6c
+        JPanel listFriend = new JPanel();
+        listFriend.setSize(800, 800);
+        listFriend.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 2, 5, 2);
+
+        JLabel uname = new JLabel("Tên đăng nhập");
+        JLabel fr = new JLabel("Bạn bè (trực tiếp)");
+        JLabel fr_fr = new JLabel("Bạn bè (trực tiếp & bạn của bạn)");
+
+        setLabel(uname);
+        setLabel(fr);
+        setLabel(fr_fr);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        listFriend.add(uname, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        listFriend.add(fr, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        listFriend.add(fr_fr, gbc);
+
+        // list of friend will be here
+        for (int i = 0; i < 15; i++) {
+            gbc.gridy += 1;
+            gbc.gridx = 0;
+            for (int j = 0; j < 3; j++) {
+                JLabel label = new JLabel("This is a very long long info");
+
+                listFriend.add(label, gbc);
+
+                gbc.gridx += 1;
+            }
+        }
+
+        listFriend.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        JScrollPane myScroll = new JScrollPane(listFriend);
+        myScroll.setPreferredSize(new Dimension(900, 300));
+        myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        myScroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        gbcMain.gridx = 0;
+        gbcMain.gridy = 0;
+        gbcMain.gridwidth = 3;
+        mainPanel.add(myScroll, gbcMain);
+
+        gbcMain.gridwidth = 1;
+
+        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
+        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        JButton btn = new JButton("Xem danh sách bạn bè");
+        JLabel labelNName = new JLabel("Tên người dùng");
+        JTextField inputNSearch = new JTextField();
+        JLabel dir_fr = new JLabel("Số lượng bạn bè trực tiếp");
+        JTextField inputDir_fr = new JTextField();
+
+        setLabel(dir_fr);
+        setLabel(labelNName);
+        setTextfield(inputDir_fr);
+        setTextfield(inputNSearch);
+
+        ButtonGroup btnG = new ButtonGroup();
+        btnG.add(btnname);
+        btnG.add(btntime);
+
+        gbcMain.anchor = GridBagConstraints.LINE_START;
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btnname, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btntime, gbcMain);
+
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        gbcMain.gridy += 1;
+        gbcMain.gridwidth = 1;
+        gbcMain.insets = new Insets(3, 0, 3, 0);
+        gbcMain.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(sep, gbcMain);
+        gbcMain.fill = GridBagConstraints.NONE;
+        gbcMain.insets = new Insets(0, 0, 2, 0);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(labelNName, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputNSearch, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(dir_fr, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputDir_fr, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(btn, gbcMain);
+
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        outerScrollPane.setPreferredSize(new Dimension(1600, 750));
+        outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        outerScrollPane.getVerticalScrollBar().setUnitIncrement(40);
+
+        return outerScrollPane;
     }
     private CategoryDataset createDataset() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
