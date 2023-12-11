@@ -94,6 +94,19 @@ public class Admin_demo {
     private JPanel listFriend;
     private GridBagConstraints gbcListFriend;
     private JTextField inputUnameFriend;
+    private JPanel listLogin;
+    private GridBagConstraints gbcListLogin;
+    private JPanel listGroup;
+    private GridBagConstraints gbcListGroup;
+    private JTextField inputGSearch;
+    private JRadioButton btnSortName;
+    private JRadioButton btnSortDateCreate;
+    private JPanel listMember;
+    private GridBagConstraints gbcListMember;
+    private JTextField inputMemGroupSearch;
+    private JPanel listAdmin;
+    private GridBagConstraints gbcListAdmin;
+    private JTextField inputAdminSearch;
     private GridBagConstraints gbcMain;
 
     /**
@@ -920,6 +933,66 @@ public class Admin_demo {
         }
         listFriend.revalidate();
     }
+    private void updateListLogin(ArrayList<ArrayList<String>> listLoginInString) {
+        // list of login will be here
+        for (ArrayList<String> strings : listLoginInString) {
+            gbcListLogin.gridy += 1;
+            gbcListLogin.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listLogin.add(label, gbcListLogin);
+
+                gbcListLogin.gridx += 1;
+            }
+        }
+        listLogin.revalidate();
+    }
+    private void updateListGroup(ArrayList<ArrayList<String>> listGroupInString) {
+        // list of group will be here
+        for (ArrayList<String> strings : listGroupInString) {
+            gbcListGroup.gridy += 1;
+            gbcListGroup.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listGroup.add(label, gbcListGroup);
+
+                gbcListGroup.gridx += 1;
+            }
+        }
+        listGroup.revalidate();
+    }
+    private void updateListMemGroup(ArrayList<ArrayList<String>> listMemGroupInString) {
+        // list of group will be here
+        for (ArrayList<String> strings : listMemGroupInString) {
+            gbcListMember.gridy += 1;
+            gbcListMember.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listMember.add(label, gbcListMember);
+
+                gbcListMember.gridx += 1;
+            }
+        }
+        listMember.revalidate();
+    }
+    private void updateListAdmin(ArrayList<ArrayList<String>> listAdminInString) {
+        // list of admin will be here
+        for (ArrayList<String> strings : listAdminInString) {
+            gbcListAdmin.gridy += 1;
+            gbcListAdmin.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listAdmin.add(label, gbcListAdmin);
+
+                gbcListAdmin.gridx += 1;
+            }
+        }
+        listAdmin.revalidate();
+    }
 
     private JScrollPane trang1() {
         mainPanel1 = new JPanel();
@@ -1519,8 +1592,7 @@ public class Admin_demo {
                     // write the info to the server
                     ArrayList<ArrayList<String>> temp = null;
                     updateListFriend(temp);
-                }
-                else {
+                } else {
                     inputUnameFriend.setText("");
                 }
             }
@@ -1552,11 +1624,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 2
-        JPanel listLogin = new JPanel();
+        listLogin = new JPanel();
         listLogin.setSize(800, 800);
         listLogin.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListLogin = new GridBagConstraints();
+        gbcListLogin.insets = new Insets(0, 2, 5, 2);
 
         JLabel time = new JLabel("Thời gian");
         JLabel uname = new JLabel("Tên đăng nhập");
@@ -1566,30 +1638,17 @@ public class Admin_demo {
         setLabel(fname);
         setLabel(time);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listLogin.add(time, gbc);
+        gbcListLogin.gridx = 0;
+        gbcListLogin.gridy = 0;
+        listLogin.add(time, gbcListLogin);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listLogin.add(uname, gbc);
+        gbcListLogin.gridx = 1;
+        gbcListLogin.gridy = 0;
+        listLogin.add(uname, gbcListLogin);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        listLogin.add(fname, gbc);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 3; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listLogin.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
+        gbcListLogin.gridx = 2;
+        gbcListLogin.gridy = 0;
+        listLogin.add(fname, gbcListLogin);
 
         listLogin.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -1607,6 +1666,16 @@ public class Admin_demo {
         gbcMain.gridwidth = 1;
 
         JButton btn = new JButton("Xem danh sách đăng nhâp");
+
+        // add action to the button
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // write info to the server and get the data back
+                ArrayList<ArrayList<String>> temp = null;
+                updateListLogin(temp);
+            }
+        });
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
@@ -1627,11 +1696,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 3a & 3b
-        JPanel listGroup = new JPanel();
+        listGroup = new JPanel();
         listGroup.setSize(800, 800);
         listGroup.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListGroup = new GridBagConstraints();
+        gbcListGroup.insets = new Insets(0, 2, 5, 2);
 
         JLabel gname = new JLabel("Tên nhóm");
         JLabel nummember = new JLabel("Số thành viên");
@@ -1643,34 +1712,21 @@ public class Admin_demo {
         setLabel(gadmin);
         setLabel(timecreate);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listGroup.add(gname, gbc);
+        gbcListGroup.gridx = 0;
+        gbcListGroup.gridy = 0;
+        listGroup.add(gname, gbcListGroup);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listGroup.add(nummember, gbc);
+        gbcListGroup.gridx = 1;
+        gbcListGroup.gridy = 0;
+        listGroup.add(nummember, gbcListGroup);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        listGroup.add(gadmin, gbc);
+        gbcListGroup.gridx = 2;
+        gbcListGroup.gridy = 0;
+        listGroup.add(gadmin, gbcListGroup);
 
-        gbc.gridx = 3;
-        gbc.gridy = 0;
-        listGroup.add(timecreate, gbc);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 4; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listGroup.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
+        gbcListGroup.gridx = 3;
+        gbcListGroup.gridy = 0;
+        listGroup.add(timecreate, gbcListGroup);
 
         listGroup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -1687,25 +1743,37 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
-        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
-        JTextField inputGSearch = new JTextField();
+        btnSortName = new JRadioButton("Sắp xếp theo tên");
+        btnSortDateCreate = new JRadioButton("Sắp xếp theo thời gian tạo");
+        inputGSearch = new JTextField();
         JButton btn = new JButton("Xem danh sách nhóm");
         JLabel labelGName = new JLabel("Tên nhóm");
 
         setTextfield(inputGSearch);
         setLabel(labelGName);
 
+        // add action to the button to find group
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int sortBy = btnSortName.isSelected() ? 1 : 0;
+                String tempInputGSearch = inputGSearch.getText();
+                // write info to the server
+                ArrayList<ArrayList<String>> temp = null;
+                updateListGroup(temp);
+            }
+        });
+
         ButtonGroup btnG = new ButtonGroup();
-        btnG.add(btnname);
-        btnG.add(btntime);
+        btnG.add(btnSortName);
+        btnG.add(btnSortDateCreate);
 
         gbcMain.anchor = GridBagConstraints.LINE_START;
         gbcMain.gridy += 1;
-        mainPanel.add(btnname, gbcMain);
+        mainPanel.add(btnSortName, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btntime, gbcMain);
+        mainPanel.add(btnSortDateCreate, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -1735,11 +1803,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 3c
-        JPanel listMember = new JPanel();
+        listMember = new JPanel();
         listMember.setSize(800, 800);
         listMember.setLayout(new GridBagLayout());
-        GridBagConstraints gbcMemer = new GridBagConstraints();
-        gbcMemer.insets = new Insets(0, 2, 5, 2);
+        gbcListMember = new GridBagConstraints();
+        gbcListMember.insets = new Insets(0, 2, 5, 2);
 
         JLabel unameMember = new JLabel("Tên đăng nhập (thành viên)");
         JLabel roleMember = new JLabel("Vai trò");
@@ -1747,26 +1815,13 @@ public class Admin_demo {
         setLabel(unameMember);
         setLabel(roleMember);
 
-        gbcMemer.gridx = 0;
-        gbcMemer.gridy = 0;
-        listMember.add(unameMember, gbcMemer);
+        gbcListMember.gridx = 0;
+        gbcListMember.gridy = 0;
+        listMember.add(unameMember, gbcListMember);
 
-        gbcMemer.gridx = 1;
-        gbcMemer.gridy = 0;
-        listMember.add(roleMember, gbcMemer);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbcMemer.gridy += 1;
-            gbcMemer.gridx = 0;
-            for (int j = 0; j < 2; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listMember.add(label, gbcMemer);
-
-                gbcMemer.gridx += 1;
-            }
-        }
+        gbcListMember.gridx = 1;
+        gbcListMember.gridy = 0;
+        listMember.add(roleMember, gbcListMember);
 
         listMember.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -1783,18 +1838,28 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JTextField inputMemSearch = new JTextField();
+        inputMemGroupSearch = new JTextField();
         JButton btnMem = new JButton("Xem danh sách thành viên");
         JLabel labelGName1 = new JLabel("Tên nhóm");
 
-        setTextfield(inputMemSearch);
+        btnMem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempGName = inputMemGroupSearch.getText();
+                // write info to the server and get the data back
+                ArrayList<ArrayList<String>> temp = null;
+                updateListMemGroup(temp);
+            }
+        });
+
+        setTextfield(inputMemGroupSearch);
         setLabel(labelGName1);
 
         gbcMain.gridy += 1;
         mainPanel.add(labelGName1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputMemSearch, gbcMain);
+        mainPanel.add(inputMemGroupSearch, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btnMem, gbcMain);
@@ -1809,11 +1874,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 3d
-        JPanel listAdmin = new JPanel();
+        listAdmin = new JPanel();
         listAdmin.setSize(800, 800);
         listAdmin.setLayout(new GridBagLayout());
-        GridBagConstraints gbcAdmin = new GridBagConstraints();
-        gbcAdmin.insets = new Insets(0, 2, 5, 2);
+        gbcListAdmin = new GridBagConstraints();
+        gbcListAdmin.insets = new Insets(0, 2, 5, 2);
 
         JLabel unameAdmin = new JLabel("Tên đăng nhập (Quản trị viên)");
         JLabel gnameAdmin = new JLabel("Tên nhóm");
@@ -1821,26 +1886,13 @@ public class Admin_demo {
         setLabel(unameAdmin);
         setLabel(gnameAdmin);
 
-        gbcAdmin.gridx = 0;
-        gbcAdmin.gridy = 0;
-        listAdmin.add(unameAdmin, gbcAdmin);
+        gbcListAdmin.gridx = 0;
+        gbcListAdmin.gridy = 0;
+        listAdmin.add(unameAdmin, gbcListAdmin);
 
-        gbcAdmin.gridx = 1;
-        gbcAdmin.gridy = 0;
-        listAdmin.add(gnameAdmin, gbcAdmin);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbcAdmin.gridy += 1;
-            gbcAdmin.gridx = 0;
-            for (int j = 0; j < 2; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listAdmin.add(label, gbcAdmin);
-
-                gbcAdmin.gridx += 1;
-            }
-        }
+        gbcListAdmin.gridx = 1;
+        gbcListAdmin.gridy = 0;
+        listAdmin.add(gnameAdmin, gbcListAdmin);
 
         listAdmin.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -1857,9 +1909,19 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JTextField inputAdminSearch = new JTextField();
+        inputAdminSearch = new JTextField();
         JButton btnAdmin = new JButton("Xem danh sách quản trị viên");
         JLabel labelGName2 = new JLabel("Tên nhóm");
+
+        btnAdmin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempGName = inputAdminSearch.getText();
+                // write info to the server and get the data back
+                ArrayList<ArrayList<String>> temp = null;
+                updateListAdmin(temp);
+            }
+        });
 
         setTextfield(inputAdminSearch);
         setLabel(labelGName2);
