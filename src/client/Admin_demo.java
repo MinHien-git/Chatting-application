@@ -107,6 +107,14 @@ public class Admin_demo {
     private JPanel listAdmin;
     private GridBagConstraints gbcListAdmin;
     private JTextField inputAdminSearch;
+    private JPanel listSpam;
+    private GridBagConstraints gbcListSpam;
+    private JRadioButton btnSortNamet4;
+    private JRadioButton btnSortDatet4;
+    private JRadioButton btnFilterName;
+    private JRadioButton btnFilterDate;
+    private JTextField inputSpamSearch;
+    private JTextField inputLockt4;
     private GridBagConstraints gbcMain;
 
     /**
@@ -993,7 +1001,21 @@ public class Admin_demo {
         }
         listAdmin.revalidate();
     }
+    private void updateListSpam(ArrayList<ArrayList<String>> listSpamInString) {
+        // list of spam will be here
+        for (ArrayList<String> strings : listSpamInString) {
+            gbcListSpam.gridy += 1;
+            gbcListSpam.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
 
+                listSpam.add(label, gbcListSpam);
+
+                gbcListSpam.gridx += 1;
+            }
+        }
+        listSpam.revalidate();
+    }
     private JScrollPane trang1() {
         mainPanel1 = new JPanel();
         mainPanel1.setLayout(new GridBagLayout());
@@ -1951,11 +1973,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 4a & 4b & 4c
-        JPanel listSpam = new JPanel();
+        listSpam = new JPanel();
         listSpam.setSize(800, 800);
         listSpam.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListSpam = new GridBagConstraints();
+        gbcListSpam.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel timespam = new JLabel("Thời gian báo cáo");
@@ -1963,26 +1985,13 @@ public class Admin_demo {
         setLabel(uname);
         setLabel(timespam);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listSpam.add(uname, gbc);
+        gbcListSpam.gridx = 0;
+        gbcListSpam.gridy = 0;
+        listSpam.add(uname, gbcListSpam);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listSpam.add(timespam, gbc);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 2; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listSpam.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
+        gbcListSpam.gridx = 1;
+        gbcListSpam.gridy = 0;
+        listSpam.add(timespam, gbcListSpam);
 
         listSpam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -2000,29 +2009,38 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên đăng nhập");
-        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian báo cáo");
-        JRadioButton btnName = new JRadioButton("Lọc theo tên đăng nhập");
-        JRadioButton btnTime = new JRadioButton("Lọc theo thời gian");
-        JTextField inputSpamSearch = new JTextField();
+        btnSortNamet4 = new JRadioButton("Sắp xếp theo tên đăng nhập");
+        btnSortDatet4 = new JRadioButton("Sắp xếp theo thời gian báo cáo");
+        btnFilterName = new JRadioButton("Lọc theo tên đăng nhập");
+        btnFilterDate = new JRadioButton("Lọc theo thời gian");
+        inputSpamSearch = new JTextField();
         JButton btn = new JButton("Xem danh sách báo cáo spam");
+
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int sortBy = btnSortNamet4.isSelected() ? 1 : btnSortDatet4.isSelected() ? -1 : 0;
+                int filterBy = btnFilterName.isSelected() ? 1 : btnFilterDate.isSelected() ? -1 : 0;
+                String tempInputSpamSearch = inputSpamSearch.getText();
+            }
+        });
 
         setTextfield(inputSpamSearch);
 
         ButtonGroup btnG = new ButtonGroup();
-        btnG.add(btnname);
-        btnG.add(btntime);
+        btnG.add(btnSortNamet4);
+        btnG.add(btnSortDatet4);
 
         ButtonGroup btnG1 = new ButtonGroup();
-        btnG1.add(btnName);
-        btnG1.add(btnTime);
+        btnG1.add(btnFilterName);
+        btnG1.add(btnFilterDate);
 
         gbcMain.anchor = GridBagConstraints.LINE_START;
         gbcMain.gridy += 1;
-        mainPanel.add(btnname, gbcMain);
+        mainPanel.add(btnSortNamet4, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btntime, gbcMain);
+        mainPanel.add(btnSortDatet4, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -2034,10 +2052,10 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnName, gbcMain);
+        mainPanel.add(btnFilterName, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnTime, gbcMain);
+        mainPanel.add(btnFilterDate, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(inputSpamSearch, gbcMain);
@@ -2056,14 +2074,22 @@ public class Admin_demo {
 
         JPanel accountLock = new JPanel();
         JLabel label = new JLabel("Tên đăng nhập");
-        JTextField inputLock = new JTextField(20);
+        inputLockt4 = new JTextField(20);
         JButton lock = new JButton("Khóa tài khoản");
 
+        lock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempInputLockT4 = inputLockt4.getText();
+                // write info to the server
+            }
+        });
+
         setLabel(label);
-        setTextfield(inputLock);
+        setTextfield(inputLockt4);
 
         accountLock.add(label);
-        accountLock.add(inputLock);
+        accountLock.add(inputLockt4);
         accountLock.add(lock);
 
         gbcMain.gridy += 1;
