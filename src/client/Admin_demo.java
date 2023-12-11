@@ -60,9 +60,41 @@ public class Admin_demo {
     private JTextField GETREGISTERAMOUNT_YEAR;
     private JTextField GETACTIVEAMOUNT_YEAR;
 
+    // ----------------------------------------------------------------------------------------------
     private JTabbedPane allTab;
-
     private JTextField inputSearch;
+    private JPanel mainPanel1;
+    private JPanel listUser;
+    private GridBagConstraints gbcListUser;
+    private JCheckBox checkBoxUsernamep1;
+    private JCheckBox checkBoxSortNamep1;
+    private JCheckBox checkBoxSortCreatep1;
+    private JRadioButton btnAllStatusp1;
+    private JRadioButton btnOnlinep1;
+    private JRadioButton btnOfflinep1;
+    private JButton btnFindp1;
+    private JTextField unAddtf;
+    private JTextField fnAddtf;
+    private JTextField addrAddtf;
+    private JTextField dobAddtf;
+    private JTextField genderAddtf;
+    private JTextField emailAddtf;
+    private JTextField unUpdatetf;
+    private JTextField fnUpdatetf;
+    private JTextField addrUpdatetf;
+    private JTextField emailUpdatetf;
+    private JTextField unDeltf;
+    private JTextField inputLock;
+    private JTextField inputLabelUsername;
+    private JTextField inputLabelNewPass;
+    private JTextField inputLabelRePass;
+    private JPanel listLoginHistory;
+    private GridBagConstraints gbcListHist;
+    private JTextField inputUnameHist;
+    private JPanel listFriend;
+    private GridBagConstraints gbcListFriend;
+    private JTextField inputUnameFriend;
+    private GridBagConstraints gbcMain;
 
     /**
      * Launch the application.
@@ -767,7 +799,6 @@ public class Admin_demo {
 //        panel.add(lblTrngThi_2_2_2_1);
 
         JPanel defaultPanel = new JPanel();
-
         JPanel panel1 = new JPanel();
         JPanel panel2 = new JPanel();
         JPanel panel3 = new JPanel();
@@ -844,18 +875,64 @@ public class Admin_demo {
         return mainPanel;
     }
 
+    private void updateListUser(ArrayList<ArrayList<String>> listUserInString) {
+        // list of user will be here
+        for (ArrayList<String> strings : listUserInString) {
+            gbcListUser.gridy += 1;
+            gbcListUser.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listUser.add(label, gbcListUser);
+
+                gbcListUser.gridx += 1;
+            }
+        }
+        listUser.revalidate();
+    }
+    private void updateListLoginHist(ArrayList<ArrayList<String>> listLoginHistInString) {
+        // list of login history will be here
+        for (ArrayList<String> strings : listLoginHistInString) {
+            gbcListHist.gridy += 1;
+            gbcListHist.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listLoginHistory.add(label, gbcListHist);
+
+                gbcListHist.gridx += 1;
+            }
+        }
+        listLoginHistory.revalidate();
+    }
+    private void updateListFriend(ArrayList<ArrayList<String>> listFriendInString) {
+        // list of friend will be here
+        for (ArrayList<String> strings : listFriendInString) {
+            gbcListFriend.gridy += 1;
+            gbcListFriend.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listFriend.add(label, gbcListFriend);
+
+                gbcListFriend.gridx += 1;
+            }
+        }
+        listFriend.revalidate();
+    }
+
     private JScrollPane trang1() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbcMain = new GridBagConstraints();
+        mainPanel1 = new JPanel();
+        mainPanel1.setLayout(new GridBagLayout());
+        gbcMain = new GridBagConstraints();
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 1a
-        JPanel listUser = new JPanel();
+        listUser = new JPanel();
         listUser.setSize(800, 800);
         listUser.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListUser = new GridBagConstraints();
+        gbcListUser.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ tên");
@@ -864,6 +941,8 @@ public class Admin_demo {
         JLabel gender = new JLabel("Giới tính");
         JLabel email = new JLabel("Email");
 
+
+        // set the style for the label
         setLabel(uname);
         setLabel(fname);
         setLabel(addr);
@@ -871,69 +950,61 @@ public class Admin_demo {
         setLabel(gender);
         setLabel(email);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listUser.add(uname, gbc);
+        // set the position and add to the list user panel
+        gbcListUser.gridx = 0;
+        gbcListUser.gridy = 0;
+        listUser.add(uname, gbcListUser);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listUser.add(fname, gbc);
+        gbcListUser.gridx = 1;
+        gbcListUser.gridy = 0;
+        listUser.add(fname, gbcListUser);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        listUser.add(addr, gbc);
+        gbcListUser.gridx = 2;
+        gbcListUser.gridy = 0;
+        listUser.add(addr, gbcListUser);
 
-        gbc.gridx = 3;
-        gbc.gridy = 0;
-        listUser.add(dob, gbc);
+        gbcListUser.gridx = 3;
+        gbcListUser.gridy = 0;
+        listUser.add(dob, gbcListUser);
 
-        gbc.gridx = 4;
-        gbc.gridy = 0;
-        listUser.add(gender, gbc);
+        gbcListUser.gridx = 4;
+        gbcListUser.gridy = 0;
+        listUser.add(gender, gbcListUser);
 
-        gbc.gridx = 5;
-        gbc.gridy = 0;
-        listUser.add(email, gbc);
+        gbcListUser.gridx = 5;
+        gbcListUser.gridy = 0;
+        listUser.add(email, gbcListUser);
 
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 6; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listUser.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
-
+        // set the style for the list user panel
         listUser.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
+        // add the list user panel to the scrollpane & set up the function for the scrollpane
         JScrollPane myScroll = new JScrollPane(listUser);
         myScroll.setPreferredSize(new Dimension(1000, 300));
         myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         myScroll.getVerticalScrollBar().setUnitIncrement(20);
 
+        // add the scrollpane of list user to the main panel
         gbcMain.gridx = 0;
         gbcMain.gridy = 0;
         gbcMain.gridwidth = 3;
-        mainPanel.add(myScroll, gbcMain);
+        mainPanel1.add(myScroll, gbcMain);
 
         gbcMain.gridwidth = 1;
 
+        // declare components to filter the list user
         inputSearch = new JTextField("Nhập tên cần tìm kiếm");
-        JCheckBox checkBox = new JCheckBox("Tên đăng nhập");
-        JCheckBox sortName = new JCheckBox("Sắp xếp theo tên");
-        JCheckBox sortCreate = new JCheckBox("Sắp xếp theo ngày tạo");
-        JRadioButton btn1 = new JRadioButton("Trực tuyến & ngoại tuyến");
-        JRadioButton btn2 = new JRadioButton("Trực tuyến");
-        JRadioButton btn3 = new JRadioButton("Ngoại tuyến");
-        JButton btn = new JButton("Tìm kiếm");
+        checkBoxUsernamep1 = new JCheckBox("Tên đăng nhập");
+        checkBoxSortNamep1 = new JCheckBox("Sắp xếp theo tên");
+        checkBoxSortCreatep1 = new JCheckBox("Sắp xếp theo ngày tạo");
+        btnAllStatusp1 = new JRadioButton("Trực tuyến & ngoại tuyến");
+        btnOnlinep1 = new JRadioButton("Trực tuyến");
+        btnOfflinep1 = new JRadioButton("Ngoại tuyến");
+        btnFindp1 = new JButton("Tìm kiếm");
 
         setTextfield(inputSearch);
+        // set the function for the textfield
         inputSearch.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -946,69 +1017,100 @@ public class Admin_demo {
             }
         });
 
-        ButtonGroup btnGroup = new ButtonGroup();
-        btnGroup.add(btn1);
-        btnGroup.add(btn2);
-        btnGroup.add(btn3);
+        // set the function for the button "find"
+        btnFindp1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int tempCheckBoxUsername = checkBoxUsernamep1.isSelected() ? 1 : 0;
+                int tempCheckBoxSortName = checkBoxSortNamep1.isSelected() ? 1 : 0;
+                int tempCheckBoxSortCreate = checkBoxSortCreatep1.isSelected() ? 1 : 0;
+                String nameToSearch = inputSearch.getText().isEmpty() ? "" : inputSearch.getText();
+                String status = "";
+                if (btnAllStatusp1.isSelected()) {
+                    status = btnAllStatusp1.getText();
+                } else if (btnOnlinep1.isSelected()) {
+                    status = btnOnlinep1.getText();
+                } else {
+                    status = btnOfflinep1.getText();
+                }
+                ArrayList<ArrayList<String>> returnListUser = null;
+                // write the info to the server socket and get the data
+                updateListUser(returnListUser);
+            }
+        });
 
+        // put 3 buttons in a group
+        ButtonGroup btnGroup = new ButtonGroup();
+        btnGroup.add(btnAllStatusp1);
+        btnGroup.add(btnOnlinep1);
+        btnGroup.add(btnOfflinep1);
+
+        // add the input textfield to the main panel
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel.add(inputSearch, gbcMain);
+        mainPanel1.add(inputSearch, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(checkBox, gbcMain);
+        mainPanel1.add(checkBoxUsernamep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btn1, gbcMain);
+        mainPanel1.add(btnAllStatusp1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btn2, gbcMain);
+        mainPanel1.add(btnOnlinep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btn3, gbcMain);
+        mainPanel1.add(btnOfflinep1, gbcMain);
 
+        // add a separator to panel to separate checkbox, radio button
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 1;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep, gbcMain);
+        mainPanel1.add(sep, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
+        // add checkbox to the panel
         gbcMain.gridy += 1;
-        mainPanel.add(sortName, gbcMain);
+        mainPanel1.add(checkBoxSortNamep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(sortCreate, gbcMain);
+        mainPanel1.add(checkBoxSortCreatep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btn, gbcMain);
+        mainPanel1.add(btnFindp1, gbcMain);
 
+        // add a separator to separate the function
         JSeparator sep1 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep1, gbcMain);
+        mainPanel1.add(sep1, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 1b
+
+        // panel used to add an user
         JPanel userAdd = new JPanel();
         userAdd.setLayout(new GridBagLayout());
         GridBagConstraints gbcUserAdd = new GridBagConstraints();
         gbcUserAdd.insets = new Insets(0, 2, 4, 2);
         gbcUserAdd.anchor = GridBagConstraints.LINE_START;
 
+        // panel used to update an user
         JPanel userUpdate = new JPanel();
         userUpdate.setLayout(new GridBagLayout());
-        GridBagConstraints gbcUserUpdate= new GridBagConstraints();
+        GridBagConstraints gbcUserUpdate = new GridBagConstraints();
         gbcUserUpdate.insets = new Insets(0, 2, 4, 2);
         gbcUserUpdate.anchor = GridBagConstraints.LINE_START;
 
+        // panel used to delete an user
         JPanel userDel = new JPanel();
         userDel.setLayout(new GridBagLayout());
         GridBagConstraints gbcUserDel = new GridBagConstraints();
@@ -1030,23 +1132,75 @@ public class Admin_demo {
 
         JLabel unDel = new JLabel("Tên đăng nhập");
 
-        JTextField unAddtf = new JTextField(20);
-        JTextField fnAddtf = new JTextField(20);
-        JTextField addrAddtf = new JTextField(20);
-        JTextField dobAddtf = new JTextField(10);
-        JTextField genderAddtf = new JTextField(6);
-        JTextField emailAddtf = new JTextField(20);
+        // set the textfield for 3 function add, update and delete user
+        unAddtf = new JTextField(20);
+        fnAddtf = new JTextField(20);
+        addrAddtf = new JTextField(20);
+        dobAddtf = new JTextField(10);
+        genderAddtf = new JTextField(6);
+        emailAddtf = new JTextField(20);
 
-        JTextField unUpdatetf = new JTextField(20);
-        JTextField fnUpdatetf = new JTextField(20);
-        JTextField addrUpdatetf = new JTextField(20);
-        JTextField emailUpdatetf = new JTextField(20);
+        unUpdatetf = new JTextField(20);
+        fnUpdatetf = new JTextField(20);
+        addrUpdatetf = new JTextField(20);
+        emailUpdatetf = new JTextField(20);
 
-        JTextField unDeltf = new JTextField(20);
+        unDeltf = new JTextField(20);
 
+        // declare button to execute those function
         JButton toAdd = new JButton("Thêm người dùng");
         JButton toUpdate = new JButton("Cập nhật người dùng");
         JButton toDel = new JButton("Xóa người dùng");
+
+        // set the function to add an user
+        toAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String unAdd = unAddtf.getText();
+                String fnAdd = fnAddtf.getText();
+                String addrAdd = addrAddtf.getText();
+                String dobAdd = dobAddtf.getText();
+                String genderAdd = genderAddtf.getText();
+                String emailAdd = emailAddtf.getText();
+
+                unAddtf.setText("");
+                fnAddtf.setText("");
+                addrAddtf.setText("");
+                dobAddtf.setText("");
+                genderAddtf.setText("");
+                emailAddtf.setText("");
+
+                // write the info to the server socket and get the data
+            }
+        });
+        // set the function to update an user
+        toUpdate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String unUpdate = unUpdatetf.getText();
+                String fnUpdate = fnUpdatetf.getText();
+                String addrUpdate = addrUpdatetf.getText();
+                String emailUpdate = emailUpdatetf.getText();
+
+                unUpdatetf.setText("");
+                fnUpdatetf.setText("");
+                addrUpdatetf.setText("");
+                emailUpdatetf.setText("");
+
+                // write the info to the server socket and get the data
+            }
+        });
+        // set the function to delete an user
+        toDel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String unDel = unDeltf.getText();
+
+                unDeltf.setText("");
+
+                // write the info to the server socket and get the data
+            }
+        });
 
         // thêm người dùng
         gbcUserAdd.gridx = 0;
@@ -1118,15 +1272,16 @@ public class Admin_demo {
         gbcUserDel.gridy += 1;
         userDel.add(toDel, gbcUserDel);
 
+        // add 3 panels to the main panel
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
-        mainPanel.add(userAdd, gbcMain);
+        mainPanel1.add(userAdd, gbcMain);
 
         gbcMain.gridx = 1;
-        mainPanel.add(userUpdate, gbcMain);
+        mainPanel1.add(userUpdate, gbcMain);
 
         gbcMain.gridx = 2;
-        mainPanel.add(userDel, gbcMain);
+        mainPanel1.add(userDel, gbcMain);
 
         gbcMain.gridx = 0;
 
@@ -1135,33 +1290,57 @@ public class Admin_demo {
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep2, gbcMain);
+        mainPanel1.add(sep2, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
-
 
         // chức năng 1c
         JPanel accountLock = new JPanel();
         JLabel label = new JLabel("Tên đăng nhập");
-        JTextField inputLock = new JTextField(20);
+        inputLock = new JTextField(20);
         JButton lock = new JButton("Khóa tài khoản");
         JButton unlock = new JButton("Mở khóa tài khoản");
 
+        // set the event for the button
+        lock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!inputLock.getText().isEmpty()) {
+                    String tempInputLock = inputLock.getText();
+                    // write the info to the server
+                }
+                inputLock.setText("");
+            }
+        });
+
+        unlock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!inputLock.getText().isEmpty()) {
+                    String tempInputLock = inputLock.getText();
+                    // write the info to the server
+                }
+                inputLock.setText("");
+            }
+        });
+
+        // add the components to the panel
         accountLock.add(label);
         accountLock.add(inputLock);
         accountLock.add(lock);
         accountLock.add(unlock);
 
+        // add the panel to the main panel
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 2;
-        mainPanel.add(accountLock, gbcMain);
+        mainPanel1.add(accountLock, gbcMain);
 
         JSeparator sep3 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep3, gbcMain);
+        mainPanel1.add(sep3, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1169,47 +1348,63 @@ public class Admin_demo {
         JLabel label1 = new JLabel("Tên đăng nhập");
         JLabel label2 = new JLabel("Cập nhật mật khẩu mới");
         JLabel label3 = new JLabel("Nhập lại mật khẩu");
-        JTextField inputLabel1 = new JTextField(18);
-        JTextField inputLabel2 = new JTextField(18);
-        JTextField inputLabel3 = new JTextField(18);
+        inputLabelUsername = new JTextField(18);
+        inputLabelNewPass = new JTextField(18);
+        inputLabelRePass = new JTextField(18);
         JButton btnUpdatePass = new JButton("Cập nhật");
+
+        // set the event for the button
+        btnUpdatePass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String un = inputLabelUsername.getText();
+                String pw = inputLabelNewPass.getText();
+                String repw = inputLabelRePass.getText();
+                if (!pw.isEmpty() && !repw.isEmpty() && pw.equals(repw)) {
+                    // write the info to the server
+                }
+                inputLabelUsername.setText("");
+                inputLabelNewPass.setText("");
+                inputLabelRePass.setText("");
+            }
+        });
 
         JPanel tempPanel1 = new JPanel();
         JPanel tempPanel2 = new JPanel();
         JPanel tempPanel3 = new JPanel();
 
         tempPanel1.add(label1);
-        tempPanel1.add(inputLabel1);
+        tempPanel1.add(inputLabelUsername);
         tempPanel2.add(label2);
-        tempPanel2.add(inputLabel2);
+        tempPanel2.add(inputLabelNewPass);
         tempPanel3.add(label3);
-        tempPanel3.add(inputLabel3);
+        tempPanel3.add(inputLabelRePass);
 
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 1;
         gbcMain.anchor = GridBagConstraints.LINE_END;
-        mainPanel.add(tempPanel1, gbcMain);
+        mainPanel1.add(tempPanel1, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel.add(tempPanel2, gbcMain);
+        mainPanel1.add(tempPanel2, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel.add(tempPanel3, gbcMain);
+        mainPanel1.add(tempPanel3, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel.add(btnUpdatePass, gbcMain);
+        mainPanel1.add(btnUpdatePass, gbcMain);
 
         JSeparator sep4 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep4, gbcMain);
+        mainPanel1.add(sep4, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         //chức năng 1e
-        JPanel listLoginHistory = new JPanel();
+        listLoginHistory = new JPanel();
         listLoginHistory.setSize(300, 800);
         listLoginHistory.setLayout(new GridBagLayout());
-        GridBagConstraints gbcListHist = new GridBagConstraints();
+        gbcListHist = new GridBagConstraints();
         gbcListHist.insets = new Insets(0, 2, 5, 2);
 
         JLabel unameLoginHist = new JLabel("Tên đăng nhập");
@@ -1226,19 +1421,6 @@ public class Admin_demo {
         gbcListHist.gridy = 0;
         listLoginHistory.add(loginDate, gbcListHist);
 
-        // list of login history will be here
-        for (int i = 0; i < 15; i++) {
-            gbcListHist.gridy += 1;
-            gbcListHist.gridx = 0;
-            for (int j = 0; j < 2; j++) {
-                JLabel labelLoginHist = new JLabel("This is a very long long info");
-
-                listLoginHistory.add(labelLoginHist, gbcListHist);
-
-                gbcListHist.gridx += 1;
-            }
-        }
-
         listLoginHistory.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         JScrollPane myScrollLoginHist = new JScrollPane(listLoginHistory);
@@ -1251,36 +1433,48 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel.add(myScrollLoginHist, gbcMain);
+        mainPanel1.add(myScrollLoginHist, gbcMain);
 
         gbcMain.gridwidth = 1;
 
-        JTextField inputUnameHist = new JTextField(15);
+        inputUnameHist = new JTextField(15);
         inputUnameHist.setText("Nhập tên đăng nhập");
         JButton btnLoginHist = new JButton("Xem lịch sử đăng nhập");
+
+        btnLoginHist.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String un = inputUnameHist.getText();
+                if (!un.equals("Nhập tên đăng nhập")) {
+                    // write the info to the server
+                    ArrayList<ArrayList<String>> temp = null;
+                    updateListLoginHist(temp);
+                }
+            }
+        });
 
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel.add(inputUnameHist, gbcMain);
+        mainPanel1.add(inputUnameHist, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnLoginHist, gbcMain);
+        mainPanel1.add(btnLoginHist, gbcMain);
 
         JSeparator sep5 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(sep5, gbcMain);
+        mainPanel1.add(sep5, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 1f
-        JPanel listFriend = new JPanel();
+        listFriend = new JPanel();
         listFriend.setSize(300, 800);
         listFriend.setLayout(new GridBagLayout());
-        GridBagConstraints gbcListFriend = new GridBagConstraints();
+        gbcListFriend = new GridBagConstraints();
         gbcListFriend.insets = new Insets(0, 2, 5, 2);
 
         JLabel unameFriend = new JLabel("Tên đăng nhập (bạn bè)");
@@ -1297,19 +1491,6 @@ public class Admin_demo {
         gbcListFriend.gridy = 0;
         listFriend.add(status, gbcListFriend);
 
-        // list of friend will be here
-        for (int i = 0; i < 15; i++) {
-            gbcListFriend.gridy += 1;
-            gbcListFriend.gridx = 0;
-            for (int j = 0; j < 2; j++) {
-                JLabel labelFriend = new JLabel("This is a very long long info");
-
-                listFriend.add(labelFriend, gbcListFriend);
-
-                gbcListFriend.gridx += 1;
-            }
-        }
-
         listFriend.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         JScrollPane myScrollFriend = new JScrollPane(listFriend);
@@ -1322,25 +1503,40 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel.add(myScrollFriend, gbcMain);
+        mainPanel1.add(myScrollFriend, gbcMain);
 
         gbcMain.gridwidth = 1;
 
-        JTextField inputUnameFriend = new JTextField(15);
+        inputUnameFriend = new JTextField(15);
         inputUnameFriend.setText("Nhập tên đăng nhập");
         JButton btnFriend = new JButton("Xem danh sách bạn bè");
+
+        btnFriend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String un = inputUnameFriend.getText();
+                if (!un.equals("Nhập tên đăng nhập")) {
+                    // write the info to the server
+                    ArrayList<ArrayList<String>> temp = null;
+                    updateListFriend(temp);
+                }
+                else {
+                    inputUnameFriend.setText("");
+                }
+            }
+        });
 
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel.add(inputUnameFriend, gbcMain);
+        mainPanel1.add(inputUnameFriend, gbcMain);
 
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
-        mainPanel.add(btnFriend, gbcMain);
+        mainPanel1.add(btnFriend, gbcMain);
 
 
-        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel1);
         outerScrollPane.setPreferredSize(new Dimension(1600, 750));
         outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -2251,6 +2447,7 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
+
     private JPanel trang9() {
         JFreeChart chart = this.createChart1(this.createDataset1());
         CategoryPlot plot = chart.getCategoryPlot();
@@ -2288,6 +2485,7 @@ public class Admin_demo {
 
         return mainPanel;
     }
+
     private CategoryDataset createDataset() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         dataset.addValue(10, "Người đăng ký mới", "1");
@@ -2305,6 +2503,7 @@ public class Admin_demo {
 
         return dataset;
     }
+
     private JFreeChart createChart(CategoryDataset dataset) {
         return ChartFactory.createBarChart(
                 "Biểu đồ số lượng người đăng ký mới năm 2023",
@@ -2348,6 +2547,7 @@ public class Admin_demo {
                 false
         );
     }
+
     private void setTextfield(JTextField textfield) {
         textfield.setFont(new Font("Serif", Font.PLAIN, 20));
         textfield.setPreferredSize(new Dimension(260, 30));
@@ -2741,6 +2941,7 @@ public class Admin_demo {
 
         return outerPanel9;
     }
+
     private void write(String message) throws IOException {
         os.write(message);
         os.newLine();
