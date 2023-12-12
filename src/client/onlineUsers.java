@@ -4,17 +4,80 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 public class onlineUsers extends JPanel {
-    private DefaultListModel<String> listModel;
+    private DefaultListModel<String> onlineList;
     private JList<String> userList;
     private JTextField searchBar;
     private JLabel navigation;
+
+    private void showPopupMenu(int x, int y, JList<String> list) {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem spam = new JMenuItem("Report For Spam");
+        JMenuItem viewChatHistory = new JMenuItem("View Chat History");
+        JMenuItem clearChatHistory = new JMenuItem("Clear Chat History");
+        JMenuItem searchChatHistory = new JMenuItem("Search Chat History");
+
+        spam.addActionListener(e -> {
+            // You can perform an action here, e.g., based on the selected item
+            String selectedItem = list.getSelectedValue();
+            System.out.println("Perform action on: " + selectedItem);
+        });
+
+        viewChatHistory.addActionListener(e -> {
+            // You can perform an action here, e.g., based on the selected item
+            String selectedItem = list.getSelectedValue();
+            System.out.println("Perform action on: " + selectedItem);
+        });
+
+        clearChatHistory.addActionListener(e -> {
+            // You can perform an action here, e.g., based on the selected item
+            String selectedItem = list.getSelectedValue();
+            System.out.println("Perform action on: " + selectedItem);
+
+            int choice = JOptionPane.showConfirmDialog(this, "Would you like to clear all of the chat history? (You cannot undo after this)", "Clear Chat History?", JOptionPane.YES_NO_OPTION);
+            //Deal with task in accordance to choice
+        });
+
+        searchChatHistory.addActionListener(e -> {
+            // You can perform an action here, e.g., based on the selected item
+            String selectedItem = list.getSelectedValue();
+            System.out.println("Perform action on: " + selectedItem);
+        });
+
+        popupMenu.add(spam);
+        popupMenu.add(viewChatHistory);
+        popupMenu.add(clearChatHistory);
+        popupMenu.add(searchChatHistory);
+        popupMenu.show(list, x, y);
+    }
+
+    private void SetPlaceholder(JTextField textField, String placeholder)
+    {
+        textField.setForeground(Color.GRAY);
+        textField.setText(placeholder);
+
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK); // Set text color to default when focused
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setForeground(Color.GRAY);
+                    textField.setText(placeholder); // Reset placeholder text when focus is lost
+                }
+            }
+        });
+    }
+
     public onlineUsers(JFrame mainFrame) {
         this.setLayout(new BorderLayout());
         navigation = new JLabel("Welcome, User");
@@ -28,15 +91,47 @@ public class onlineUsers extends JPanel {
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        searchBar.setSize(new Dimension(600, 200));
+        SetPlaceholder(searchBar, "Chat With A Friend");
+        searchBar.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
 
         JPanel userListPanel = new JPanel(new BorderLayout());
 
-        listModel = new DefaultListModel<>();
+        onlineList = new DefaultListModel<>();
         //we can dynamically add users here
-        listModel.add(0, "user1");
-        userList = new JList<>(listModel);
+        onlineList.add(0, "user1");
+        onlineList.add(1, "user2");
+        onlineList.add(2, "user3");
+        userList = new JList<>(onlineList);
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        userList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int index = userList.locationToIndex(e.getPoint());
+                    if (index != -1) {
+                        userList.setSelectedIndex(index);
+                        showPopupMenu(e.getX(), e.getY(), userList);
+                    }
+                }
+            }
+        });
 
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem blockedList = new JMenuItem("Blocked List");
@@ -98,10 +193,11 @@ public class onlineUsers extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(userList);
+        scrollPane.setSize(600, 400);
         userListPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(navigation, BorderLayout.NORTH);
-        this.add(searchBar, BorderLayout.CENTER);
-        this.add(userListPanel, BorderLayout.SOUTH);
+        this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
+        this.add(userListPanel, BorderLayout.CENTER);
     }
 
     private class AddUserListener implements ActionListener {
@@ -109,7 +205,7 @@ public class onlineUsers extends JPanel {
         public void actionPerformed(ActionEvent e) {
             String username = JOptionPane.showInputDialog("Enter Username:");
             if (username != null && !username.trim().isEmpty()) {
-                listModel.addElement(username);
+                onlineList.addElement(username);
             }
         }
     }
@@ -119,7 +215,7 @@ public class onlineUsers extends JPanel {
         public void actionPerformed(ActionEvent e) {
             int selectedIndex = userList.getSelectedIndex();
             if (selectedIndex != -1) {
-                listModel.remove(selectedIndex);
+                onlineList.remove(selectedIndex);
             }
         }
     }
