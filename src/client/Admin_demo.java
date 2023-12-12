@@ -122,6 +122,18 @@ public class Admin_demo {
     private JTextField inputNewSearch;
     private JTextField inputFromDate;
     private JTextField inputToDate;
+    private JPanel listFriendPlus;
+    private GridBagConstraints gbcListFriendPlus;
+    private JRadioButton btnSortNamet7;
+    private JRadioButton btnSortDatet7;
+    private JTextField inputNameSearch;
+    private JTextField inputDir_fr;
+    private JPanel listOpen;
+    private GridBagConstraints gbcListOpen;
+    private JRadioButton btnSortNamet8;
+    private JRadioButton btnSortDatet8;
+    private JTextField inputNameSearcht8;
+    private JTextField inputDir_open;
     private GridBagConstraints gbcMain;
 
     /**
@@ -1037,6 +1049,36 @@ public class Admin_demo {
             }
         }
         listNew.revalidate();
+    }
+    private void updateListFriendPlus(ArrayList<ArrayList<String>> listFriendPlusInString) {
+        // list of friends and friends of friends will be here
+        for (ArrayList<String> strings : listFriendPlusInString) {
+            gbcListFriendPlus.gridy += 1;
+            gbcListFriendPlus.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listNew.add(label, gbcListFriendPlus);
+
+                gbcListFriendPlus.gridx += 1;
+            }
+        }
+        listFriendPlus.revalidate();
+    }
+    private void updateListOpen(ArrayList<ArrayList<String>> listOpenInString) {
+        // list of user open will be here
+        for (ArrayList<String> strings : listOpenInString) {
+            gbcListOpen.gridy += 1;
+            gbcListOpen.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listOpen.add(label, gbcListOpen);
+
+                gbcListOpen.gridx += 1;
+            }
+        }
+        listOpen.revalidate();
     }
     private JScrollPane trang1() {
         mainPanel1 = new JPanel();
@@ -2044,6 +2086,9 @@ public class Admin_demo {
                 int sortBy = btnSortNamet4.isSelected() ? 1 : btnSortDatet4.isSelected() ? -1 : 0;
                 int filterBy = btnFilterName.isSelected() ? 1 : btnFilterDate.isSelected() ? -1 : 0;
                 String tempInputSpamSearch = inputSpamSearch.getText();
+
+                ArrayList<ArrayList<String>> temp = null;
+                updateListSpam(temp);
             }
         });
 
@@ -2209,6 +2254,20 @@ public class Admin_demo {
         inputFromDate = new JTextField();
         inputToDate = new JTextField();
 
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int sortBy = btnSortNamet5.isSelected() ? 1 : btnSortDatet5.isSelected() ? -1 : 0;
+                String tempInputNewSearch = inputNewSearch.getText();
+                String tempInputFromDate = inputFromDate.getText();
+                String tempInputToDate = inputToDate.getText();
+
+                ArrayList<ArrayList<String>> temp = null;
+
+                updateListNew(temp);
+            }
+        });
+
         setLabel(fromDate);
         setLabel(toDate);
         setTextfield(inputFromDate);
@@ -2302,7 +2361,7 @@ public class Admin_demo {
         mainPanel.add(btn, gbcMain);
 
         return mainPanel;
-    }
+    } // not yet
 
     private JScrollPane trang7() {
         JPanel mainPanel = new JPanel();
@@ -2311,11 +2370,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 7a & 7b & 7c
-        JPanel listFriend = new JPanel();
-        listFriend.setSize(800, 800);
-        listFriend.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        listFriendPlus = new JPanel();
+        listFriendPlus.setSize(800, 800);
+        listFriendPlus.setLayout(new GridBagLayout());
+        gbcListFriendPlus = new GridBagConstraints();
+        gbcListFriendPlus.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fr = new JLabel("Bạn bè (trực tiếp)");
@@ -2325,34 +2384,21 @@ public class Admin_demo {
         setLabel(fr);
         setLabel(fr_fr);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listFriend.add(uname, gbc);
+        gbcListFriendPlus.gridx = 0;
+        gbcListFriendPlus.gridy = 0;
+        listFriend.add(uname, gbcListFriendPlus);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listFriend.add(fr, gbc);
+        gbcListFriendPlus.gridx = 1;
+        gbcListFriendPlus.gridy = 0;
+        listFriend.add(fr, gbcListFriendPlus);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        listFriend.add(fr_fr, gbc);
+        gbcListFriendPlus.gridx = 2;
+        gbcListFriendPlus.gridy = 0;
+        listFriend.add(fr_fr, gbcListFriendPlus);
 
-        // list of friend will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 3; j++) {
-                JLabel label = new JLabel("This is a very long long info");
+        listFriendPlus.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-                listFriend.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
-
-        listFriend.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-
-        JScrollPane myScroll = new JScrollPane(listFriend);
+        JScrollPane myScroll = new JScrollPane(listFriendPlus);
         myScroll.setPreferredSize(new Dimension(900, 300));
         myScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         myScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -2365,30 +2411,43 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
-        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        btnSortNamet7 = new JRadioButton("Sắp xếp theo tên");
+        btnSortDatet7 = new JRadioButton("Sắp xếp theo thời gian tạo");
         JButton btn = new JButton("Xem danh sách bạn bè");
         JLabel labelNName = new JLabel("Tên người dùng");
-        JTextField inputNSearch = new JTextField();
+        inputNameSearch = new JTextField();
         JLabel dir_fr = new JLabel("Số lượng bạn bè trực tiếp");
-        JTextField inputDir_fr = new JTextField();
+        inputDir_fr = new JTextField();
+
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int sortBy = btnSortNamet7.isSelected() ? 1 : btnSortDatet7.isSelected() ? -1 : 0;
+                String tempInputNameSearch = inputNameSearch.getText();
+                String tempInputDir_fr = inputDir_open.getText();
+
+                ArrayList<ArrayList<String>> temp = null;
+
+                updateListFriendPlus(temp);
+            }
+        });
 
         setLabel(dir_fr);
         setLabel(labelNName);
         setTextfield(inputDir_fr);
-        setTextfield(inputNSearch);
+        setTextfield(inputNameSearch);
 
         ButtonGroup btnG = new ButtonGroup();
-        btnG.add(btnname);
-        btnG.add(btntime);
+        btnG.add(btnSortNamet7);
+        btnG.add(btnSortDatet7);
 
         gbcMain.anchor = GridBagConstraints.LINE_START;
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnname, gbcMain);
+        mainPanel.add(btnSortNamet7, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btntime, gbcMain);
+        mainPanel.add(btnSortDatet7, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -2403,7 +2462,7 @@ public class Admin_demo {
         mainPanel.add(labelNName, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputNSearch, gbcMain);
+        mainPanel.add(inputNameSearch, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(dir_fr, gbcMain);
@@ -2430,11 +2489,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 8a & 8b & 8c
-        JPanel listOpen = new JPanel();
+        listOpen = new JPanel();
         listOpen.setSize(800, 800);
         listOpen.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListOpen = new GridBagConstraints();
+        gbcListOpen.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel open = new JLabel("Số lần mở ứng dụng");
@@ -2446,31 +2505,18 @@ public class Admin_demo {
         setLabel(chatPeop);
         setLabel(chatGroup);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listOpen.add(uname, gbc);
+        gbcListOpen.gridx = 0;
+        gbcListOpen.gridy = 0;
+        listOpen.add(uname, gbcListOpen);
 
-        gbc.gridx = 1;
-        listOpen.add(open, gbc);
+        gbcListOpen.gridx = 1;
+        listOpen.add(open, gbcListOpen);
 
-        gbc.gridx = 2;
-        listOpen.add(chatPeop, gbc);
+        gbcListOpen.gridx = 2;
+        listOpen.add(chatPeop, gbcListOpen);
 
-        gbc.gridx = 3;
-        listOpen.add(chatGroup, gbc);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 4; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listOpen.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
+        gbcListOpen.gridx = 3;
+        listOpen.add(chatGroup, gbcListOpen);
 
         listOpen.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -2487,30 +2533,43 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
-        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
+        btnSortNamet8 = new JRadioButton("Sắp xếp theo tên");
+        btnSortDatet8 = new JRadioButton("Sắp xếp theo thời gian tạo");
         JButton btn = new JButton("Xem danh sách người dùng hoạt động");
         JLabel labelNName = new JLabel("Tên người dùng");
-        JTextField inputNSearch = new JTextField();
+        inputNameSearcht8 = new JTextField();
         JLabel dir_open = new JLabel("Số lượng hoạt động");
-        JTextField inputDir_open = new JTextField();
+        inputDir_open = new JTextField();
+
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int sortBy = btnSortNamet8.isSelected() ? 1 : btnSortDatet8.isSelected() ? -1 : 0;
+                String tempInputNameSearcht8 = inputNameSearcht8.getText();
+                String tempInputDir_open = inputDir_open.getText();
+
+                ArrayList<ArrayList<String>> temp = null;
+
+                updateListOpen(temp);
+            }
+        });
 
         setLabel(dir_open);
         setLabel(labelNName);
         setTextfield(inputDir_open);
-        setTextfield(inputNSearch);
+        setTextfield(inputNameSearcht8);
 
         ButtonGroup btnG = new ButtonGroup();
-        btnG.add(btnname);
-        btnG.add(btntime);
+        btnG.add(btnSortNamet8);
+        btnG.add(btnSortDatet8);
 
         gbcMain.anchor = GridBagConstraints.LINE_START;
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnname, gbcMain);
+        mainPanel.add(btnSortNamet8, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btntime, gbcMain);
+        mainPanel.add(btnSortDatet8, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -2525,7 +2584,7 @@ public class Admin_demo {
         mainPanel.add(labelNName, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputNSearch, gbcMain);
+        mainPanel.add(inputNameSearcht8, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(dir_open, gbcMain);
@@ -2581,7 +2640,7 @@ public class Admin_demo {
         mainPanel.add(btn, gbcMain);
 
         return mainPanel;
-    }
+    } // not yet
 
     private CategoryDataset createDataset() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
