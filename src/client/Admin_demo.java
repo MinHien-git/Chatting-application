@@ -115,6 +115,13 @@ public class Admin_demo {
     private JRadioButton btnFilterDate;
     private JTextField inputSpamSearch;
     private JTextField inputLockt4;
+    private JPanel listNew;
+    private GridBagConstraints gbcListNew;
+    private JRadioButton btnSortNamet5;
+    private JRadioButton btnSortDatet5;
+    private JTextField inputNewSearch;
+    private JTextField inputFromDate;
+    private JTextField inputToDate;
     private GridBagConstraints gbcMain;
 
     /**
@@ -1015,6 +1022,21 @@ public class Admin_demo {
             }
         }
         listSpam.revalidate();
+    }
+    private void updateListNew(ArrayList<ArrayList<String>> listNewInString) {
+        // list of new user will be here
+        for (ArrayList<String> strings : listNewInString) {
+            gbcListNew.gridy += 1;
+            gbcListNew.gridx = 0;
+            for (String string : strings) {
+                JLabel label = new JLabel(string);
+
+                listNew.add(label, gbcListNew);
+
+                gbcListNew.gridx += 1;
+            }
+        }
+        listNew.revalidate();
     }
     private JScrollPane trang1() {
         mainPanel1 = new JPanel();
@@ -2112,11 +2134,11 @@ public class Admin_demo {
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 5a & 5b
-        JPanel listNew = new JPanel();
+        listNew = new JPanel();
         listNew.setSize(800, 800);
         listNew.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(0, 2, 5, 2);
+        gbcListNew = new GridBagConstraints();
+        gbcListNew.insets = new Insets(0, 2, 5, 2);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ & tên");
@@ -2134,46 +2156,33 @@ public class Admin_demo {
         setLabel(email);
         setLabel(timecreate);
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        listNew.add(uname, gbc);
+        gbcListNew.gridx = 0;
+        gbcListNew.gridy = 0;
+        listNew.add(uname, gbcListNew);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        listNew.add(fname, gbc);
+        gbcListNew.gridx = 1;
+        gbcListNew.gridy = 0;
+        listNew.add(fname, gbcListNew);
 
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        listNew.add(addr, gbc);
+        gbcListNew.gridx = 2;
+        gbcListNew.gridy = 0;
+        listNew.add(addr, gbcListNew);
 
-        gbc.gridx = 3;
-        gbc.gridy = 0;
-        listNew.add(dob, gbc);
+        gbcListNew.gridx = 3;
+        gbcListNew.gridy = 0;
+        listNew.add(dob, gbcListNew);
 
-        gbc.gridx = 4;
-        gbc.gridy = 0;
-        listNew.add(gender, gbc);
+        gbcListNew.gridx = 4;
+        gbcListNew.gridy = 0;
+        listNew.add(gender, gbcListNew);
 
-        gbc.gridx = 5;
-        gbc.gridy = 0;
-        listNew.add(email, gbc);
+        gbcListNew.gridx = 5;
+        gbcListNew.gridy = 0;
+        listNew.add(email, gbcListNew);
 
-        gbc.gridx = 6;
-        gbc.gridy = 0;
-        listNew.add(timecreate, gbc);
-
-        // list of user will be here
-        for (int i = 0; i < 15; i++) {
-            gbc.gridy += 1;
-            gbc.gridx = 0;
-            for (int j = 0; j < 7; j++) {
-                JLabel label = new JLabel("This is a very long long info");
-
-                listNew.add(label, gbc);
-
-                gbc.gridx += 1;
-            }
-        }
+        gbcListNew.gridx = 6;
+        gbcListNew.gridy = 0;
+        listNew.add(timecreate, gbcListNew);
 
         listNew.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -2190,26 +2199,26 @@ public class Admin_demo {
 
         gbcMain.gridwidth = 1;
 
-        JRadioButton btnname = new JRadioButton("Sắp xếp theo tên");
-        JRadioButton btntime = new JRadioButton("Sắp xếp theo thời gian tạo");
-        JTextField inputNSearch = new JTextField();
+        btnSortNamet5 = new JRadioButton("Sắp xếp theo tên");
+        btnSortDatet5 = new JRadioButton("Sắp xếp theo thời gian tạo");
+        inputNewSearch = new JTextField();
         JButton btn = new JButton("Xem danh sách đăng ký mới");
         JLabel labelGName = new JLabel("Tên người dùng");
         JLabel fromDate = new JLabel("Từ ngày");
         JLabel toDate = new JLabel("Đến ngày");
-        JTextField inputFromDate = new JTextField();
-        JTextField inputToDate = new JTextField();
+        inputFromDate = new JTextField();
+        inputToDate = new JTextField();
 
         setLabel(fromDate);
         setLabel(toDate);
         setTextfield(inputFromDate);
         setTextfield(inputToDate);
-        setTextfield(inputNSearch);
+        setTextfield(inputNewSearch);
         setLabel(labelGName);
 
         ButtonGroup btnG = new ButtonGroup();
-        btnG.add(btnname);
-        btnG.add(btntime);
+        btnG.add(btnSortNamet5);
+        btnG.add(btnSortDatet5);
 
         gbcMain.anchor = GridBagConstraints.LINE_START;
         gbcMain.gridy += 1;
@@ -2225,10 +2234,10 @@ public class Admin_demo {
         mainPanel.add(inputToDate, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btnname, gbcMain);
+        mainPanel.add(btnSortNamet5, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(btntime, gbcMain);
+        mainPanel.add(btnSortDatet5, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -2243,7 +2252,7 @@ public class Admin_demo {
         mainPanel.add(labelGName, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputNSearch, gbcMain);
+        mainPanel.add(inputNewSearch, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
