@@ -26,6 +26,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.border.BevelBorder;
 
 public class Admin_demo {
@@ -34,36 +35,8 @@ public class Admin_demo {
     private BufferedReader is;
     private Socket socketOfClient;
     private JFrame frame;
-    private JTextField GetUser_EMAIL;
-    private JTextField GetUser_NAME;
-    private JTextField GETGROUP_NAME;
-    private JTextField DELETEACCOUNT_name;
-    private JTextField ADDACCOUNT_USERNAME;
-    private JTextField ADDACCOUNT_PW;
-    private JTextField ADDACCOUNT_BIRTH;
-    private JTextField EDITACCOUNT_NAME;
-    private JTextField EDITACCOUNT_PW;
-    private JTextField EDITACCOUNT_BIRTH;
-    private JTextField GETGROUPADMIN_ID;
-    private JTextField GETGROUPMEMBER_ID;
-    private JTextField GETSPAM_DATETO;
-    private JTextField GETSPAM_DATEFROM;
-    private JTextField GETSPAM_NAME;
-    private JTextField GetUser_FROMDATE;
-    private JTextField GetUser_TODATE;
-    private JTextField GETREGISTERLIST_DATE_FROM;
-    private JTextField GETREGISTERLIST_DATE_TO;
-    private JTextField LOCKACCOUNT_NAME;
-    private JTextField UNLOCKACCOUNT_NAME;
-    private JTextField USERSFRIEND_NAME;
-    private JTextField USERSFRIEND_AMOUNT_FRIEND;
-    private JTextField GETREGISTERAMOUNT_YEAR;
-    private JTextField GETACTIVEAMOUNT_YEAR;
-
-    // ----------------------------------------------------------------------------------------------
     private JTabbedPane allTab;
     private JTextField inputSearch;
-    private JPanel mainPanel1;
     private JPanel listUser;
     private GridBagConstraints gbcListUser;
     private JCheckBox checkBoxUsernamep1;
@@ -142,7 +115,7 @@ public class Admin_demo {
     public static void main(String[] args) {
         Admin_demo window = new Admin_demo();
         window.frame.setVisible(true);
-//        window.setUpSocket();
+        window.setUpSocket();
     }
 
     /**
@@ -157,34 +130,6 @@ public class Admin_demo {
      */
     private void initialize() {
         frame = new JFrame();
-//        frame.setBounds(100, 100, 916, 991);
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        JPanel panel = new JPanel();
-//        frame.getContentPane().add(panel, BorderLayout.CENTER);
-//        panel.setLayout(null);
-//
-//        GetUser_EMAIL = new JTextField();
-//        GetUser_EMAIL.setBounds(47, 21, 61, 20);
-//        panel.add(GetUser_EMAIL);
-//        GetUser_EMAIL.setColumns(10);
-//
-//        JButton GetUserButton = new JButton("Get users");
-//        GetUserButton.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GetUserButton.setBackground(SystemColor.activeCaption);
-//        GetUserButton.setForeground(SystemColor.inactiveCaptionText);
-//        JCheckBox GetUser_STATUS = new JCheckBox("By Status");
-//        GetUser_STATUS.setBounds(121, 20, 91, 23);
-//        panel.add(GetUser_STATUS);
-//        JCheckBox GetUser_SORTNAME = new JCheckBox("By name");
-//        GetUser_SORTNAME.setBounds(10, 47, 76, 23);
-//        panel.add(GetUser_SORTNAME);
-//
-//        JCheckBox GetUser_SORTDATE = new JCheckBox("By date");
-//        GetUser_SORTDATE.setBounds(90, 48, 70, 23);
-//        panel.add(GetUser_SORTDATE);
-//
-//
 //        //Get users
 //        GetUserButton.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -204,38 +149,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GetUserButton.setBounds(200, 77, 110, 23);
-//        panel.add(GetUserButton);
-//
-//        JList GetUser_LIST = new JList();
-//        GetUser_LIST.setBounds(10, 102, 253, 97);
-//        panel.add(GetUser_LIST);
-//
-//        JLabel lblNewLabel = new JLabel("email");
-//        lblNewLabel.setBounds(10, 24, 46, 14);
-//        panel.add(lblNewLabel);
-//
-//        GetUser_NAME = new JTextField();
-//        GetUser_NAME.setColumns(10);
-//        GetUser_NAME.setBounds(197, 49, 61, 20);
-//        panel.add(GetUser_NAME);
-//
-//        JLabel lblTn = new JLabel("Tên");
-//        lblTn.setBounds(166, 52, 46, 14);
-//        panel.add(lblTn);
-//
-//
-//        JList GetLOGIN_ACTIVITIES_LIST = new JList();
-//        GetLOGIN_ACTIVITIES_LIST.setBounds(10, 238, 253, 118);
-//        panel.add(GetLOGIN_ACTIVITIES_LIST);
-//
-//        JButton GetLOGIN_ACTIVITIES_BTN = new JButton("Lấy ds đăng nhập");
-//        GetLOGIN_ACTIVITIES_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GetLOGIN_ACTIVITIES_BTN.setBackground(SystemColor.activeCaption);
-//        GetLOGIN_ACTIVITIES_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GetLOGIN_ACTIVITIES_BTN.setBorder(UIManager.getBorder("Button.border"));
-//
-//
+
 //        //GET LOGIN ACTIVITIES
 //        GetLOGIN_ACTIVITIES_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -246,33 +160,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GetLOGIN_ACTIVITIES_BTN.setBounds(10, 210, 253, 23);
-//        panel.add(GetLOGIN_ACTIVITIES_BTN);
-//
-//        JList list_2 = new JList();
-//        list_2.setBounds(10, 464, 253, 118);
-//        panel.add(list_2);
-//
-//        GETGROUP_NAME = new JTextField();
-//        GETGROUP_NAME.setColumns(10);
-//        GETGROUP_NAME.setBounds(33, 388, 61, 20);
-//        panel.add(GETGROUP_NAME);
-//
-//        JLabel lblTn_1 = new JLabel("Tên");
-//        lblTn_1.setBounds(10, 391, 46, 14);
-//        panel.add(lblTn_1);
-//
-//        JCheckBox GETGROUP_SORT_NAME = new JCheckBox("By name");
-//        GETGROUP_SORT_NAME.setBounds(90, 385, 76, 23);
-//        panel.add(GETGROUP_SORT_NAME);
-//
-//        JCheckBox GETGROUP_SORT_DATE = new JCheckBox("By date");
-//        GETGROUP_SORT_DATE.setBounds(170, 385, 70, 23);
-//        panel.add(GETGROUP_SORT_DATE);
-//
-//        JButton GETGROUP_BTN = new JButton("get group");
-//
-//
+
 //        //GET GROUP
 //        GETGROUP_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -288,34 +176,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETGROUP_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETGROUP_BTN.setBackground(SystemColor.activeCaption);
-//        GETGROUP_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETGROUP_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETGROUP_BTN.setBounds(10, 419, 253, 23);
-//        panel.add(GETGROUP_BTN);
-//
-//        DELETEACCOUNT_name = new JTextField();
-//        DELETEACCOUNT_name.setColumns(10);
-//        DELETEACCOUNT_name.setBounds(538, 226, 61, 20);
-//        panel.add(DELETEACCOUNT_name);
-//
-//        JLabel DELETEACCOUNTLABEL = new JLabel("name");
-//        DELETEACCOUNTLABEL.setBounds(496, 230, 46, 14);
-//        panel.add(DELETEACCOUNTLABEL);
-//
-//        ADDACCOUNT_USERNAME = new JTextField();
-//        ADDACCOUNT_USERNAME.setColumns(10);
-//        ADDACCOUNT_USERNAME.setBounds(530, 259, 74, 20);
-//        panel.add(ADDACCOUNT_USERNAME);
-//
-//        JButton DELETEACCOUNT_BTN = new JButton("Xoá");
-//        DELETEACCOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        DELETEACCOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        DELETEACCOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        DELETEACCOUNT_BTN.setBorder(UIManager.getBorder("Button.border"));
-//
-//
+
 //        //DELETE ACCOUNT
 //        DELETEACCOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -329,37 +190,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        DELETEACCOUNT_BTN.setBounds(609, 225, 76, 23);
-//        panel.add(DELETEACCOUNT_BTN);
-//
-//        JLabel lblName = new JLabel("name");
-//        lblName.setBounds(496, 262, 34, 14);
-//        panel.add(lblName);
-//
-//        ADDACCOUNT_PW = new JTextField();
-//        ADDACCOUNT_PW.setColumns(10);
-//        ADDACCOUNT_PW.setBounds(628, 259, 61, 20);
-//        panel.add(ADDACCOUNT_PW);
-//
-//        JLabel lblPw = new JLabel("pw");
-//        lblPw.setBounds(610, 262, 23, 14);
-//        panel.add(lblPw);
-//
-//        JButton ADDACCOUNT_BTN = new JButton("Thêm");
-//        JCheckBox ADDACCOUNT_SX = new JCheckBox("sex");
-//        ADDACCOUNT_SX.setBounds(496, 289, 91, 23);
-//        panel.add(ADDACCOUNT_SX);
-//
-//        JCheckBox EDITACCOUNT_SX = new JCheckBox("sex");
-//        EDITACCOUNT_SX.setBounds(491, 367, 91, 23);
-//        panel.add(EDITACCOUNT_SX);
-//
-//        ADDACCOUNT_BIRTH = new JTextField();
-//        ADDACCOUNT_BIRTH.setColumns(10);
-//        ADDACCOUNT_BIRTH.setBounds(628, 290, 61, 20);
-//        panel.add(ADDACCOUNT_BIRTH);
-//
-//
+
 //        //ADD ACCOUNT
 //        ADDACCOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -375,53 +206,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//
-//        ADDACCOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        ADDACCOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        ADDACCOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        ADDACCOUNT_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        ADDACCOUNT_BTN.setBounds(699, 258, 76, 23);
-//        panel.add(ADDACCOUNT_BTN);
-//
-//
-//        JLabel lblBirth = new JLabel("birth");
-//        lblBirth.setBounds(598, 293, 23, 14);
-//        panel.add(lblBirth);
-//
-//        EDITACCOUNT_NAME = new JTextField();
-//        EDITACCOUNT_NAME.setColumns(10);
-//        EDITACCOUNT_NAME.setBounds(530, 336, 74, 20);
-//        panel.add(EDITACCOUNT_NAME);
-//
-//        JLabel lblName_1 = new JLabel("name");
-//        lblName_1.setBounds(496, 339, 34, 14);
-//        panel.add(lblName_1);
-//
-//        JLabel lblPw_1 = new JLabel("pw");
-//        lblPw_1.setBounds(610, 339, 23, 14);
-//        panel.add(lblPw_1);
-//
-//        EDITACCOUNT_PW = new JTextField();
-//        EDITACCOUNT_PW.setColumns(10);
-//        EDITACCOUNT_PW.setBounds(628, 336, 61, 20);
-//        panel.add(EDITACCOUNT_PW);
-//
-//        JLabel lblBirth_1 = new JLabel("birth");
-//        lblBirth_1.setBounds(588, 371, 23, 14);
-//        panel.add(lblBirth_1);
-//
-//        EDITACCOUNT_BIRTH = new JTextField();
-//        EDITACCOUNT_BIRTH.setColumns(10);
-//        EDITACCOUNT_BIRTH.setBounds(628, 368, 61, 20);
-//        panel.add(EDITACCOUNT_BIRTH);
-//
-//        JButton EDITACCOUNT_BTN = new JButton("Sửa");
-//        EDITACCOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        EDITACCOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        EDITACCOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        EDITACCOUNT_BTN.setBorder(UIManager.getBorder("Button.border"));
-//
-//
+
 //        //EDIT ACCOUNT
 //        EDITACCOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -437,29 +222,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        EDITACCOUNT_BTN.setBounds(699, 335, 76, 23);
-//        panel.add(EDITACCOUNT_BTN);
-//
-//        JList list_2_1 = new JList();
-//        list_2_1.setBounds(12, 625, 179, 97);
-//        panel.add(list_2_1);
-//
-//        JLabel lblIdGroup_1 = new JLabel("id group");
-//        lblIdGroup_1.setBounds(8, 597, 46, 14);
-//        panel.add(lblIdGroup_1);
-//
-//        GETGROUPADMIN_ID = new JTextField();
-//        GETGROUPADMIN_ID.setColumns(10);
-//        GETGROUPADMIN_ID.setBounds(64, 594, 61, 20);
-//        panel.add(GETGROUPADMIN_ID);
-//
-//        JButton GETGROUPADMIN_BTN = new JButton("get admin");
-//        GETGROUPADMIN_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETGROUPADMIN_BTN.setBackground(SystemColor.activeCaption);
-//        GETGROUPADMIN_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETGROUPADMIN_BTN.setBorder(UIManager.getBorder("Button.border"));
-//
-//
+
 //        //GET GROUP ADMIN
 //        GETGROUPADMIN_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -472,11 +235,6 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETGROUPADMIN_BTN.setBounds(125, 593, 87, 23);
-//        panel.add(GETGROUPADMIN_BTN);
-//
-//        JButton GETGROUPMEMBER_BTN = new JButton("get users");
-//
 //
 //        //GET GROUP MEMBER
 //        GETGROUPMEMBER_BTN.addActionListener(new ActionListener() {
@@ -490,68 +248,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETGROUPMEMBER_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETGROUPMEMBER_BTN.setBackground(SystemColor.activeCaption);
-//        GETGROUPMEMBER_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETGROUPMEMBER_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETGROUPMEMBER_BTN.setBounds(341, 591, 87, 23);
-//        panel.add(GETGROUPMEMBER_BTN);
-//
-//        GETGROUPMEMBER_ID = new JTextField();
-//        GETGROUPMEMBER_ID.setColumns(10);
-//        GETGROUPMEMBER_ID.setBounds(280, 593, 61, 20);
-//        panel.add(GETGROUPMEMBER_ID);
-//
-//        JLabel lblIdGroup_1_1 = new JLabel("id group");
-//        lblIdGroup_1_1.setBounds(235, 597, 46, 14);
-//        panel.add(lblIdGroup_1_1);
-//
-//        JList list_2_1_1 = new JList();
-//        list_2_1_1.setBounds(235, 625, 179, 97);
-//        panel.add(list_2_1_1);
-//
-//        JList GETSPAM_LIST = new JList();
-//        GETSPAM_LIST.setBounds(496, 79, 341, 118);
-//        panel.add(GETSPAM_LIST);
-//
-//        GETSPAM_DATETO = new JTextField();
-//        GETSPAM_DATETO.setColumns(10);
-//        GETSPAM_DATETO.setBounds(663, 21, 46, 20);
-//        panel.add(GETSPAM_DATETO);
-//
-//        JLabel lable = new JLabel("To date");
-//        lable.setBounds(604, 24, 61, 14);
-//        panel.add(lable);
-//
-//        GETSPAM_DATEFROM = new JTextField();
-//        GETSPAM_DATEFROM.setColumns(10);
-//        GETSPAM_DATEFROM.setBounds(533, 21, 61, 20);
-//        panel.add(GETSPAM_DATEFROM);
-//
-//        JLabel GETSPAM_FROM = new JLabel("From");
-//        GETSPAM_FROM.setBounds(496, 24, 46, 14);
-//        panel.add(GETSPAM_FROM);
-//
-//        GETSPAM_NAME = new JTextField();
-//        GETSPAM_NAME.setColumns(10);
-//        GETSPAM_NAME.setBounds(527, 48, 61, 20);
-//        panel.add(GETSPAM_NAME);
-//
-//        JLabel lblTn_2 = new JLabel("Tên");
-//        lblTn_2.setBounds(496, 51, 46, 14);
-//        panel.add(lblTn_2);
-//
-//        JCheckBox GETSPAM_SORTNAME = new JCheckBox("By name");
-//        GETSPAM_SORTNAME.setBounds(594, 47, 76, 23);
-//        panel.add(GETSPAM_SORTNAME);
-//
-//        JCheckBox GETSPAM_SORTDATE = new JCheckBox("By date");
-//        GETSPAM_SORTDATE.setBounds(674, 47, 70, 23);
-//        panel.add(GETSPAM_SORTDATE);
-//
-//        JButton GETSPAM_BTN = new JButton("get spam");
-//
-//
+
 //        //GET SPAM LIST
 //        GETSPAM_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -570,42 +267,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//
-//        GETSPAM_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETSPAM_BTN.setBackground(SystemColor.activeCaption);
-//        GETSPAM_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETSPAM_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETSPAM_BTN.setBounds(750, 47, 87, 23);
-//        panel.add(GETSPAM_BTN);
-//
-//        GetUser_FROMDATE = new JTextField();
-//        GetUser_FROMDATE.setColumns(10);
-//        GetUser_FROMDATE.setBounds(40, 77, 46, 20);
-//        panel.add(GetUser_FROMDATE);
-//
-//        JLabel lblNewLabel_1_1 = new JLabel("From");
-//        lblNewLabel_1_1.setBounds(10, 80, 46, 14);
-//        panel.add(lblNewLabel_1_1);
-//
-//        JLabel lblTrngThi_2_1 = new JLabel("To date");
-//        lblTrngThi_2_1.setBounds(100, 80, 61, 14);
-//        panel.add(lblTrngThi_2_1);
-//
-//        GetUser_TODATE = new JTextField();
-//        GetUser_TODATE.setColumns(10);
-//        GetUser_TODATE.setBounds(144, 77, 46, 20);
-//        panel.add(GetUser_TODATE);
-//
-//        JList list_1_1 = new JList();
-//        list_1_1.setBounds(484, 474, 253, 118);
-//        panel.add(list_1_1);
-//
-//        JButton GETREGISTERLIST_BTN = new JButton("Lấy ds đăng kí");
-//        JCheckBox GETREGISTERLIST_SORTNAME = new JCheckBox("By name");
-//        GETREGISTERLIST_SORTNAME.setBounds(484, 444, 76, 23);
-//        panel.add(GETREGISTERLIST_SORTNAME);
-//
-//
+
 //        //GET REGISTER LIST
 //        GETREGISTERLIST_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -622,48 +284,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETREGISTERLIST_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETREGISTERLIST_BTN.setBackground(SystemColor.activeCaption);
-//        GETREGISTERLIST_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETREGISTERLIST_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETREGISTERLIST_BTN.setBounds(484, 413, 117, 23);
-//        panel.add(GETREGISTERLIST_BTN);
-//
-//        GETREGISTERLIST_DATE_FROM = new JTextField();
-//        GETREGISTERLIST_DATE_FROM.setColumns(10);
-//        GETREGISTERLIST_DATE_FROM.setBounds(644, 413, 61, 20);
-//        panel.add(GETREGISTERLIST_DATE_FROM);
-//
-//        JLabel lblNewLabel_1_2 = new JLabel("From");
-//        lblNewLabel_1_2.setBounds(607, 416, 46, 14);
-//        panel.add(lblNewLabel_1_2);
-//
-//        JLabel lblTrngThi_2_2 = new JLabel("To date");
-//        lblTrngThi_2_2.setBounds(715, 416, 61, 14);
-//        panel.add(lblTrngThi_2_2);
-//
-//        GETREGISTERLIST_DATE_TO = new JTextField();
-//        GETREGISTERLIST_DATE_TO.setColumns(10);
-//        GETREGISTERLIST_DATE_TO.setBounds(774, 413, 46, 20);
-//        panel.add(GETREGISTERLIST_DATE_TO);
-//
-//        JCheckBox GETREGISTERLIST_SORTDATE = new JCheckBox("By date");
-//        GETREGISTERLIST_SORTDATE.setBounds(564, 444, 70, 23);
-//        panel.add(GETREGISTERLIST_SORTDATE);
-//
-//
-//        LOCKACCOUNT_NAME = new JTextField();
-//        LOCKACCOUNT_NAME.setColumns(10);
-//        LOCKACCOUNT_NAME.setBounds(567, 603, 61, 20);
-//        panel.add(LOCKACCOUNT_NAME);
-//
-//        JLabel lblTn_1_1 = new JLabel("Khoá tài khoản");
-//        lblTn_1_1.setBounds(486, 606, 98, 14);
-//        panel.add(lblTn_1_1);
-//
-//        JButton LOCKACCOUNT_BTN = new JButton("Khoá");
-//
-//
+
 //        //LOCK ACCOUNT
 //        LOCKACCOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -677,19 +298,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        LOCKACCOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        LOCKACCOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        LOCKACCOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        LOCKACCOUNT_BTN.setBounds(640, 602, 69, 23);
-//        panel.add(LOCKACCOUNT_BTN);
-//
-//        JButton UNLOCKACCOUNT_BTN = new JButton("Mở khoá");
-//        UNLOCKACCOUNT_NAME = new JTextField();
-//        UNLOCKACCOUNT_NAME.setColumns(10);
-//        UNLOCKACCOUNT_NAME.setBounds(565, 635, 61, 20);
-//        panel.add(UNLOCKACCOUNT_NAME);
-//
-//
+
 //        //UNLOCK ACCOUNT
 //        UNLOCKACCOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -703,40 +312,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        UNLOCKACCOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        UNLOCKACCOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        UNLOCKACCOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        UNLOCKACCOUNT_BTN.setBounds(638, 634, 87, 23);
-//        panel.add(UNLOCKACCOUNT_BTN);
-//
-//        JLabel lblTn_1_1_1 = new JLabel("Mở tài khoản");
-//        lblTn_1_1_1.setBounds(484, 638, 98, 14);
-//        panel.add(lblTn_1_1_1);
-//
-//        JList list_1_1_1 = new JList();
-//        list_1_1_1.setBounds(484, 729, 253, 118);
-//        panel.add(list_1_1_1);
-//
-//        JCheckBox USERSFRIEND_SORT_NAME = new JCheckBox("By name");
-//        USERSFRIEND_SORT_NAME.setBounds(484, 699, 76, 23);
-//        panel.add(USERSFRIEND_SORT_NAME);
-//
-//        JCheckBox USERSFRIEND_SORT_DATE = new JCheckBox("By date");
-//        USERSFRIEND_SORT_DATE.setBounds(564, 699, 70, 23);
-//        panel.add(USERSFRIEND_SORT_DATE);
-//
-//        USERSFRIEND_NAME = new JTextField();
-//        USERSFRIEND_NAME.setColumns(10);
-//        USERSFRIEND_NAME.setBounds(680, 668, 61, 20);
-//        panel.add(USERSFRIEND_NAME);
-//
-//        JLabel lblNewLabel_1_2_1 = new JLabel("name");
-//        lblNewLabel_1_2_1.setBounds(643, 671, 46, 14);
-//        panel.add(lblNewLabel_1_2_1);
-//
-//        JButton USERSFRIEND_BTN = new JButton("Lấy ds người dùng");
-//
-//
+
 //        //GET USER FRIENDS
 //        USERSFRIEND_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -753,28 +329,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        USERSFRIEND_BTN.setBackground(SystemColor.activeCaption);
-//        USERSFRIEND_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        USERSFRIEND_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        USERSFRIEND_BTN.setBounds(484, 668, 150, 23);
-//        panel.add(USERSFRIEND_BTN);
-//
-//        JLabel lblTrngThi_2_2_1 = new JLabel("amount f");
-//        lblTrngThi_2_2_1.setBounds(643, 702, 58, 14);
-//        panel.add(lblTrngThi_2_2_1);
-//
-//        USERSFRIEND_AMOUNT_FRIEND = new JTextField();
-//        USERSFRIEND_AMOUNT_FRIEND.setColumns(10);
-//        USERSFRIEND_AMOUNT_FRIEND.setBounds(704, 699, 46, 20);
-//        panel.add(USERSFRIEND_AMOUNT_FRIEND);
-//
-//        JList list_1_1_1_1 = new JList();
-//        list_1_1_1_1.setBounds(10, 761, 253, 64);
-//        panel.add(list_1_1_1_1);
-//
-//        JButton GETREGISTERAMOUNT_BTN = new JButton("Lấy SL đk");
-//
-//
+
 //        //GET REGISTER AMOUNT
 //        GETREGISTERAMOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -787,29 +342,7 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETREGISTERAMOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETREGISTERAMOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        GETREGISTERAMOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETREGISTERAMOUNT_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETREGISTERAMOUNT_BTN.setBounds(103, 733, 139, 23);
-//        panel.add(GETREGISTERAMOUNT_BTN);
-//
-//        JLabel lblTrngThi_2_2_2 = new JLabel("Year");
-//        lblTrngThi_2_2_2.setBounds(10, 736, 61, 14);
-//        panel.add(lblTrngThi_2_2_2);
-//
-//        GETREGISTERAMOUNT_YEAR = new JTextField();
-//        GETREGISTERAMOUNT_YEAR.setColumns(10);
-//        GETREGISTERAMOUNT_YEAR.setBounds(47, 733, 46, 20);
-//        panel.add(GETREGISTERAMOUNT_YEAR);
-//
-//        JList list_1_1_1_1_1 = new JList();
-//        list_1_1_1_1_1.setBounds(10, 864, 253, 64);
-//        panel.add(list_1_1_1_1_1);
-//
-//        JButton GETACTIVEAMOUNT_BTN = new JButton("Lấy SL HD");
-//
-//
+
 //        //GET ACTIVE LOG
 //        GETACTIVEAMOUNT_BTN.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
@@ -822,21 +355,6 @@ public class Admin_demo {
 //                }
 //            }
 //        });
-//        GETACTIVEAMOUNT_BTN.setFont(new Font("Tahoma", Font.PLAIN, 10));
-//        GETACTIVEAMOUNT_BTN.setBackground(SystemColor.activeCaption);
-//        GETACTIVEAMOUNT_BTN.setForeground(SystemColor.inactiveCaptionText);
-//        GETACTIVEAMOUNT_BTN.setBorder(UIManager.getBorder("Button.border"));
-//        GETACTIVEAMOUNT_BTN.setBounds(103, 836, 139, 23);
-//        panel.add(GETACTIVEAMOUNT_BTN);
-//
-//        GETACTIVEAMOUNT_YEAR = new JTextField();
-//        GETACTIVEAMOUNT_YEAR.setColumns(10);
-//        GETACTIVEAMOUNT_YEAR.setBounds(47, 836, 46, 20);
-//        panel.add(GETACTIVEAMOUNT_YEAR);
-//
-//        JLabel lblTrngThi_2_2_2_1 = new JLabel("Active");
-//        lblTrngThi_2_2_2_1.setBounds(10, 839, 61, 14);
-//        panel.add(lblTrngThi_2_2_2_1);
 
         JPanel defaultPanel = new JPanel();
         JPanel panel1 = new JPanel();
@@ -915,21 +433,48 @@ public class Admin_demo {
         return mainPanel;
     }
 
-    private void updateListUser(ArrayList<ArrayList<String>> listUserInString) {
-        // list of user will be here
-        for (ArrayList<String> strings : listUserInString) {
+    private void updateListUser(ArrayList<String> listUserInString, int checkEnd) {
+        if (gbcListUser.gridy == 0) {
+            int compCount = listUser.getComponentCount();
+            if (compCount > 6) {
+                for (int i = compCount - 1; i >= 6; i--) {
+                    listUser.remove(i);
+                }
+            }
+
             gbcListUser.gridy += 1;
             gbcListUser.gridx = 0;
-            for (String string : strings) {
+            for (String string : listUserInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listUser.add(label, gbcListUser);
 
                 gbcListUser.gridx += 1;
             }
+
+            listUser.revalidate();
+            listUser.repaint();
+        } else {
+            gbcListUser.gridy += 1;
+            gbcListUser.gridx = 0;
+            for (String string : listUserInString) {
+                JLabel label = new JLabel(string);
+
+                listUser.add(label, gbcListUser);
+
+                gbcListUser.gridx += 1;
+            }
+            listUser.revalidate();
         }
-        listUser.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListUser.gridy = 0;
+        }
     }
+
     private void updateListLoginHist(ArrayList<ArrayList<String>> listLoginHistInString) {
         // list of login history will be here
         for (ArrayList<String> strings : listLoginHistInString) {
@@ -945,6 +490,7 @@ public class Admin_demo {
         }
         listLoginHistory.revalidate();
     }
+
     private void updateListFriend(ArrayList<ArrayList<String>> listFriendInString) {
         // list of friend will be here
         for (ArrayList<String> strings : listFriendInString) {
@@ -960,6 +506,7 @@ public class Admin_demo {
         }
         listFriend.revalidate();
     }
+
     private void updateListLogin(ArrayList<ArrayList<String>> listLoginInString) {
         // list of login will be here
         for (ArrayList<String> strings : listLoginInString) {
@@ -975,6 +522,7 @@ public class Admin_demo {
         }
         listLogin.revalidate();
     }
+
     private void updateListGroup(ArrayList<ArrayList<String>> listGroupInString) {
         // list of group will be here
         for (ArrayList<String> strings : listGroupInString) {
@@ -990,6 +538,7 @@ public class Admin_demo {
         }
         listGroup.revalidate();
     }
+
     private void updateListMemGroup(ArrayList<ArrayList<String>> listMemGroupInString) {
         // list of group will be here
         for (ArrayList<String> strings : listMemGroupInString) {
@@ -1005,6 +554,7 @@ public class Admin_demo {
         }
         listMember.revalidate();
     }
+
     private void updateListAdmin(ArrayList<ArrayList<String>> listAdminInString) {
         // list of admin will be here
         for (ArrayList<String> strings : listAdminInString) {
@@ -1020,6 +570,7 @@ public class Admin_demo {
         }
         listAdmin.revalidate();
     }
+
     private void updateListSpam(ArrayList<ArrayList<String>> listSpamInString) {
         // list of spam will be here
         for (ArrayList<String> strings : listSpamInString) {
@@ -1035,6 +586,7 @@ public class Admin_demo {
         }
         listSpam.revalidate();
     }
+
     private void updateListNew(ArrayList<ArrayList<String>> listNewInString) {
         // list of new user will be here
         for (ArrayList<String> strings : listNewInString) {
@@ -1050,6 +602,7 @@ public class Admin_demo {
         }
         listNew.revalidate();
     }
+
     private void updateListFriendPlus(ArrayList<ArrayList<String>> listFriendPlusInString) {
         // list of friends and friends of friends will be here
         for (ArrayList<String> strings : listFriendPlusInString) {
@@ -1065,6 +618,7 @@ public class Admin_demo {
         }
         listFriendPlus.revalidate();
     }
+
     private void updateListOpen(ArrayList<ArrayList<String>> listOpenInString) {
         // list of user open will be here
         for (ArrayList<String> strings : listOpenInString) {
@@ -1080,10 +634,11 @@ public class Admin_demo {
         }
         listOpen.revalidate();
     }
+
     private JScrollPane trang1() {
-        mainPanel1 = new JPanel();
-        mainPanel1.setLayout(new GridBagLayout());
-        gbcMain = new GridBagConstraints();
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcMain = new GridBagConstraints();
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // chức năng 1a
@@ -1099,7 +654,6 @@ public class Admin_demo {
         JLabel dob = new JLabel("Ngày sinh");
         JLabel gender = new JLabel("Giới tính");
         JLabel email = new JLabel("Email");
-
 
         // set the style for the label
         setLabel(uname);
@@ -1148,12 +702,12 @@ public class Admin_demo {
         gbcMain.gridx = 0;
         gbcMain.gridy = 0;
         gbcMain.gridwidth = 3;
-        mainPanel1.add(myScroll, gbcMain);
+        mainPanel.add(myScroll, gbcMain);
 
         gbcMain.gridwidth = 1;
 
         // declare components to filter the list user
-        inputSearch = new JTextField("Nhập tên cần tìm kiếm");
+        inputSearch = new JTextField();
         checkBoxUsernamep1 = new JCheckBox("Tên đăng nhập");
         checkBoxSortNamep1 = new JCheckBox("Sắp xếp theo tên");
         checkBoxSortCreatep1 = new JCheckBox("Sắp xếp theo ngày tạo");
@@ -1163,18 +717,6 @@ public class Admin_demo {
         btnFindp1 = new JButton("Tìm kiếm");
 
         setTextfield(inputSearch);
-        // set the function for the textfield
-        inputSearch.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                inputSearch.setText("");
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                inputSearch.setText("Nhập tên cần tìm kiếm");
-            }
-        });
 
         // set the function for the button "find"
         btnFindp1.addActionListener(new ActionListener() {
@@ -1186,15 +728,19 @@ public class Admin_demo {
                 String nameToSearch = inputSearch.getText().isEmpty() ? "" : inputSearch.getText();
                 String status = "";
                 if (btnAllStatusp1.isSelected()) {
-                    status = btnAllStatusp1.getText();
+                    status = "Both";
                 } else if (btnOnlinep1.isSelected()) {
-                    status = btnOnlinep1.getText();
+                    status = "Online";
                 } else {
-                    status = btnOfflinep1.getText();
+                    status = "Offline";
                 }
                 ArrayList<ArrayList<String>> returnListUser = null;
-                // write the info to the server socket and get the data
-                updateListUser(returnListUser);
+                try {
+                    write("AdminGetListUser|%d|%d|%d|%s|%s".formatted(tempCheckBoxUsername, tempCheckBoxSortName, tempCheckBoxSortCreate, nameToSearch, status));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+//                updateListUser(returnListUser);
             }
         });
 
@@ -1209,19 +755,19 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel1.add(inputSearch, gbcMain);
+        mainPanel.add(inputSearch, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(checkBoxUsernamep1, gbcMain);
+        mainPanel.add(checkBoxUsernamep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(btnAllStatusp1, gbcMain);
+        mainPanel.add(btnAllStatusp1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(btnOnlinep1, gbcMain);
+        mainPanel.add(btnOnlinep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(btnOfflinep1, gbcMain);
+        mainPanel.add(btnOfflinep1, gbcMain);
 
         // add a separator to panel to separate checkbox, radio button
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
@@ -1229,19 +775,19 @@ public class Admin_demo {
         gbcMain.gridwidth = 1;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep, gbcMain);
+        mainPanel.add(sep, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
         // add checkbox to the panel
         gbcMain.gridy += 1;
-        mainPanel1.add(checkBoxSortNamep1, gbcMain);
+        mainPanel.add(checkBoxSortNamep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(checkBoxSortCreatep1, gbcMain);
+        mainPanel.add(checkBoxSortCreatep1, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(btnFindp1, gbcMain);
+        mainPanel.add(btnFindp1, gbcMain);
 
         // add a separator to separate the function
         JSeparator sep1 = new JSeparator(SwingConstants.HORIZONTAL);
@@ -1249,7 +795,7 @@ public class Admin_demo {
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep1, gbcMain);
+        mainPanel.add(sep1, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1434,13 +980,13 @@ public class Admin_demo {
         // add 3 panels to the main panel
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
-        mainPanel1.add(userAdd, gbcMain);
+        mainPanel.add(userAdd, gbcMain);
 
         gbcMain.gridx = 1;
-        mainPanel1.add(userUpdate, gbcMain);
+        mainPanel.add(userUpdate, gbcMain);
 
         gbcMain.gridx = 2;
-        mainPanel1.add(userDel, gbcMain);
+        mainPanel.add(userDel, gbcMain);
 
         gbcMain.gridx = 0;
 
@@ -1449,7 +995,7 @@ public class Admin_demo {
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep2, gbcMain);
+        mainPanel.add(sep2, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1492,14 +1038,14 @@ public class Admin_demo {
         // add the panel to the main panel
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 2;
-        mainPanel1.add(accountLock, gbcMain);
+        mainPanel.add(accountLock, gbcMain);
 
         JSeparator sep3 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep3, gbcMain);
+        mainPanel.add(sep3, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1542,20 +1088,20 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 1;
         gbcMain.anchor = GridBagConstraints.LINE_END;
-        mainPanel1.add(tempPanel1, gbcMain);
+        mainPanel.add(tempPanel1, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel1.add(tempPanel2, gbcMain);
+        mainPanel.add(tempPanel2, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel1.add(tempPanel3, gbcMain);
+        mainPanel.add(tempPanel3, gbcMain);
         gbcMain.gridy += 1;
-        mainPanel1.add(btnUpdatePass, gbcMain);
+        mainPanel.add(btnUpdatePass, gbcMain);
 
         JSeparator sep4 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep4, gbcMain);
+        mainPanel.add(sep4, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1592,7 +1138,7 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel1.add(myScrollLoginHist, gbcMain);
+        mainPanel.add(myScrollLoginHist, gbcMain);
 
         gbcMain.gridwidth = 1;
 
@@ -1615,17 +1161,17 @@ public class Admin_demo {
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel1.add(inputUnameHist, gbcMain);
+        mainPanel.add(inputUnameHist, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel1.add(btnLoginHist, gbcMain);
+        mainPanel.add(btnLoginHist, gbcMain);
 
         JSeparator sep5 = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.insets = new Insets(3, 0, 3, 0);
         gbcMain.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel1.add(sep5, gbcMain);
+        mainPanel.add(sep5, gbcMain);
         gbcMain.fill = GridBagConstraints.NONE;
         gbcMain.insets = new Insets(0, 0, 2, 0);
 
@@ -1662,7 +1208,7 @@ public class Admin_demo {
         gbcMain.gridy += 1;
         gbcMain.gridwidth = 3;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel1.add(myScrollFriend, gbcMain);
+        mainPanel.add(myScrollFriend, gbcMain);
 
         gbcMain.gridwidth = 1;
 
@@ -1687,14 +1233,14 @@ public class Admin_demo {
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
         gbcMain.anchor = GridBagConstraints.LINE_START;
-        mainPanel1.add(inputUnameFriend, gbcMain);
+        mainPanel.add(inputUnameFriend, gbcMain);
 
         gbcMain.gridx = 0;
         gbcMain.gridy += 1;
-        mainPanel1.add(btnFriend, gbcMain);
+        mainPanel.add(btnFriend, gbcMain);
 
 
-        JScrollPane outerScrollPane = new JScrollPane(mainPanel1);
+        JScrollPane outerScrollPane = new JScrollPane(mainPanel);
         outerScrollPane.setPreferredSize(new Dimension(1600, 750));
         outerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         outerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -3109,7 +2655,6 @@ public class Admin_demo {
             thread = new Thread() {
                 @Override
                 public void run() {
-
                     try {
                         // Gửi yêu cầu kết nối tới Server đang lắng nghe
                         // trên máy 'localhost' cổng 7777.
@@ -3127,8 +2672,19 @@ public class Admin_demo {
                             message = is.readLine();
                             if (message == null) {
                                 break;
-                            }
+                            } else if (message.startsWith("AdminGetListUser|")) {
+                                String dataPart = message.split("\\|")[1];
 
+                                String[] strings = dataPart.split(", ");
+
+                                ArrayList<String> result = new ArrayList<>(Arrays.asList(strings));
+
+                                if (message.split("\\|").length > 2) {
+                                    updateListUser(result, 1);
+                                } else {
+                                    updateListUser(result, 0);
+                                }
+                            }
                         }
 //                    os.close();
 //                    is.close();
