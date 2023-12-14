@@ -15,6 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -190,6 +192,14 @@ public class ServerThread implements Runnable {
                     AdminUpdateAccount(messageSplit);
                 } else if (commandString.equals("AdminDeleteAccount")) {
                     AdminDeleteAccount(messageSplit);
+                } else if (commandString.equals("AdminLockAccount")) {
+                    AdminLockAccount(messageSplit);
+                } else if (commandString.equals("AdminUnlockAccount")) {
+                    AdminUnlockAccount(messageSplit);
+                } else if (commandString.equals("AdminRenewPassword")) {
+                    AdminRenewPassword(messageSplit);
+                } else if (commandString.equals("AdminGetListLoginHistory")) {
+                    AdminGetListLoginHistory(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -219,12 +229,12 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("AdminRegisterStatistic")) {
                     System.out.println("AdminRegisterStatistic");
                     //complete
-                } else if (commandString.equals("AdminLockAccount")) {
-                    System.out.println("AdminLockAccount");
-                    //complete
-                } else if (commandString.equals("AdminUnLockAccount")) {
-                    System.out.println("AdminUnLockAccount");
-                    //complete
+//                } else if (commandString.equals("AdminLockAccount")) {
+//                    System.out.println("AdminLockAccount");
+//                    //complete
+//                } else if (commandString.equals("AdminUnLockAccount")) {
+//                    System.out.println("AdminUnLockAccount");
+//                    //complete
                 } else if (commandString.equals("AdminGetUserFriends")) {
                     System.out.println("AdminGetUserFriends");
                 } else if (commandString.equals("AdminGetRegisterAmountByYear")) {
@@ -704,25 +714,48 @@ public class ServerThread implements Runnable {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_ADD_NEW_ACCOUNT_SQL;
+            String ADMIN_CHECK_USERNAME;
+            String ADMIN_CHECK_EMAIL;
 
-            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"test_users\" (username, fullname, address, dob, gender, email) VALUES (?, ?, ?, ?, ?, ?)";
+            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"test_users\" (username, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"test_users\" WHERE username = ?";
+            ADMIN_CHECK_EMAIL = "SELECT * FROM public.\"test_users\" WHERE email = ?";
 
             String dateString = messageSplit[4];
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            LocalDate curDate = LocalDate.now();
             try {
                 java.util.Date parsedDate = dateFormat.parse(dateString);
                 java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
 
-                try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-                     PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_ADD_NEW_ACCOUNT_SQL)) {
-                    preparedStatement.setString(1, messageSplit[1]);
-                    preparedStatement.setString(2, messageSplit[2]);
-                    preparedStatement.setString(3, messageSplit[3]);
-                    preparedStatement.setDate(4, sqlDate);
-                    preparedStatement.setString(5, messageSplit[5]);
-                    preparedStatement.setString(6, messageSplit[6]);
+                java.sql.Date sqlDateCreate = java.sql.Date.valueOf(curDate);
 
-                    int rowsAffected = preparedStatement.executeUpdate();
+                try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                     PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_ADD_NEW_ACCOUNT_SQL);
+                     PreparedStatement preparedStatement1 = connection.prepareStatement(ADMIN_CHECK_USERNAME);
+                     PreparedStatement preparedStatement2 = connection.prepareStatement(ADMIN_CHECK_EMAIL)) {
+
+                    preparedStatement1.setString(1, messageSplit[1]);
+                    preparedStatement2.setString(1, messageSplit[6]);
+                    ResultSet set1 = preparedStatement1.executeQuery();
+                    ResultSet set2 = preparedStatement2.executeQuery();
+
+                    if (!set1.next() && !set2.next()) {
+                        preparedStatement.setString(1, messageSplit[1]);
+                        preparedStatement.setString(2, messageSplit[2]);
+                        preparedStatement.setString(3, messageSplit[3]);
+                        preparedStatement.setDate(4, sqlDate);
+                        preparedStatement.setString(5, messageSplit[5]);
+                        preparedStatement.setString(6, messageSplit[6]);
+                        preparedStatement.setString(7, "Offline");
+                        preparedStatement.setBoolean(8, false);
+                        preparedStatement.setDate(9, sqlDateCreate);
+                        preparedStatement.setString(10, "1");
+
+                        int rowsAffected = preparedStatement.executeUpdate();
+                        System.out.println(rowsAffected);
+                    }
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -737,17 +770,25 @@ public class ServerThread implements Runnable {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_UPDATE_ACCOUNT_SQL;
+            String ADMIN_CHECK_USERNAME;
 
             ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"test_users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL)) {
-                preparedStatement.setString(1, messageSplit[1]);
-                preparedStatement.setString(2, messageSplit[2]);
-                preparedStatement.setString(3, messageSplit[3]);
-                preparedStatement.setString(4, messageSplit[4]);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL);
+                 PreparedStatement preparedStatement1 = connection.prepareStatement(ADMIN_CHECK_USERNAME)) {
+                preparedStatement1.setString(1, messageSplit[1]);
 
-                int rowsAffected = preparedStatement.executeUpdate();
+                ResultSet set1 = preparedStatement1.executeQuery();
+                if (!set1.next()) {
+                    preparedStatement.setString(1, messageSplit[1]);
+                    preparedStatement.setString(2, messageSplit[2]);
+                    preparedStatement.setString(3, messageSplit[3]);
+                    preparedStatement.setString(4, messageSplit[4]);
+
+                    int rowsAffected = preparedStatement.executeUpdate();
+                }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -760,7 +801,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_DELETE_ACCOUNT_SQL;
 
-            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"test_users\" WHERE email = ?";
+            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"test_users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_DELETE_ACCOUNT_SQL)) {
@@ -774,7 +815,103 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+    public static void AdminLockAccount(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_LOCK_ACCOUNT_SQL;
 
+            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET lock = ? WHERE username = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_LOCK_ACCOUNT_SQL)) {
+                preparedStatement.setBoolean(1, true);
+                preparedStatement.setString(2, messageSplit[1]);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminUnlockAccount(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_UNLOCK_ACCOUNT_SQL;
+
+            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET lock = ? WHERE username = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UNLOCK_ACCOUNT_SQL)) {
+                preparedStatement.setBoolean(1, false);
+                preparedStatement.setString(2, messageSplit[1]);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminRenewPassword(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_RENEW_PASSWORD_SQL;
+
+            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"test_users\" SET password = ? WHERE username = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_RENEW_PASSWORD_SQL)) {
+                preparedStatement.setString(1, messageSplit[2]);
+                preparedStatement.setString(2, messageSplit[1]);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListLoginHistory(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_LOGIN_HISTORY_SQL;
+
+            ADMIN_GET_LIST_LOGIN_HISTORY_SQL = "SELECT * FROM public.\"test_logs\" WHERE username = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_LOGIN_HISTORY_SQL)) {
+
+                preparedStatement.setString(1, messageSplit[1]);
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListUser|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("logdate")).append("|END");
+                        } else {
+                            result.append(rs.getString("logdate")).append(", ");
+                        }
+
+                        String fullReturn = "AdminGetListLoginHistory|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
     //------------------------------------------------------------------------------------------------------------
     //Admin Get Login Activities
     public static ArrayList<String> AdminGetLoginActivities() {

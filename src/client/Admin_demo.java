@@ -56,7 +56,7 @@ public class Admin_demo {
     private JTextField fnUpdatetf;
     private JTextField addrUpdatetf;
     private JTextField emailUpdatetf;
-    private JTextField emailDeltf;
+    private JTextField unDeltf;
     private JTextField inputLock;
     private JTextField inputLabelUsername;
     private JTextField inputLabelNewPass;
@@ -474,21 +474,46 @@ public class Admin_demo {
             gbcListUser.gridy = 0;
         }
     }
+    private void updateListLoginHist(ArrayList<String> listLoginHistInString, int checkEnd) {
+        if (gbcListHist.gridy == 0) {
+            int compCount = listLoginHistory.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listLoginHistory.remove(i);
+                }
+            }
 
-    private void updateListLoginHist(ArrayList<ArrayList<String>> listLoginHistInString) {
-        // list of login history will be here
-        for (ArrayList<String> strings : listLoginHistInString) {
             gbcListHist.gridy += 1;
             gbcListHist.gridx = 0;
-            for (String string : strings) {
+            for (String string : listLoginHistInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listLoginHistory.add(label, gbcListHist);
 
                 gbcListHist.gridx += 1;
             }
+
+            listLoginHistory.revalidate();
+            listLoginHistory.repaint();
+        } else {
+            gbcListHist.gridy += 1;
+            gbcListHist.gridx = 0;
+            for (String string : listLoginHistInString) {
+                JLabel label = new JLabel(string);
+
+                listLoginHistory.add(label, gbcListHist);
+
+                gbcListHist.gridx += 1;
+            }
+            listLoginHistory.revalidate();
         }
-        listLoginHistory.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListHist.gridy = 0;
+        }
     }
 
     private void updateListFriend(ArrayList<ArrayList<String>> listFriendInString) {
@@ -646,7 +671,7 @@ public class Admin_demo {
         listUser.setSize(800, 800);
         listUser.setLayout(new GridBagLayout());
         gbcListUser = new GridBagConstraints();
-        gbcListUser.insets = new Insets(0, 2, 5, 2);
+        gbcListUser.insets = new Insets(0, 2, 5, 10);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ tên");
@@ -828,12 +853,12 @@ public class Admin_demo {
         JLabel genderAdd = new JLabel("Giới tính");
         JLabel emailAdd = new JLabel("Email");
 
-        JLabel unUpdate = new JLabel("Tên đăng nhập");
+        JLabel unUpdate = new JLabel("Tên đăng nhập mới");
         JLabel fnUpdate = new JLabel("Họ & tên");
         JLabel addrUpdate = new JLabel("Địa chỉ");
-        JLabel emailUpdate = new JLabel("Email");
+        JLabel emailUpdate = new JLabel("Email hiện tại");
 
-        JLabel emailDel = new JLabel("Email");
+        JLabel unDel = new JLabel("Tên đăng nhập");
 
         // set the textfield for 3 function add, update and delete user
         unAddtf = new JTextField(20);
@@ -848,7 +873,7 @@ public class Admin_demo {
         addrUpdatetf = new JTextField(20);
         emailUpdatetf = new JTextField(20);
 
-        emailDeltf = new JTextField(20);
+        unDeltf = new JTextField(20);
 
         // declare button to execute those function
         JButton toAdd = new JButton("Thêm người dùng");
@@ -909,12 +934,12 @@ public class Admin_demo {
         toDel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String emailDel = emailDeltf.getText().trim();
+                String unDel = unDeltf.getText().trim();
 
-                if (!emailDel.isEmpty()) {
-                    emailDeltf.setText("");
+                if (!unDel.isEmpty()) {
+                    unDeltf.setText("");
                     try {
-                        write("AdminDeleteAccount|%s".formatted(emailDel));
+                        write("AdminDeleteAccount|%s".formatted(unDel));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -985,9 +1010,9 @@ public class Admin_demo {
         // xóa người dùng
         gbcUserDel.gridx = 0;
         gbcUserDel.gridy = 0;
-        userDel.add(emailDel, gbcUserDel);
+        userDel.add(unDel, gbcUserDel);
         gbcUserDel.gridy += 1;
-        userDel.add(emailDeltf, gbcUserDel);
+        userDel.add(unDeltf, gbcUserDel);
 
         gbcUserDel.gridy += 1;
         userDel.add(toDel, gbcUserDel);
@@ -1020,25 +1045,31 @@ public class Admin_demo {
         inputLock = new JTextField(20);
         JButton lock = new JButton("Khóa tài khoản");
         JButton unlock = new JButton("Mở khóa tài khoản");
-
         // set the event for the button
         lock.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!inputLock.getText().isEmpty()) {
-                    String tempInputLock = inputLock.getText();
-                    // write the info to the server
+                    String tempInputLock = inputLock.getText().trim();
+                    try {
+                        write("AdminLockAccount|%s".formatted(tempInputLock));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
                 inputLock.setText("");
             }
         });
-
         unlock.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!inputLock.getText().isEmpty()) {
-                    String tempInputLock = inputLock.getText();
-                    // write the info to the server
+                    String tempInputLock = inputLock.getText().trim();
+                    try {
+                        write("AdminUnlockAccount|%s".formatted(tempInputLock));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
                 inputLock.setText("");
             }
@@ -1081,7 +1112,11 @@ public class Admin_demo {
                 String pw = inputLabelNewPass.getText();
                 String repw = inputLabelRePass.getText();
                 if (!pw.isEmpty() && !repw.isEmpty() && pw.equals(repw)) {
-                    // write the info to the server
+                    try {
+                        write("AdminRenewPassword|%s|%s".formatted(un, pw));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
                 inputLabelUsername.setText("");
                 inputLabelNewPass.setText("");
@@ -1125,7 +1160,7 @@ public class Admin_demo {
         listLoginHistory.setSize(300, 800);
         listLoginHistory.setLayout(new GridBagLayout());
         gbcListHist = new GridBagConstraints();
-        gbcListHist.insets = new Insets(0, 2, 5, 2);
+        gbcListHist.insets = new Insets(0, 2, 5, 10);
 
         JLabel unameLoginHist = new JLabel("Tên đăng nhập");
         JLabel loginDate = new JLabel("Thời gian đăng nhập");
@@ -1166,9 +1201,11 @@ public class Admin_demo {
             public void actionPerformed(ActionEvent e) {
                 String un = inputUnameHist.getText();
                 if (!un.equals("Nhập tên đăng nhập")) {
-                    // write the info to the server
-                    ArrayList<ArrayList<String>> temp = null;
-                    updateListLoginHist(temp);
+                    try {
+                        write("AdminGetListLoginHistory|%s".formatted(un));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });
@@ -1195,7 +1232,7 @@ public class Admin_demo {
         listFriend.setSize(300, 800);
         listFriend.setLayout(new GridBagLayout());
         gbcListFriend = new GridBagConstraints();
-        gbcListFriend.insets = new Insets(0, 2, 5, 2);
+        gbcListFriend.insets = new Insets(0, 2, 5, 10);
 
         JLabel unameFriend = new JLabel("Tên đăng nhập (bạn bè)");
         JLabel status = new JLabel("Trạng thái");
@@ -1947,15 +1984,15 @@ public class Admin_demo {
 
         gbcListFriendPlus.gridx = 0;
         gbcListFriendPlus.gridy = 0;
-        listFriend.add(uname, gbcListFriendPlus);
+        listFriendPlus.add(uname, gbcListFriendPlus);
 
         gbcListFriendPlus.gridx = 1;
         gbcListFriendPlus.gridy = 0;
-        listFriend.add(fr, gbcListFriendPlus);
+        listFriendPlus.add(fr, gbcListFriendPlus);
 
         gbcListFriendPlus.gridx = 2;
         gbcListFriendPlus.gridy = 0;
-        listFriend.add(fr_fr, gbcListFriendPlus);
+        listFriendPlus.add(fr_fr, gbcListFriendPlus);
 
         listFriendPlus.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -2685,19 +2722,24 @@ public class Admin_demo {
                         while (true) {
 
                             message = is.readLine();
+                            String dataPart = message.split("\\|")[1];
+
+                            String[] strings = dataPart.split(", ");
+
+                            ArrayList<String> result = new ArrayList<>(Arrays.asList(strings));
                             if (message == null) {
                                 break;
                             } else if (message.startsWith("AdminGetListUser|")) {
-                                String dataPart = message.split("\\|")[1];
-
-                                String[] strings = dataPart.split(", ");
-
-                                ArrayList<String> result = new ArrayList<>(Arrays.asList(strings));
-
                                 if (message.split("\\|").length > 2) {
                                     updateListUser(result, 1);
                                 } else {
                                     updateListUser(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListLoginHistory|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListLoginHist(result, 1);
+                                } else {
+                                    updateListLoginHist(result, 0);
                                 }
                             }
                         }
