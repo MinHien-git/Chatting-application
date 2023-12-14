@@ -56,7 +56,7 @@ public class Admin_demo {
     private JTextField fnUpdatetf;
     private JTextField addrUpdatetf;
     private JTextField emailUpdatetf;
-    private JTextField unDeltf;
+    private JTextField emailDeltf;
     private JTextField inputLock;
     private JTextField inputLabelUsername;
     private JTextField inputLabelNewPass;
@@ -722,9 +722,9 @@ public class Admin_demo {
         btnFindp1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int tempCheckBoxUsername = checkBoxUsernamep1.isSelected() ? 1 : 0;
-                int tempCheckBoxSortName = checkBoxSortNamep1.isSelected() ? 1 : 0;
-                int tempCheckBoxSortCreate = checkBoxSortCreatep1.isSelected() ? 1 : 0;
+                String tempCheckBoxUsername = checkBoxUsernamep1.isSelected() ? "1" : "0";
+                String tempCheckBoxSortName = checkBoxSortNamep1.isSelected() ? "1" : "0";
+                String tempCheckBoxSortCreate = checkBoxSortCreatep1.isSelected() ? "1" : "0";
                 String nameToSearch = inputSearch.getText().isEmpty() ? "" : inputSearch.getText();
                 String status = "";
                 if (btnAllStatusp1.isSelected()) {
@@ -734,13 +734,11 @@ public class Admin_demo {
                 } else {
                     status = "Offline";
                 }
-                ArrayList<ArrayList<String>> returnListUser = null;
                 try {
-                    write("AdminGetListUser|%d|%d|%d|%s|%s".formatted(tempCheckBoxUsername, tempCheckBoxSortName, tempCheckBoxSortCreate, nameToSearch, status));
+                    write("AdminGetListUser|%s|%s|%s|%s|%s".formatted(tempCheckBoxUsername, tempCheckBoxSortName, tempCheckBoxSortCreate, nameToSearch, status));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-//                updateListUser(returnListUser);
             }
         });
 
@@ -835,7 +833,7 @@ public class Admin_demo {
         JLabel addrUpdate = new JLabel("Địa chỉ");
         JLabel emailUpdate = new JLabel("Email");
 
-        JLabel unDel = new JLabel("Tên đăng nhập");
+        JLabel emailDel = new JLabel("Email");
 
         // set the textfield for 3 function add, update and delete user
         unAddtf = new JTextField(20);
@@ -850,7 +848,7 @@ public class Admin_demo {
         addrUpdatetf = new JTextField(20);
         emailUpdatetf = new JTextField(20);
 
-        unDeltf = new JTextField(20);
+        emailDeltf = new JTextField(20);
 
         // declare button to execute those function
         JButton toAdd = new JButton("Thêm người dùng");
@@ -861,49 +859,66 @@ public class Admin_demo {
         toAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String unAdd = unAddtf.getText();
-                String fnAdd = fnAddtf.getText();
-                String addrAdd = addrAddtf.getText();
-                String dobAdd = dobAddtf.getText();
-                String genderAdd = genderAddtf.getText();
-                String emailAdd = emailAddtf.getText();
+                String unAdd = unAddtf.getText().trim();
+                String fnAdd = fnAddtf.getText().trim();
+                String addrAdd = addrAddtf.getText().trim();
+                String dobAdd = dobAddtf.getText().trim();
+                String genderAdd = genderAddtf.getText().trim();
+                String emailAdd = emailAddtf.getText().trim();
 
-                unAddtf.setText("");
-                fnAddtf.setText("");
-                addrAddtf.setText("");
-                dobAddtf.setText("");
-                genderAddtf.setText("");
-                emailAddtf.setText("");
+                if (!unAdd.isEmpty() && !fnAdd.isEmpty() && !addrAdd.isEmpty() && !dobAdd.isEmpty() && !genderAdd.isEmpty() && !emailAdd.isEmpty()) {
+                    unAddtf.setText("");
+                    fnAddtf.setText("");
+                    addrAddtf.setText("");
+                    dobAddtf.setText("");
+                    genderAddtf.setText("");
+                    emailAddtf.setText("");
 
-                // write the info to the server socket and get the data
+                    try {
+                        write("AdminAddNewAccount|%s|%s|%s|%s|%s|%s".formatted(unAdd, fnAdd, addrAdd, dobAdd, genderAdd, emailAdd));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
         // set the function to update an user
         toUpdate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String unUpdate = unUpdatetf.getText();
-                String fnUpdate = fnUpdatetf.getText();
-                String addrUpdate = addrUpdatetf.getText();
-                String emailUpdate = emailUpdatetf.getText();
+                String unUpdate = unUpdatetf.getText().trim();
+                String fnUpdate = fnUpdatetf.getText().trim();
+                String addrUpdate = addrUpdatetf.getText().trim();
+                String emailUpdate = emailUpdatetf.getText().trim();
 
-                unUpdatetf.setText("");
-                fnUpdatetf.setText("");
-                addrUpdatetf.setText("");
-                emailUpdatetf.setText("");
+                if (!unUpdate.isEmpty() && !fnUpdate.isEmpty() && !addrUpdate.isEmpty() && !emailUpdate.isEmpty()) {
+                    unUpdatetf.setText("");
+                    fnUpdatetf.setText("");
+                    addrUpdatetf.setText("");
+                    emailUpdatetf.setText("");
 
-                // write the info to the server socket and get the data
+                    try {
+                        write("AdminUpdateAccount|%s|%s|%s|%s".formatted(unUpdate, fnUpdate, addrUpdate, emailUpdate));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
         // set the function to delete an user
         toDel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String unDel = unDeltf.getText();
+                String emailDel = emailDeltf.getText().trim();
 
-                unDeltf.setText("");
-
-                // write the info to the server socket and get the data
+                if (!emailDel.isEmpty()) {
+                    emailDeltf.setText("");
+                    try {
+                        write("AdminDeleteAccount|%s".formatted(emailDel));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -970,9 +985,9 @@ public class Admin_demo {
         // xóa người dùng
         gbcUserDel.gridx = 0;
         gbcUserDel.gridy = 0;
-        userDel.add(unDel, gbcUserDel);
+        userDel.add(emailDel, gbcUserDel);
         gbcUserDel.gridy += 1;
-        userDel.add(unDeltf, gbcUserDel);
+        userDel.add(emailDeltf, gbcUserDel);
 
         gbcUserDel.gridy += 1;
         userDel.add(toDel, gbcUserDel);

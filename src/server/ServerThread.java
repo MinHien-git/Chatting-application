@@ -13,8 +13,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 import client.User;
@@ -181,15 +184,23 @@ public class ServerThread implements Runnable {
                     //------------------------------------------------------------------------------------------------------------------------------
                 } else if (commandString.equals("AdminGetListUser")) {
                     AdminGetListUser(messageSplit);
-                } else if (commandString.equals("AdminGetLoginActivities")) {
+                } else if (commandString.equals("AdminAddNewAccount")) {
+                    AdminAddNewAccount(messageSplit);
+                } else if (commandString.equals("AdminUpdateAccount")) {
+                    AdminUpdateAccount(messageSplit);
+                } else if (commandString.equals("AdminDeleteAccount")) {
+                    AdminDeleteAccount(messageSplit);
+                }
+                //------------------------------------------------------------------------------------------------------------------------------
+                else if (commandString.equals("AdminGetLoginActivities")) {
                     System.out.println("AdminGetLoginActivities");
                     AdminGetLoginActivities();
                 } else if (commandString.equals("AdminGetGroup")) {
                     System.out.println("AdminGetGroup");
-                } else if (commandString.equals("AdminDeleteAccount")) {
-                    String username = messageSplit[1];
-                    AdminDeleteAccount(username);
-                    System.out.println("AdminDeleteAccount");
+//                } else if (commandString.equals("AdminDeleteAccount")) {
+//                    String username = messageSplit[1];
+//                    AdminDeleteAccount(username);
+//                    System.out.println("AdminDeleteAccount");
                 } else if (commandString.equals("AdminAddAccount")) {
                     System.out.println("AdminAddAccount");
                     //complete
@@ -584,25 +595,52 @@ public class ServerThread implements Runnable {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_USER_SQL;
+            System.out.println(Arrays.toString(messageSplit));
 
             if (messageSplit[4].isEmpty()) {
                 if (Objects.equals(messageSplit[5], "Both")) {
-                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\";";
+                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\"";
                 } else {
-                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE \"isOnline\" = ?;";
+                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE \"isOnline\" = ?";
+                }
+
+                if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
+                    System.out.println("IN");
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
+                } else if (messageSplit[2].equals("1")) {
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
+                } else if (messageSplit[3].equals("1")) {
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                 }
             } else {
                 if (messageSplit[1].equals("1")) {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ?;";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ? AND \"isOnline\" = ?;";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ? AND \"isOnline\" = ?";
+                    }
+
+                    if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
+                    } else if (messageSplit[2].equals("1")) {
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
+                    } else if (messageSplit[3].equals("1")) {
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                     }
                 } else {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ?;";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ? AND \"isOnline\" = ?;";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ? AND \"isOnline\" = ?";
+                    }
+
+                    if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
+                        System.out.println("IN");
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY fullname DESC, \"createAt\" DESC";
+                    } else if (messageSplit[2].equals("1")) {
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY fullname DESC";
+                    } else if (messageSplit[3].equals("1")) {
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                     }
                 }
             }
@@ -636,8 +674,7 @@ public class ServerThread implements Runnable {
 
                 if (!rs.next()) {
                     Server.serverThreadBus.boardCast("1", "AdminGetListUser|no data|END");
-                }
-                else {
+                } else {
                     do {
                         StringBuilder result = new StringBuilder();
                         result.append(rs.getString("username")).append(", ");
@@ -647,8 +684,7 @@ public class ServerThread implements Runnable {
                         result.append(rs.getString("gender")).append(", ");
                         if (rs.isLast()) {
                             result.append(rs.getString("email")).append("|END");
-                        }
-                        else {
+                        } else {
                             result.append(rs.getString("email")).append(", ");
                         }
 
@@ -660,6 +696,80 @@ public class ServerThread implements Runnable {
                 throw new RuntimeException(e);
             }
 
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminAddNewAccount(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_ADD_NEW_ACCOUNT_SQL;
+
+            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"test_users\" (username, fullname, address, dob, gender, email) VALUES (?, ?, ?, ?, ?, ?)";
+
+            String dateString = messageSplit[4];
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                java.util.Date parsedDate = dateFormat.parse(dateString);
+                java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+
+                try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                     PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_ADD_NEW_ACCOUNT_SQL)) {
+                    preparedStatement.setString(1, messageSplit[1]);
+                    preparedStatement.setString(2, messageSplit[2]);
+                    preparedStatement.setString(3, messageSplit[3]);
+                    preparedStatement.setDate(4, sqlDate);
+                    preparedStatement.setString(5, messageSplit[5]);
+                    preparedStatement.setString(6, messageSplit[6]);
+
+                    int rowsAffected = preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminUpdateAccount(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_UPDATE_ACCOUNT_SQL;
+
+            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL)) {
+                preparedStatement.setString(1, messageSplit[1]);
+                preparedStatement.setString(2, messageSplit[2]);
+                preparedStatement.setString(3, messageSplit[3]);
+                preparedStatement.setString(4, messageSplit[4]);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminDeleteAccount(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_DELETE_ACCOUNT_SQL;
+
+            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"test_users\" WHERE email = ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_DELETE_ACCOUNT_SQL)) {
+                preparedStatement.setString(1, messageSplit[1]);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -791,20 +901,20 @@ public class ServerThread implements Runnable {
         }
     }
 
-    public static boolean AdminDeleteAccount(String username) {
-        String DELETE_SQL = "delete public.\"users\" where email = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
-            preparedStatement.setString(1, username);
-            ArrayList<String> result = new ArrayList<String>();
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs.next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.exit(1);
-            return false;
-        }
-    }
+//    public static boolean AdminDeleteAccount(String username) {
+//        String DELETE_SQL = "delete public.\"users\" where email = ?";
+//        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+//             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
+//            preparedStatement.setString(1, username);
+//            ArrayList<String> result = new ArrayList<String>();
+//            ResultSet rs = preparedStatement.executeQuery();
+//            return rs.next();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            System.exit(1);
+//            return false;
+//        }
+//    }
 
     public static ArrayList<String> AdminSpamlist() {
         String DELETE_SQL = "delete public.\"spams\" where email = ?";
