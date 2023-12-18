@@ -28,7 +28,7 @@ public class ServerThread implements Runnable {
     static final String URL = "jdbc:postgresql://localhost:5432/chatting";
     static final String JDBC_DRIVER = "org.postgresql.Driver";
     static final String USER = "postgres";
-    static final String PW = "123456";
+    static final String PW = "WokCao196";
 
     private Socket socketOfServer;
     private String clientNumber;
@@ -200,6 +200,8 @@ public class ServerThread implements Runnable {
                     AdminRenewPassword(messageSplit);
                 } else if (commandString.equals("AdminGetListLoginHistory")) {
                     AdminGetListLoginHistory(messageSplit);
+                } else if (commandString.equals("AdminGetListFriend")) {
+                    AdminGetListFriend(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -901,6 +903,44 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListLoginHistory|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListFriend(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_FRIEND_SQL;
+
+            ADMIN_GET_LIST_FRIEND_SQL = "SELECT * FROM public.\"test_users\" as Fr WHERE Fr.username IN (SELECT unnest(array_agg(friends)) FROM public.\"test_users\" WHERE username = ? AND (SELECT COALESCE(ARRAY_LENGTH(friends, 1), 0) AS num_elements FROM public.\"test_users\" as Ch WHERE Ch.username = ?) > 0);";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_SQL)) {
+
+                preparedStatement.setString(1, messageSplit[1]);
+                preparedStatement.setString(2, messageSplit[1]);
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListFriend|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("isOnline")).append("|END");
+                        } else {
+                            result.append(rs.getString("isOnline")).append(", ");
+                        }
+
+                        String fullReturn = "AdminGetListFriend|" + result;
                         Server.serverThreadBus.boardCast("1", fullReturn);
                     } while (rs.next());
                 }

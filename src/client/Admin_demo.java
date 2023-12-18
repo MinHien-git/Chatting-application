@@ -515,21 +515,49 @@ public class Admin_demo {
             gbcListHist.gridy = 0;
         }
     }
+    private void updateListFriend(ArrayList<String> listFriendInString, int checkEnd) {
+        if (gbcListFriend.gridy == 0) {
+            int compCount = listFriend.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listFriend.remove(i);
+                }
+            }
 
-    private void updateListFriend(ArrayList<ArrayList<String>> listFriendInString) {
-        // list of friend will be here
-        for (ArrayList<String> strings : listFriendInString) {
+            listFriend.revalidate();
+            listFriend.repaint();
+
             gbcListFriend.gridy += 1;
             gbcListFriend.gridx = 0;
-            for (String string : strings) {
+            for (String string : listFriendInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listFriend.add(label, gbcListFriend);
 
                 gbcListFriend.gridx += 1;
             }
+
+            listFriend.revalidate();
+            listFriend.repaint();
+        } else {
+            gbcListFriend.gridy += 1;
+            gbcListFriend.gridx = 0;
+            for (String string : listFriendInString) {
+                JLabel label = new JLabel(string);
+
+                listFriend.add(label, gbcListFriend);
+
+                gbcListFriend.gridx += 1;
+            }
+            listFriend.revalidate();
         }
-        listFriend.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListFriend.gridy = 0;
+        }
     }
 
     private void updateListLogin(ArrayList<ArrayList<String>> listLoginInString) {
@@ -1273,9 +1301,11 @@ public class Admin_demo {
             public void actionPerformed(ActionEvent e) {
                 String un = inputUnameFriend.getText();
                 if (!un.equals("Nhập tên đăng nhập")) {
-                    // write the info to the server
-                    ArrayList<ArrayList<String>> temp = null;
-                    updateListFriend(temp);
+                    try {
+                        write("AdminGetListFriend|%s".formatted(un));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 } else {
                     inputUnameFriend.setText("");
                 }
@@ -2740,6 +2770,12 @@ public class Admin_demo {
                                     updateListLoginHist(result, 1);
                                 } else {
                                     updateListLoginHist(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListFriend|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListFriend(result, 1);
+                                } else {
+                                    updateListFriend(result, 0);
                                 }
                             }
                         }
