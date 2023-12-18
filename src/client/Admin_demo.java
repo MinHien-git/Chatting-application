@@ -559,21 +559,46 @@ public class Admin_demo {
             gbcListFriend.gridy = 0;
         }
     }
+    private void updateListLogin(ArrayList<String> listLoginInString, int checkEnd) {
+        if (gbcListLogin.gridy == 0) {
+            int compCount = listLogin.getComponentCount();
+            if (compCount > 3) {
+                for (int i = compCount - 1; i >= 3; i--) {
+                    listLogin.remove(i);
+                }
+            }
 
-    private void updateListLogin(ArrayList<ArrayList<String>> listLoginInString) {
-        // list of login will be here
-        for (ArrayList<String> strings : listLoginInString) {
             gbcListLogin.gridy += 1;
             gbcListLogin.gridx = 0;
-            for (String string : strings) {
+            for (String string : listLoginInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listLogin.add(label, gbcListLogin);
 
                 gbcListLogin.gridx += 1;
             }
+
+            listLogin.revalidate();
+            listLogin.repaint();
+        } else {
+            gbcListLogin.gridy += 1;
+            gbcListLogin.gridx = 0;
+            for (String string : listLoginInString) {
+                JLabel label = new JLabel(string);
+
+                listLogin.add(label, gbcListLogin);
+
+                gbcListLogin.gridx += 1;
+            }
+            listLogin.revalidate();
         }
-        listLogin.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListLogin.gridy = 0;
+        }
     }
 
     private void updateListGroup(ArrayList<ArrayList<String>> listGroupInString) {
@@ -1385,9 +1410,11 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // write info to the server and get the data back
-                ArrayList<ArrayList<String>> temp = null;
-                updateListLogin(temp);
+                try {
+                    write("AdminGetListLogin|");
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -2776,6 +2803,12 @@ public class Admin_demo {
                                     updateListFriend(result, 1);
                                 } else {
                                     updateListFriend(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListLogin|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListLogin(result, 1);
+                                } else {
+                                    updateListLogin(result, 0);
                                 }
                             }
                         }

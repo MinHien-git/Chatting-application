@@ -202,6 +202,8 @@ public class ServerThread implements Runnable {
                     AdminGetListLoginHistory(messageSplit);
                 } else if (commandString.equals("AdminGetListFriend")) {
                     AdminGetListFriend(messageSplit);
+                } else if (commandString.equals("AdminGetListLogin")) {
+                    AdminGetListLogin();
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -941,6 +943,42 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListFriend|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListLogin() {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_LOGIN_SQL;
+
+            ADMIN_GET_LIST_LOGIN_SQL = "SELECT u.username, u.fullname, l.logdate FROM public.\"test_users\" as u JOIN public.\"test_logs\" as l ON u.username = l.username;";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_LOGIN_SQL)) {
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListLogin|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("logdate")).append(", ");
+                        result.append(rs.getString("username")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("fullname")).append("|END");
+                        } else {
+                            result.append(rs.getString("fullname")).append(", ");
+                        }
+
+                        String fullReturn = "AdminGetListLogin|" + result;
                         Server.serverThreadBus.boardCast("1", fullReturn);
                     } while (rs.next());
                 }
