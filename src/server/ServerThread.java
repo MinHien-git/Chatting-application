@@ -212,6 +212,10 @@ public class ServerThread implements Runnable {
                     AdminGetListAdmin(messageSplit);
                 } else if (commandString.equals("AdminGetListSpam")) {
                     AdminGetListSpam(messageSplit);
+                } else if (commandString.equals("AdminGetListNew")) {
+                    AdminGetListNew(messageSplit);
+                } else if (commandString.equals("AdminGetChartNew")) {
+                    AdminGetChartNew(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -1154,34 +1158,146 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListSpam(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_SPAM_SQL = "SELECT * FROM public.\"spams\"";
 
-            if (messageSplit.length == 2) {
-                if (messageSplit[1].equals("1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
-                } else if (messageSplit[1].equals("-1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
-                }
-            } else {
+            if (messageSplit.length == 2) {} else {
                 if (messageSplit[2].equals("1")) {
                     ADMIN_GET_LIST_SPAM_SQL += " WHERE username LIKE ?";
                 } else if (messageSplit[2].equals("-1")) {
                     ADMIN_GET_LIST_SPAM_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
                 }
+            }
 
-                if (messageSplit[1].equals("1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
-                } else if (messageSplit[1].equals("-1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
-                }
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
             }
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_SPAM_SQL)) {
+
+                if (messageSplit.length != 2) {
+                    preparedStatement.setString(1, messageSplit[3] + "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("date")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("ByUser")).append("|END");
+                        } else {
+                            result.append(rs.getString("ByUser"));
+                        }
+
+                        String fullReturn = "AdminGetListSpam|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListNew(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_NEW_SQL = "SELECT * FROM public.\"test_users\"";
+
+            if (messageSplit.length == 4) {
+                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE";
+            } else {
+                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE AND username LIKE ?";
+            }
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_NEW_SQL += " ORDER BY fullname ASC";
+            } else if (messageSplit[3].equals("-1")) {
+                ADMIN_GET_LIST_NEW_SQL += " ORDER BY date ASC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_NEW_SQL)) {
+
+                preparedStatement.setString(1, messageSplit[1]);
+                preparedStatement.setString(2, messageSplit[2]);
+                if (messageSplit.length != 4) {
+                    preparedStatement.setString(3, messageSplit[3]);
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListNew|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("fullname")).append(", ");
+                        result.append(rs.getString("address")).append(", ");
+                        result.append(rs.getString("dob")).append(", ");
+                        result.append(rs.getString("gender")).append(", ");
+                        result.append(rs.getString("email")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("createAt")).append("|END");
+                        } else {
+                            result.append(rs.getString("createAt"));
+                        }
+
+                        String fullReturn = "AdminGetListNew|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetChartNew(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            // WITH months AS (
+            //    SELECT generate_series(1, 12) AS month
+            //)
+            //SELECT months.month,
+            //       COUNT(public.test_users."createAt") AS row_count
+            //FROM months
+            //LEFT JOIN public.test_users ON EXTRACT(MONTH FROM public.test_users."createAt") = months.month
+            //                   AND EXTRACT(YEAR FROM public.test_users."createAt") = 2023
+            //GROUP BY months.month
+            //ORDER BY months.month;
+            String ADMIN_GET_CHART_NEW_SQL = "SELECT * FROM public.\"spams\"";
+
+            if (messageSplit.length == 2) {} else {
+                if (messageSplit[2].equals("1")) {
+                    ADMIN_GET_CHART_NEW_SQL += " WHERE username LIKE ?";
+                } else if (messageSplit[2].equals("-1")) {
+                    ADMIN_GET_CHART_NEW_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
+                }
+            }
+
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_CHART_NEW_SQL += " ORDER BY username ASC";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_CHART_NEW_SQL += " ORDER BY date ASC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_CHART_NEW_SQL)) {
 
                 if (messageSplit.length != 2) {
                     preparedStatement.setString(1, messageSplit[3] + "%");

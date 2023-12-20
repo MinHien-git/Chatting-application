@@ -107,6 +107,7 @@ public class Admin_demo {
     private JRadioButton btnSortDatet8;
     private JTextField inputNameSearcht8;
     private JTextField inputDir_open;
+    private JTextField inputYearT6;
     private GridBagConstraints gbcMain;
 
     /**
@@ -766,20 +767,46 @@ public class Admin_demo {
         }
     }
 
-    private void updateListNew(ArrayList<ArrayList<String>> listNewInString) {
-        // list of new user will be here
-        for (ArrayList<String> strings : listNewInString) {
+    private void updateListNew(ArrayList<String> listNewInString, int checkEnd) {
+        if (gbcListNew.gridy == 0) {
+            int compCount = listNew.getComponentCount();
+            if (compCount > 7) {
+                for (int i = compCount - 1; i >= 7; i--) {
+                    listNew.remove(i);
+                }
+            }
+
             gbcListNew.gridy += 1;
             gbcListNew.gridx = 0;
-            for (String string : strings) {
+            for (String string : listNewInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listNew.add(label, gbcListNew);
 
                 gbcListNew.gridx += 1;
             }
+
+            listNew.revalidate();
+            listNew.repaint();
+        } else {
+            gbcListNew.gridy += 1;
+            gbcListNew.gridx = 0;
+            for (String string : listNewInString) {
+                JLabel label = new JLabel(string);
+
+                listNew.add(label, gbcListNew);
+
+                gbcListNew.gridx += 1;
+            }
+            listNew.revalidate();
         }
-        listNew.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListNew.gridy = 0;
+        }
     }
 
     private void updateListFriendPlus(ArrayList<ArrayList<String>> listFriendPlusInString) {
@@ -1975,7 +2002,7 @@ public class Admin_demo {
         listNew.setSize(800, 800);
         listNew.setLayout(new GridBagLayout());
         gbcListNew = new GridBagConstraints();
-        gbcListNew.insets = new Insets(0, 2, 5, 2);
+        gbcListNew.insets = new Insets(0, 5, 5, 5);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ & tên");
@@ -2049,14 +2076,18 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet5.isSelected() ? 1 : btnSortDatet5.isSelected() ? -1 : 0;
+                String sortBy = btnSortNamet5.isSelected() ? "1" : btnSortDatet5.isSelected() ? "-1" : "0";
                 String tempInputNewSearch = inputNewSearch.getText();
                 String tempInputFromDate = inputFromDate.getText();
                 String tempInputToDate = inputToDate.getText();
 
-                ArrayList<ArrayList<String>> temp = null;
-
-                updateListNew(temp);
+                if (!tempInputFromDate.isEmpty() && !tempInputToDate.isEmpty()) {
+                    try {
+                        write("AdminGetListNew|%s|%s|%s|%s".formatted(tempInputFromDate, tempInputToDate, sortBy, tempInputNewSearch));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -2128,11 +2159,26 @@ public class Admin_demo {
         chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
 
         JLabel year = new JLabel("Năm");
-        JTextField inputYear = new JTextField();
+        inputYearT6 = new JTextField();
         JButton btn = new JButton("Xem biểu đồ");
 
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempInputYear = inputYearT6.getText();
+                if (!tempInputYear.isEmpty()) {
+                    try {
+                        int number = Integer.parseInt(tempInputYear);
+                        write("AdminGetChartNew|%d".formatted(number));
+                    } catch (NumberFormatException | IOException ne) {
+                        throw new RuntimeException(ne);
+                    }
+                }
+            }
+        });
+
         setLabel(year);
-        setTextfield(inputYear);
+        setTextfield(inputYearT6);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2147,7 +2193,7 @@ public class Admin_demo {
         mainPanel.add(year, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputYear, gbcMain);
+        mainPanel.add(inputYearT6, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
@@ -2970,6 +3016,12 @@ public class Admin_demo {
                                     updateListSpam(result, 1);
                                 } else {
                                     updateListSpam(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListNew|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListNew(result, 1);
+                                } else {
+                                    updateListNew(result, 0);
                                 }
                             }
                         }
