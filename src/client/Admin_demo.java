@@ -641,7 +641,6 @@ public class Admin_demo {
             gbcListGroup.gridy = 0;
         }
     }
-
     private void updateListMemGroup(ArrayList<String> listMemInString, int checkEnd) {
         if (gbcListMember.gridy == 0) {
             int compCount = listMember.getComponentCount();
@@ -683,7 +682,6 @@ public class Admin_demo {
             gbcListMember.gridy = 0;
         }
     }
-
     private void updateListAdmin(ArrayList<String> listAdminInString, int checkEnd) {
         if (gbcListAdmin.gridy == 0) {
             int compCount = listAdmin.getComponentCount();
@@ -726,20 +724,46 @@ public class Admin_demo {
         }
     }
 
-    private void updateListSpam(ArrayList<ArrayList<String>> listSpamInString) {
-        // list of spam will be here
-        for (ArrayList<String> strings : listSpamInString) {
+    private void updateListSpam(ArrayList<String> listSpamInString, int checkEnd) {
+        if (gbcListSpam.gridy == 0) {
+            int compCount = listSpam.getComponentCount();
+            if (compCount > 3) {
+                for (int i = compCount - 1; i >= 3; i--) {
+                    listSpam.remove(i);
+                }
+            }
+
             gbcListSpam.gridy += 1;
             gbcListSpam.gridx = 0;
-            for (String string : strings) {
+            for (String string : listSpamInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listSpam.add(label, gbcListSpam);
 
                 gbcListSpam.gridx += 1;
             }
+
+            listSpam.revalidate();
+            listSpam.repaint();
+        } else {
+            gbcListSpam.gridy += 1;
+            gbcListSpam.gridx = 0;
+            for (String string : listSpamInString) {
+                JLabel label = new JLabel(string);
+
+                listSpam.add(label, gbcListSpam);
+
+                gbcListSpam.gridx += 1;
+            }
+            listSpam.revalidate();
         }
-        listSpam.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListSpam.gridy = 0;
+        }
     }
 
     private void updateListNew(ArrayList<ArrayList<String>> listNewInString) {
@@ -1790,8 +1814,10 @@ public class Admin_demo {
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel timespam = new JLabel("Thời gian báo cáo");
+        JLabel byuser = new JLabel("Người báo cáo");
 
         setLabel(uname);
+        setLabel(byuser);
         setLabel(timespam);
 
         gbcListSpam.gridx = 0;
@@ -1802,10 +1828,14 @@ public class Admin_demo {
         gbcListSpam.gridy = 0;
         listSpam.add(timespam, gbcListSpam);
 
+        gbcListSpam.gridx = 2;
+        gbcListSpam.gridy = 0;
+        listSpam.add(byuser, gbcListSpam);
+
         listSpam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         JScrollPane myScrollSpam = new JScrollPane(listSpam);
-        myScrollSpam.setPreferredSize(new Dimension(400, 300));
+        myScrollSpam.setPreferredSize(new Dimension(600, 300));
         myScrollSpam.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         myScrollSpam.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         myScrollSpam.getVerticalScrollBar().setUnitIncrement(20);
@@ -1828,12 +1858,23 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet4.isSelected() ? 1 : btnSortDatet4.isSelected() ? -1 : 0;
-                int filterBy = btnFilterName.isSelected() ? 1 : btnFilterDate.isSelected() ? -1 : 0;
+                String sortBy = btnSortNamet4.isSelected() ? "1" : btnSortDatet4.isSelected() ? "-1" : "0";
+                String filterBy = btnFilterName.isSelected() ? "1" : btnFilterDate.isSelected() ? "-1" : "0";
                 String tempInputSpamSearch = inputSpamSearch.getText();
-
-                ArrayList<ArrayList<String>> temp = null;
-                updateListSpam(temp);
+                if (filterBy.equals("0") && tempInputSpamSearch.isEmpty()) {
+                    try {
+                        write("AdminGetListSpam|%s".formatted(sortBy));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                else if (!filterBy.equals("0") && !tempInputSpamSearch.isEmpty()) {
+                    try {
+                        write("AdminGetListSpam|%s|%s|%s".formatted(sortBy, filterBy, tempInputSpamSearch));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -1893,7 +1934,13 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempInputLockT4 = inputLockt4.getText();
-                // write info to the server
+                if (!tempInputLockT4.isEmpty()) {
+                    try {
+                        write("AdminLockAccount|%s".formatted(tempInputLockT4));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -2917,6 +2964,12 @@ public class Admin_demo {
                                     updateListAdmin(result, 1);
                                 } else {
                                     updateListAdmin(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListSpam|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListSpam(result, 1);
+                                } else {
+                                    updateListSpam(result, 0);
                                 }
                             }
                         }

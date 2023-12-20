@@ -210,6 +210,8 @@ public class ServerThread implements Runnable {
                     AdminGetListMemGroup(messageSplit);
                 } else if (commandString.equals("AdminGetListAdmin")) {
                     AdminGetListAdmin(messageSplit);
+                } else if (commandString.equals("AdminGetListSpam")) {
+                    AdminGetListSpam(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -720,6 +722,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminAddNewAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -776,6 +779,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminUpdateAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -806,6 +810,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminDeleteAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -825,6 +830,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminLockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -845,6 +851,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminUnlockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -865,6 +872,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminRenewPassword(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -885,6 +893,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListLoginHistory(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -922,6 +931,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListFriend(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -960,6 +970,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListLogin() {
         try {
             Class.forName(JDBC_DRIVER);
@@ -996,6 +1007,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1048,6 +1060,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListMemGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1102,16 +1115,17 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListAdmin(String[] messageSplit) {
         try {
+            System.out.println(Arrays.toString(messageSplit));
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_ADMIN_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad FROM public.\"groups\" WHERE groupname LIKE ?";
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_ADMIN_SQL)) {
                 if (messageSplit.length != 1) {
                     preparedStatement.setString(1, messageSplit[1] + "%");
-                }
-                else {
+                } else {
                     preparedStatement.setString(1, "%");
                 }
 
@@ -1125,8 +1139,7 @@ public class ServerThread implements Runnable {
                         result.append(rs.getString("ad")).append(", ");
                         if (rs.isLast()) {
                             result.append(rs.getString("groupname")).append("|END");
-                        }
-                        else {
+                        } else {
                             result.append(rs.getString("groupname"));
                         }
                         String fullReturn = "AdminGetListAdmin|" + result;
@@ -1141,6 +1154,67 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
+    public static void AdminGetListSpam(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_SPAM_SQL = "SELECT * FROM public.\"spams\"";
+
+            if (messageSplit.length == 2) {
+                if (messageSplit[1].equals("1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
+                } else if (messageSplit[1].equals("-1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
+                }
+            } else {
+                if (messageSplit[2].equals("1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE username LIKE ?";
+                } else if (messageSplit[2].equals("-1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
+                }
+
+                if (messageSplit[1].equals("1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
+                } else if (messageSplit[1].equals("-1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
+                }
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_SPAM_SQL)) {
+
+                if (messageSplit.length != 2) {
+                    preparedStatement.setString(1, messageSplit[3] + "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("date")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("ByUser")).append("|END");
+                        } else {
+                            result.append(rs.getString("ByUser"));
+                        }
+
+                        String fullReturn = "AdminGetListSpam|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //------------------------------------------------------------------------------------------------------------
     //Admin Get Login Activities
     public static ArrayList<String> AdminGetLoginActivities() {
