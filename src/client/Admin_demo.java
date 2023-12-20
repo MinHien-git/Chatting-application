@@ -600,53 +600,130 @@ public class Admin_demo {
             gbcListLogin.gridy = 0;
         }
     }
+    private void updateListGroup(ArrayList<String> listGroupInString, int checkEnd) {
+        if (gbcListGroup.gridy == 0) {
+            int compCount = listGroup.getComponentCount();
+            if (compCount > 4) {
+                for (int i = compCount - 1; i >= 4; i--) {
+                    listGroup.remove(i);
+                }
+            }
 
-    private void updateListGroup(ArrayList<ArrayList<String>> listGroupInString) {
-        // list of group will be here
-        for (ArrayList<String> strings : listGroupInString) {
             gbcListGroup.gridy += 1;
             gbcListGroup.gridx = 0;
-            for (String string : strings) {
+            for (String string : listGroupInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listGroup.add(label, gbcListGroup);
 
                 gbcListGroup.gridx += 1;
             }
+
+            listGroup.revalidate();
+            listGroup.repaint();
+        } else {
+            gbcListGroup.gridy += 1;
+            gbcListGroup.gridx = 0;
+            for (String string : listGroupInString) {
+                JLabel label = new JLabel(string);
+
+                listGroup.add(label, gbcListGroup);
+
+                gbcListGroup.gridx += 1;
+            }
+            listGroup.revalidate();
         }
-        listGroup.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListGroup.gridy = 0;
+        }
     }
 
-    private void updateListMemGroup(ArrayList<ArrayList<String>> listMemGroupInString) {
-        // list of group will be here
-        for (ArrayList<String> strings : listMemGroupInString) {
+    private void updateListMemGroup(ArrayList<String> listMemInString, int checkEnd) {
+        if (gbcListMember.gridy == 0) {
+            int compCount = listMember.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listMember.remove(i);
+                }
+            }
+
             gbcListMember.gridy += 1;
             gbcListMember.gridx = 0;
-            for (String string : strings) {
+            for (String string : listMemInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listMember.add(label, gbcListMember);
 
                 gbcListMember.gridx += 1;
             }
+
+            listMember.revalidate();
+            listMember.repaint();
+        } else {
+            gbcListMember.gridy += 1;
+            gbcListMember.gridx = 0;
+            for (String string : listMemInString) {
+                JLabel label = new JLabel(string);
+
+                listMember.add(label, gbcListMember);
+
+                gbcListMember.gridx += 1;
+            }
+            listMember.revalidate();
         }
-        listMember.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListMember.gridy = 0;
+        }
     }
 
-    private void updateListAdmin(ArrayList<ArrayList<String>> listAdminInString) {
-        // list of admin will be here
-        for (ArrayList<String> strings : listAdminInString) {
+    private void updateListAdmin(ArrayList<String> listAdminInString, int checkEnd) {
+        if (gbcListAdmin.gridy == 0) {
+            int compCount = listAdmin.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listAdmin.remove(i);
+                }
+            }
+
             gbcListAdmin.gridy += 1;
             gbcListAdmin.gridx = 0;
-            for (String string : strings) {
+            for (String string : listAdminInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listAdmin.add(label, gbcListAdmin);
 
                 gbcListAdmin.gridx += 1;
             }
+
+            listAdmin.revalidate();
+            listAdmin.repaint();
+        } else {
+            gbcListAdmin.gridy += 1;
+            gbcListAdmin.gridx = 0;
+            for (String string : listAdminInString) {
+                JLabel label = new JLabel(string);
+
+                listAdmin.add(label, gbcListAdmin);
+
+                gbcListAdmin.gridx += 1;
+            }
+            listAdmin.revalidate();
         }
-        listAdmin.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListAdmin.gridy = 0;
+        }
     }
 
     private void updateListSpam(ArrayList<ArrayList<String>> listSpamInString) {
@@ -1441,7 +1518,7 @@ public class Admin_demo {
         listGroup.setSize(800, 800);
         listGroup.setLayout(new GridBagLayout());
         gbcListGroup = new GridBagConstraints();
-        gbcListGroup.insets = new Insets(0, 2, 5, 2);
+        gbcListGroup.insets = new Insets(0, 5, 5, 5);
 
         JLabel gname = new JLabel("Tên nhóm");
         JLabel nummember = new JLabel("Số thành viên");
@@ -1497,11 +1574,17 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortName.isSelected() ? 1 : 0;
+                String sortBy1 = btnSortName.isSelected() ? "1" : "0";
+                String sortBy2 = btnSortDateCreate.isSelected() ? "1" : "0";
                 String tempInputGSearch = inputGSearch.getText();
-                // write info to the server
-                ArrayList<ArrayList<String>> temp = null;
-                updateListGroup(temp);
+                try {
+                    write("AdminGetListGroup|%s|%s|%s".formatted(sortBy1, sortBy2, tempInputGSearch));
+                    inputGSearch.setText("");
+                    btnSortName.setSelected(false);
+                    btnSortDateCreate.setSelected(false);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -1587,9 +1670,14 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempGName = inputMemGroupSearch.getText();
-                // write info to the server and get the data back
-                ArrayList<ArrayList<String>> temp = null;
-                updateListMemGroup(temp);
+                if (!tempGName.isEmpty()) {
+                    try {
+                        write("AdminGetListMemGroup|%s".formatted(tempGName));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    inputMemGroupSearch.setText("");
+                }
             }
         });
 
@@ -1658,9 +1746,11 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempGName = inputAdminSearch.getText();
-                // write info to the server and get the data back
-                ArrayList<ArrayList<String>> temp = null;
-                updateListAdmin(temp);
+                try {
+                    write("AdminGetListAdmin|%s".formatted(tempGName));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -2809,6 +2899,24 @@ public class Admin_demo {
                                     updateListLogin(result, 1);
                                 } else {
                                     updateListLogin(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListGroup|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListGroup(result, 1);
+                                } else {
+                                    updateListGroup(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListMemGroup|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListMemGroup(result, 1);
+                                } else {
+                                    updateListMemGroup(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListAdmin|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListAdmin(result, 1);
+                                } else {
+                                    updateListAdmin(result, 0);
                                 }
                             }
                         }
