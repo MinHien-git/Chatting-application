@@ -3,8 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class home extends JPanel implements ActionListener{
     final static String CHAT_PANEL = "Chat Panel";
@@ -25,7 +23,7 @@ public class home extends JPanel implements ActionListener{
         this.setLayout(new CardLayout());
         mainPanel = new JPanel(new BorderLayout());
 
-        int totalWidth = 600;
+        int totalWidth = 800;
 
         int userWidth = (int) (totalWidth * 0.4);
         int chatWidth = (int) (totalWidth * 0.6);

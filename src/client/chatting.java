@@ -54,24 +54,24 @@ public class chatting extends JPanel{
 		this.setBackground(Color.WHITE);
 		this.setForeground(Color.WHITE);
 		this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
-		this.setBounds(100, 100, 360, 800);
+		this.setBounds(100, 100, 480, 600);
 
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
-		chatArea.setSize(new Dimension(360, 500));
+		chatArea.setSize(new Dimension(480, 400));
 		JScrollPane scrollPane = new JScrollPane(chatArea);
 		this.add(scrollPane, BorderLayout.CENTER);
 
 		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-		inputPanel.setSize(360, 200);
+		inputPanel.setSize(480, 200);
 
 		chatInput = new JTextField();
-		chatInput.setSize(new Dimension(360, 100));
+		chatInput.setSize(new Dimension(480, 200));
 		inputPanel.add(chatInput, BorderLayout.NORTH);
 
 		sendButton = new JButton("Send");
-		sendButton.setAlignmentX(360);
+		sendButton.setAlignmentX(480);
 		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String msg = chatInput.getText();
