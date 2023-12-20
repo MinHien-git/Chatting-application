@@ -61,7 +61,7 @@ public class friends extends JPanel {
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchBar.setSize(new Dimension(800, 200));
+        searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Add A New Friend");
 
         //add event for enter key -> query user -> add...
@@ -83,7 +83,7 @@ public class friends extends JPanel {
         });
 
         JPanel userListPanel = new JPanel(new BorderLayout());
-        userListPanel.setSize(new Dimension(800, 400));
+        userListPanel.setSize(new Dimension(600, 600));
 
         allFriends = new DefaultListModel<>();
         //we can dynamically add users here
@@ -99,23 +99,16 @@ public class friends extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int index = userList.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        Rectangle bounds = userList.getCellBounds(index, index);
-                        if (bounds != null && bounds.contains(e.getPoint()))
-                        {
-                            userList.setSelectedIndex(index);
-                            showPopupMenu(e.getX(), e.getY(), userList);
-                        }
+                        userList.setSelectedIndex(index);
+                        showPopupMenu(e.getX(), e.getY(), userList);
                     }
                 }
             }
 
 
         });
-
         JScrollPane scrollPane = new JScrollPane(userList);
-        scrollPane.setSize(800, 400);
-        scrollPane.setVerticalScrollBar(new JScrollBar());
-
+        scrollPane.setSize(600, 400);
         userListPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.NORTH);
         this.add(userListPanel, BorderLayout.CENTER);

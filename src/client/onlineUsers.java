@@ -13,7 +13,7 @@ public class onlineUsers extends JPanel {
     private JTextField searchBar;
     private JLabel navigation;
 
-    private void showPopupMenuDirect(int x, int y, JList<String> list) {
+    private void showPopupMenu(int x, int y, JList<String> list) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem spam = new JMenuItem("Report For Spam");
         JMenuItem viewChatHistory = new JMenuItem("View Chat History");
@@ -54,42 +54,6 @@ public class onlineUsers extends JPanel {
         popupMenu.show(list, x, y);
     }
 
-    private void showPopupMenuGroup(int x, int y, JList<String> list) {
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem changeName = new JMenuItem("Change Group's Name");
-        JMenuItem addMember = new JMenuItem("Add A New Member To The Group");
-        JMenuItem showMembers = new JMenuItem("Show Group Members");
-
-        changeName.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
-            }
-        });
-
-        addMember.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
-            }
-        });
-
-        showMembers.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
-            }
-        });
-
-        popupMenu.add(changeName);
-        popupMenu.add(addMember);
-        popupMenu.add(showMembers);
-        popupMenu.show(list, x, y);
-    }
-
     private void SetPlaceholder(JTextField textField, String placeholder)
     {
         textField.setForeground(Color.GRAY);
@@ -127,28 +91,8 @@ public class onlineUsers extends JPanel {
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchBar.setSize(new Dimension(320, 200));
+        searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Chat With A Friend");
-        searchBar.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    JPopupMenu subMenu = new JPopupMenu();
-                    JMenuItem newGroup = new JMenuItem("Create A New Group Chat");
-
-                    newGroup.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            System.out.println("New Group Created");
-                        }
-                    });
-
-                    subMenu.add(newGroup);
-                    subMenu.show(searchBar, e.getX(), e.getY());
-                }
-            }
-        });
-
         searchBar.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -173,10 +117,6 @@ public class onlineUsers extends JPanel {
         onlineList.add(0, "user1");
         onlineList.add(1, "user2");
         onlineList.add(2, "user3");
-        onlineList.add(3, "group1");
-        onlineList.add(4, "group2");
-        onlineList.add(5, "group3");
-
         userList = new JList<>(onlineList);
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -186,22 +126,14 @@ public class onlineUsers extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int index = userList.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        Rectangle bounds = userList.getCellBounds(index, index);
-                        if (bounds != null && bounds.contains(e.getPoint()))
-                        {
-                            userList.setSelectedIndex(index);
-                            if (userList.getModel().getElementAt(index).contains("group")) {
-                                showPopupMenuGroup(e.getX(), e.getY(), userList);
-                            }
-                            else showPopupMenuDirect(e.getX(), e.getY(), userList);
-                        }
+                        userList.setSelectedIndex(index);
+                        showPopupMenu(e.getX(), e.getY(), userList);
                     }
                 }
             }
         });
 
         JPopupMenu popupMenu = new JPopupMenu();
-
         JMenuItem blockedList = new JMenuItem("Blocked List");
         JMenuItem spamList = new JMenuItem("Spam List");
         JMenuItem options = new JMenuItem("Options");
@@ -261,13 +193,11 @@ public class onlineUsers extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(userList);
-        scrollPane.setSize(320, 400);
-        scrollPane.setVerticalScrollBar(new JScrollBar());
-
+        scrollPane.setSize(600, 400);
         userListPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(navigation, BorderLayout.NORTH);
-        this.add(userListPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
+        this.add(userListPanel, BorderLayout.CENTER);
     }
 
     private class AddUserListener implements ActionListener {

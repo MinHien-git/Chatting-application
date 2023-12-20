@@ -61,7 +61,7 @@ public class globalChatHistory extends JPanel {
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        searchBar.setSize(new Dimension(800, 200));
+        searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Type A Sentence You Want To Search For");
 
         //add event for enter key -> query user -> add...
@@ -83,7 +83,7 @@ public class globalChatHistory extends JPanel {
         });
 
         JPanel displayPanel = new JPanel(new BorderLayout());
-        displayPanel.setSize(new Dimension(800, 400));
+        displayPanel.setSize(new Dimension(600, 600));
 
         chatResults = new DefaultListModel<>();
         //we can dynamically add users here
@@ -99,12 +99,8 @@ public class globalChatHistory extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int index = chatDisplay.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        Rectangle bounds = chatDisplay.getCellBounds(index, index);
-                        if (bounds != null && bounds.contains(e.getPoint()))
-                        {
-                            chatDisplay.setSelectedIndex(index);
-                            showPopupMenu(e.getX(), e.getY(), chatDisplay);
-                        }
+                        chatDisplay.setSelectedIndex(index);
+                        showPopupMenu(e.getX(), e.getY(), chatDisplay);
                     }
                 }
             }
@@ -112,7 +108,7 @@ public class globalChatHistory extends JPanel {
 
         });
         JScrollPane scrollPane = new JScrollPane(chatDisplay);
-        scrollPane.setSize(800, 400);
+        scrollPane.setSize(600, 400);
         displayPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.NORTH);
         this.add(displayPanel, BorderLayout.CENTER);
