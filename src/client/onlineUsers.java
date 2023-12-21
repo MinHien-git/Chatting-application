@@ -139,6 +139,23 @@ public class onlineUsers extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Chat With A Friend");
+        searchBar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    JPopupMenu subMenu = new JPopupMenu();
+                    JMenuItem newGroup = new JMenuItem("Create A New Group Chat");
+                    newGroup.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("New Group Created");
+                        }
+                    });
+                    subMenu.add(newGroup);
+                    subMenu.show(searchBar, e.getX(), e.getY());
+                }
+            }
+        });
         searchBar.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -261,7 +278,6 @@ public class onlineUsers extends JPanel {
         this.add(navigation, BorderLayout.NORTH);
         this.add(usersAndgroupsPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
-        this.add(userListPanel, BorderLayout.CENTER);
     }
 
     private class AddUsersListener implements ActionListener {
