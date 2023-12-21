@@ -1,19 +1,36 @@
 package client;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 
 public class onlineUsers extends JPanel {
-    private DefaultListModel<String> onlineList;
-    private JList<String> userList;
+    private DefaultListModel<Object> sideList;
+    private JList<Object> usersAndgroups;
     private JTextField searchBar;
     private JLabel navigation;
 
-    private void showPopupMenuDirect(int x, int y, JList<String> list) {
+    static class CustomRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+            if (value instanceof User) {
+                String status = ((User) value).isOnline() ? "online" : "offline";
+                setText(((User) value).getName() + status);
+                setForeground(Color.BLUE);
+            }
+            if (value instanceof groupChat)
+            {
+                setText("Group chat - " + ((groupChat) value).getGroupName());
+                setForeground(Color.BLACK);
+            }
+
+            return renderer;
+        }
+    }
+
+    private void showPopupMenuDirect(int x, int y, JList<Object> list) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem spam = new JMenuItem("Report For Spam");
         JMenuItem viewChatHistory = new JMenuItem("View Chat History");
@@ -22,20 +39,17 @@ public class onlineUsers extends JPanel {
 
         spam.addActionListener(e -> {
             // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            System.out.println("Perform action on: ");
         });
 
         viewChatHistory.addActionListener(e -> {
             // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            System.out.println("Perform action on: ");
         });
 
         clearChatHistory.addActionListener(e -> {
             // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            System.out.println("Perform action on: ");
 
             int choice = JOptionPane.showConfirmDialog(this, "Would you like to clear all of the chat history? (You cannot undo after this)", "Clear Chat History?", JOptionPane.YES_NO_OPTION);
             //Deal with task in accordance to choice
@@ -43,8 +57,7 @@ public class onlineUsers extends JPanel {
 
         searchChatHistory.addActionListener(e -> {
             // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            System.out.println("Perform action on: ");
         });
 
         popupMenu.add(spam);
@@ -54,7 +67,7 @@ public class onlineUsers extends JPanel {
         popupMenu.show(list, x, y);
     }
 
-    private void showPopupMenuGroup(int x, int y, JList<String> list) {
+    private void showPopupMenuGroup(int x, int y, JList<Object> list) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem changeName = new JMenuItem("Change Group's Name");
         JMenuItem addMember = new JMenuItem("Add A New Member To The Group");
@@ -63,24 +76,21 @@ public class onlineUsers extends JPanel {
         changeName.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
+                System.out.println("Perform action on: ");
             }
         });
 
         addMember.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
+                System.out.println("Perform action on: ");
             }
         });
 
         showMembers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedItem = list.getSelectedValue();
-                System.out.println("Perform action on: " + selectedItem);
+                System.out.println("Perform action on: ");
             }
         });
 
@@ -114,9 +124,9 @@ public class onlineUsers extends JPanel {
         });
     }
 
-    public onlineUsers(JFrame mainFrame) {
+    public onlineUsers(JFrame mainFrame, User user) {
         this.setLayout(new BorderLayout());
-        navigation = new JLabel("Welcome, User");
+        navigation = new JLabel("Welcome, " + user.getName());
         navigation.setFont(new Font("Source Code Pro", Font.BOLD, 14));
         navigation.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Padding
         navigation.setOpaque(true);
@@ -166,34 +176,38 @@ public class onlineUsers extends JPanel {
             }
         });
 
-        JPanel userListPanel = new JPanel(new BorderLayout());
+        JPanel usersAndgroupsPanel = new JPanel(new BorderLayout());
 
-        onlineList = new DefaultListModel<>();
-        //we can dynamically add users here
-        onlineList.add(0, "user1");
-        onlineList.add(1, "user2");
-        onlineList.add(2, "user3");
-        onlineList.add(3, "group1");
-        onlineList.add(4, "group2");
-        onlineList.add(5, "group3");
+        sideList = new DefaultListModel<>();
+        //we can dynamically add users/groups here
+        int i = 0;
+        for (int j = 0; j < user.getOnlineList().size(); ++i, ++j)
+        {
+            sideList.add(i, user.getOnlineList().get(j));
+        }
 
-        userList = new JList<>(onlineList);
-        userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        for (int j = 0; j < user.getGroupList().size(); ++i, ++j)
+        {
+            sideList.add(i, user.getGroupList().get(j));
+        }
 
-        userList.addMouseListener(new MouseAdapter() {
+        usersAndgroups = new JList<>(sideList);
+        usersAndgroups.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        usersAndgroups.setCellRenderer(new CustomRenderer());
+        usersAndgroups.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
-                    int index = userList.locationToIndex(e.getPoint());
+                    int index = usersAndgroups.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        Rectangle bounds = userList.getCellBounds(index, index);
+                        Rectangle bounds = usersAndgroups.getCellBounds(index, index);
                         if (bounds != null && bounds.contains(e.getPoint()))
                         {
-                            userList.setSelectedIndex(index);
-                            if (userList.getModel().getElementAt(index).contains("group")) {
-                                showPopupMenuGroup(e.getX(), e.getY(), userList);
+                            usersAndgroups.setSelectedIndex(index);
+                            if (usersAndgroups.getModel().getElementAt(index).getClass().getName() == "groupChat") {
+                                showPopupMenuGroup(e.getX(), e.getY(), usersAndgroups);
                             }
-                            else showPopupMenuDirect(e.getX(), e.getY(), userList);
+                            else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups);
                         }
                     }
                 }
@@ -260,34 +274,33 @@ public class onlineUsers extends JPanel {
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(userList);
+        JScrollPane scrollPane = new JScrollPane(usersAndgroups);
         scrollPane.setSize(320, 400);
         scrollPane.setVerticalScrollBar(new JScrollBar());
 
-        userListPanel.add(scrollPane, BorderLayout.CENTER);
+        usersAndgroupsPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(navigation, BorderLayout.NORTH);
-        this.add(userListPanel, BorderLayout.CENTER);
+        this.add(usersAndgroupsPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
     }
 
-    private class AddUserListener implements ActionListener {
+    private class AddUsersListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String username = JOptionPane.showInputDialog("Enter Username:");
             if (username != null && !username.trim().isEmpty()) {
-                onlineList.addElement(username);
+                sideList.addElement(username);
             }
         }
     }
 
-    private class RemoveUserListener implements ActionListener {
+    private class RemoveUsersListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int selectedIndex = userList.getSelectedIndex();
+            int selectedIndex = usersAndgroups.getSelectedIndex();
             if (selectedIndex != -1) {
-                onlineList.remove(selectedIndex);
+                sideList.remove(selectedIndex);
             }
         }
     }
 }
-
