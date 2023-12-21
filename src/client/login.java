@@ -101,15 +101,16 @@ public class login {
 					if(!_id.equals("")) {
 						if (user.update())
 						{
-							System.out.println(user.getId());
-							System.out.println(user.getName());
-							System.out.println(user.getEmail());
-							System.out.println(user.getBlockList());
-							System.out.println(user.getFriends());
-							System.out.println(user.getOnlineList());
-							System.out.println(user.isAdmin());
-							System.out.println(user.isLocked());
-							System.out.println(user.isOnline());
+//							System.out.println(user.getId());
+//							System.out.println(user.getName());
+//							System.out.println(user.getEmail());
+//							System.out.println(user.getBlockList());
+//							System.out.println(user.getFriends());
+//							System.out.println(user.getOnlineList());
+//							System.out.println(user.isAdmin());
+//							System.out.println(user.isLocked());
+//							System.out.println(user.isOnline());
+//							System.out.println(user.getGroupList());
 
 							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
 							friends flist = new friends();

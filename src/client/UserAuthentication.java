@@ -251,8 +251,8 @@ public class UserAuthentication {
 	public static boolean updateUser(User user) {
 		if (!updateCredentials(user)) return false;
 
-		if (!(updateBlockList(user) || updateFriendsList(user) || updateOnlList(user) || updateGroups(user))) return false;
-		else return true;
+		if (updateBlockList(user) && updateFriendsList(user) && updateOnlList(user) && updateGroups(user)) return true;
+		else return false;
 	}
 
 	public static boolean SignUp(User user) {
