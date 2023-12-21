@@ -108,6 +108,7 @@ public class Admin_demo {
     private JTextField inputNameSearcht8;
     private JTextField inputDir_open;
     private JTextField inputYearT6;
+    private ChartPanel chartPanel;
     private GridBagConstraints gbcMain;
 
     /**
@@ -809,20 +810,57 @@ public class Admin_demo {
         }
     }
 
-    private void updateListFriendPlus(ArrayList<ArrayList<String>> listFriendPlusInString) {
-        // list of friends and friends of friends will be here
-        for (ArrayList<String> strings : listFriendPlusInString) {
+    private void updateChartNew(ArrayList<String> ChartValue, String year) {
+        JFreeChart chart = this.createChart(this.createDataset(ChartValue), year);
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryAxis xAxis = plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        yAxis.setRange(0, 100);
+        chartPanel.setChart(null);
+        chartPanel.revalidate();
+        chartPanel.setChart(chart);
+    }
+
+    private void updateListFriendPlus(ArrayList<String> listFriendPlusInString, int checkEnd) {
+        if (gbcListFriendPlus.gridy == 0) {
+            int compCount = listFriendPlus.getComponentCount();
+            if (compCount > 3) {
+                for (int i = compCount - 1; i >= 3; i--) {
+                    listFriendPlus.remove(i);
+                }
+            }
+
             gbcListFriendPlus.gridy += 1;
             gbcListFriendPlus.gridx = 0;
-            for (String string : strings) {
+            for (String string : listFriendPlusInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
-                listNew.add(label, gbcListFriendPlus);
+                listFriendPlus.add(label, gbcListFriendPlus);
 
                 gbcListFriendPlus.gridx += 1;
             }
+
+            listFriendPlus.revalidate();
+            listFriendPlus.repaint();
+        } else {
+            gbcListFriendPlus.gridy += 1;
+            gbcListFriendPlus.gridx = 0;
+            for (String string : listFriendPlusInString) {
+                JLabel label = new JLabel(string);
+
+                listFriendPlus.add(label, gbcListFriendPlus);
+
+                gbcListFriendPlus.gridx += 1;
+            }
+            listFriendPlus.revalidate();
         }
-        listFriendPlus.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListFriendPlus.gridy = 0;
+        }
     }
 
     private void updateListOpen(ArrayList<ArrayList<String>> listOpenInString) {
@@ -2149,13 +2187,21 @@ public class Admin_demo {
     }
 
     private JPanel trang6() {
-        JFreeChart chart = this.createChart(this.createDataset());
+        String[] month = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+        ArrayList<String> temp = new ArrayList<>();
+        for (int i = 0; i < 24; i+= 2) {
+            int k = i / 2;
+            temp.add(i, month[k]);
+            temp.add(i + 1, "0");
+        }
+
+        JFreeChart chart = this.createChart(this.createDataset(temp), "...");
         CategoryPlot plot = chart.getCategoryPlot();
         CategoryAxis xAxis = plot.getDomainAxis();
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        // Customize axis as needed
+        yAxis.setRange(0, 100);
 
-        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
 
         JLabel year = new JLabel("Năm");
@@ -2199,7 +2245,7 @@ public class Admin_demo {
         mainPanel.add(btn, gbcMain);
 
         return mainPanel;
-    } // not yet
+    }
 
     private JScrollPane trang7() {
         JPanel mainPanel = new JPanel();
@@ -2212,7 +2258,7 @@ public class Admin_demo {
         listFriendPlus.setSize(800, 800);
         listFriendPlus.setLayout(new GridBagLayout());
         gbcListFriendPlus = new GridBagConstraints();
-        gbcListFriendPlus.insets = new Insets(0, 2, 5, 2);
+        gbcListFriendPlus.insets = new Insets(0, 5, 5, 5);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fr = new JLabel("Bạn bè (trực tiếp)");
@@ -2260,13 +2306,34 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet7.isSelected() ? 1 : btnSortDatet7.isSelected() ? -1 : 0;
+                String sortBy = btnSortNamet7.isSelected() ? "1" : btnSortDatet7.isSelected() ? "-1" : "0";
                 String tempInputNameSearch = inputNameSearch.getText();
                 String tempInputDir_fr = inputDir_open.getText();
 
-                ArrayList<ArrayList<String>> temp = null;
+                if (tempInputNameSearch.isEmpty()) {
+                    try {
+                        write("AdminGetListFriendPlus|%s".formatted(sortBy));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    if (tempInputDir_fr.isEmpty()) {
+                        try {
+                            write("AdminGetListFriendPlus|%s|%s".formatted(sortBy, tempInputNameSearch));
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    } else {
+                        try {
+                            write("AdminGetListFriendPlus|%s|%s|%s".formatted(sortBy, tempInputNameSearch, tempInputDir_fr));
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
 
-                updateListFriendPlus(temp);
+                btnSortNamet7.setSelected(false);
+                btnSortDatet7.setSelected(false);
             }
         });
 
@@ -2480,27 +2547,16 @@ public class Admin_demo {
         return mainPanel;
     } // not yet
 
-    private CategoryDataset createDataset() {
+    private CategoryDataset createDataset(ArrayList<String> ChartValue) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(10, "Người đăng ký mới", "1");
-        dataset.addValue(15, "Người đăng ký mới", "2");
-        dataset.addValue(20, "Người đăng ký mới", "3");
-        dataset.addValue(35, "Người đăng ký mới", "4");
-        dataset.addValue(46, "Người đăng ký mới", "5");
-        dataset.addValue(25, "Người đăng ký mới", "6");
-        dataset.addValue(76, "Người đăng ký mới", "7");
-        dataset.addValue(88, "Người đăng ký mới", "8");
-        dataset.addValue(109, "Người đăng ký mới", "9");
-        dataset.addValue(51, "Người đăng ký mới", "10");
-        dataset.addValue(10, "Người đăng ký mới", "11");
-        dataset.addValue(25, "Người đăng ký mới", "12");
-
+        for (int i = 0; i < ChartValue.size(); i+= 2) {
+            dataset.addValue(Integer.parseInt(ChartValue.get(i + 1)), "Người đăng ký mới", ChartValue.get(i));
+        }
         return dataset;
     }
-
-    private JFreeChart createChart(CategoryDataset dataset) {
+    private JFreeChart createChart(CategoryDataset dataset, String year) {
         return ChartFactory.createBarChart(
-                "Biểu đồ số lượng người đăng ký mới năm 2023",
+                "Biểu đồ số lượng người đăng ký mới năm " + year,
                 "Tháng",
                 "Số lượng",
                 dataset,
@@ -3022,6 +3078,14 @@ public class Admin_demo {
                                     updateListNew(result, 1);
                                 } else {
                                     updateListNew(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetChartNew|")) {
+                                updateChartNew(result, message.split("\\|")[2]);
+                            } else if (message.startsWith("AdminGetListFriendPlus")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListFriendPlus(result, 1);
+                                } else {
+                                    updateListFriendPlus(result, 0);
                                 }
                             }
                         }

@@ -216,6 +216,8 @@ public class ServerThread implements Runnable {
                     AdminGetListNew(messageSplit);
                 } else if (commandString.equals("AdminGetChartNew")) {
                     AdminGetChartNew(messageSplit);
+                } else if (commandString.equals("AdminGetListFriendPlus")) {
+                    AdminGetListFriendPlus(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -1270,55 +1272,95 @@ public class ServerThread implements Runnable {
     public static void AdminGetChartNew(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            // WITH months AS (
-            //    SELECT generate_series(1, 12) AS month
-            //)
-            //SELECT months.month,
-            //       COUNT(public.test_users."createAt") AS row_count
-            //FROM months
-            //LEFT JOIN public.test_users ON EXTRACT(MONTH FROM public.test_users."createAt") = months.month
-            //                   AND EXTRACT(YEAR FROM public.test_users."createAt") = 2023
-            //GROUP BY months.month
-            //ORDER BY months.month;
-            String ADMIN_GET_CHART_NEW_SQL = "SELECT * FROM public.\"spams\"";
-
-            if (messageSplit.length == 2) {} else {
-                if (messageSplit[2].equals("1")) {
-                    ADMIN_GET_CHART_NEW_SQL += " WHERE username LIKE ?";
-                } else if (messageSplit[2].equals("-1")) {
-                    ADMIN_GET_CHART_NEW_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
-                }
-            }
-
-            if (messageSplit[1].equals("1")) {
-                ADMIN_GET_CHART_NEW_SQL += " ORDER BY username ASC";
-            } else if (messageSplit[1].equals("-1")) {
-                ADMIN_GET_CHART_NEW_SQL += " ORDER BY date ASC";
-            }
+            String ADMIN_GET_CHART_NEW_SQL = " WITH months AS (\n" +
+                    "                SELECT generate_series(1, 12) AS month\n" +
+                    "            )\n" +
+                    "            SELECT months.month,\n" +
+                    "                   COUNT(public.test_users.\"createAt\") AS row_count\n" +
+                    "            FROM months\n" +
+                    "            LEFT JOIN public.test_users ON EXTRACT(MONTH FROM public.test_users.\"createAt\") = months.month\n" +
+                    "                               AND EXTRACT(YEAR FROM public.test_users.\"createAt\") = ?\n" +
+                    "            GROUP BY months.month\n" +
+                    "            ORDER BY months.month;";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_CHART_NEW_SQL)) {
-
-                if (messageSplit.length != 2) {
-                    preparedStatement.setString(1, messageSplit[3] + "%");
-                }
+                preparedStatement.setInt(1, Integer.parseInt(messageSplit[1]));
 
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                    Server.serverThreadBus.boardCast("1", "AdminGetChartNew|no data|END");
+                } else {
+                    StringBuilder result = new StringBuilder();
+                    do {
+                        result.append(rs.getInt("month")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getBigDecimal("row_count"));
+                        } else {
+                            result.append(rs.getBigDecimal("row_count")).append(", ");
+                        }
+                    } while (rs.next());
+                    String fullReturn = "AdminGetChartNew|" + result + "|" + messageSplit[1];
+                    Server.serverThreadBus.boardCast("1", fullReturn);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void AdminGetListFriendPlus(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "";
+            if (messageSplit.length == 2) {
+                if (messageSplit[1].equals("1")) {
+
+                } else if (messageSplit[1].equals("-1")) {
+
+                } else if (messageSplit[1].equals("0")) {
+                    ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT\n" +
+                            "    tu1.username,\n" +
+                            "\tarray_length(tu1.friends, 1) AS dirfr,\n" +
+                            "    SUM(array_length(tu2.friends, 1)) AS total_friends_count\n" +
+                            "FROM\n" +
+                            "    test_users tu1\n" +
+                            "LEFT JOIN\n" +
+                            "    test_users tu2 ON tu2.username = ANY(tu1.friends)\n" +
+                            "GROUP BY\n" +
+                            "    tu1.username,\n" +
+                            "\ttu1.friends\n" +
+                            "ORDER BY\n" +
+                            "    tu1.username;";
+                }
+            } else if (messageSplit.length == 3) {
+
+            } else if (messageSplit.length == 4) {
+
+            }
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_PLUS_SQL)) {
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListFriendPlus|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
                         result.append(rs.getString("username")).append(", ");
-                        result.append(rs.getString("date")).append(", ");
+                        result.append(rs.getInt("dirfr")).append(", ");
                         if (rs.isLast()) {
-                            result.append(rs.getString("ByUser")).append("|END");
+                            result.append(rs.getInt("total_friends_count") + rs.getInt("dirfr")).append("|END");
                         } else {
-                            result.append(rs.getString("ByUser"));
+                            result.append(rs.getInt("total_friends_count") + rs.getInt("dirfr"));
                         }
 
-                        String fullReturn = "AdminGetListSpam|" + result;
+                        String fullReturn = "AdminGetListFriendPlus|" + result;
                         Server.serverThreadBus.boardCast("1", fullReturn);
                     } while (rs.next());
                 }
