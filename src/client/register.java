@@ -1,27 +1,20 @@
 package client;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.BorderLayout;
-import javax.swing.BoxLayout;
-import javax.swing.JTextField;
 import java.awt.Font;
 import java.awt.GridLayout;
-import javax.swing.JSplitPane;
 import java.awt.Color;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
-import javax.swing.UIManager;
 import javax.xml.crypto.dsig.SignedInfo;
 
 import java.awt.Dimension;
 import java.awt.Window.Type;
 import java.awt.Dialog.ModalExclusionType;
+import java.util.ArrayList;
 
 public class register {
 
@@ -29,22 +22,9 @@ public class register {
 	private JTextField email;
 	private JTextField password;
 	private JTextField name;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					register window = new register();
-					window.frmRegister.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private UserAuthentication auth = new UserAuthentication();
+	private static int maxUserID = 1000000;
+	private static int minUserID = 1;
 
 	/**
 	 * Create the application.
@@ -105,15 +85,23 @@ public class register {
 		lblNewLabel_1_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		lblNewLabel_1_1.setBounds(45, 189, 202, 14);
 		panel_1.add(lblNewLabel_1_1);
-		
+
 		JButton btnNewButton = new JButton("Register");
 		btnNewButton.setBorder(null);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(name.getText() != "" && password.getText() != "" && email.getText() != "") {
-					User user = new User("1",name.getText(),email.getText(),password.getText());
+					int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
+					String hashedPW = User.hashPassword(password.getText());
+
+					if (hashedPW == null) hashedPW = password.getText();
+
+					User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
 					if(user.SignUp()) {
-						System.out.print("Signned up completed");
+						JOptionPane.showMessageDialog(frmRegister, "You are successfully registered, you will be redirected to the login page shortly");
+						login window = new login();
+						window.frmLogin.setVisible(true);
+						frmRegister.dispose();
 					}
 				}
 			}
