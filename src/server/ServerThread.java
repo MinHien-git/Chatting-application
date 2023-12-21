@@ -204,6 +204,18 @@ public class ServerThread implements Runnable {
                     AdminGetListFriend(messageSplit);
                 } else if (commandString.equals("AdminGetListLogin")) {
                     AdminGetListLogin();
+                } else if (commandString.equals("AdminGetListGroup")) {
+                    AdminGetListGroup(messageSplit);
+                } else if (commandString.equals("AdminGetListMemGroup")) {
+                    AdminGetListMemGroup(messageSplit);
+                } else if (commandString.equals("AdminGetListAdmin")) {
+                    AdminGetListAdmin(messageSplit);
+                } else if (commandString.equals("AdminGetListSpam")) {
+                    AdminGetListSpam(messageSplit);
+                } else if (commandString.equals("AdminGetListNew")) {
+                    AdminGetListNew(messageSplit);
+                } else if (commandString.equals("AdminGetChartNew")) {
+                    AdminGetChartNew(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -714,6 +726,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminAddNewAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -770,6 +783,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminUpdateAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -800,6 +814,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminDeleteAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -819,6 +834,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminLockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -839,6 +855,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminUnlockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -859,6 +876,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminRenewPassword(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -879,6 +897,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListLoginHistory(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -916,6 +935,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListFriend(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -954,6 +974,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
     public static void AdminGetListLogin() {
         try {
             Class.forName(JDBC_DRIVER);
@@ -990,6 +1011,326 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
+    public static void AdminGetListGroup(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_GROUP_SQL;
+
+            if (messageSplit.length != 4) {
+                ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" FROM public.\"groups\"";
+            } else {
+                ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" as createat FROM public.\"groups\" WHERE groupname LIKE ?";
+            }
+
+            if (messageSplit[1].equals("1") && messageSplit[2].equals("1")) {
+                ADMIN_GET_LIST_GROUP_SQL += " ORDER BY groupname DESC, \"createAt\" DESC";
+            } else if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_GROUP_SQL += " ORDER BY groupname DESC";
+            } else if (messageSplit[2].equals("1")) {
+                ADMIN_GET_LIST_GROUP_SQL += " ORDER BY \"createAt\" DESC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_GROUP_SQL)) {
+                if (messageSplit.length == 4) {
+                    preparedStatement.setString(1, messageSplit[3] + "%");
+                }
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListGroup|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("groupname")).append(", ");
+                        result.append(rs.getInt("mems")).append(", ");
+                        result.append(rs.getString("ad")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("createat")).append("|END");
+                        } else {
+                            result.append(rs.getString("createat")).append(", ");
+                        }
+
+                        String fullReturn = "AdminGetListGroup|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void AdminGetListMemGroup(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_MEM_GROUP_SQL = "SELECT * FROM (SELECT UNNEST(users) AS username FROM public.\"groups\" WHERE groupname LIKE ? EXCEPT SELECT UNNEST(admin) FROM public.\"groups\" WHERE groupname LIKE ?) AS unique_users";
+            String ADMIN_GET_LIST_MEM_GROUP_AD_SQL = "SELECT UNNEST(admin) AS username FROM public.\"groups\" WHERE groupname LIKE ?";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_MEM_GROUP_SQL);
+                 PreparedStatement preparedStatementAd = connection.prepareStatement(ADMIN_GET_LIST_MEM_GROUP_AD_SQL);) {
+                preparedStatement.setString(1, messageSplit[1] + "%");
+                preparedStatement.setString(2, messageSplit[1] + "%");
+
+                preparedStatementAd.setString(1, messageSplit[1] + "%");
+                ResultSet rsAd = preparedStatementAd.executeQuery();
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListMemGroup|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append("Thành viên");
+
+                        String fullReturn = "AdminGetListMemGroup|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+
+                if (!rsAd.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListMemGroup|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rsAd.getString("username")).append(", ");
+                        if (rsAd.isLast()) {
+                            result.append("Quản trị viên").append("|END");
+                        } else {
+                            result.append("Quản trị viên");
+                        }
+
+                        String fullReturn = "AdminGetListMemGroup|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rsAd.next());
+                }
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void AdminGetListAdmin(String[] messageSplit) {
+        try {
+            System.out.println(Arrays.toString(messageSplit));
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_ADMIN_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad FROM public.\"groups\" WHERE groupname LIKE ?";
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_ADMIN_SQL)) {
+                if (messageSplit.length != 1) {
+                    preparedStatement.setString(1, messageSplit[1] + "%");
+                } else {
+                    preparedStatement.setString(1, "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListAdmin|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("ad")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("groupname")).append("|END");
+                        } else {
+                            result.append(rs.getString("groupname"));
+                        }
+                        String fullReturn = "AdminGetListAdmin|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListSpam(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_SPAM_SQL = "SELECT * FROM public.\"spams\"";
+
+            if (messageSplit.length == 2) {} else {
+                if (messageSplit[2].equals("1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE username LIKE ?";
+                } else if (messageSplit[2].equals("-1")) {
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
+                }
+            }
+
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_SPAM_SQL += " ORDER BY username ASC";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_LIST_SPAM_SQL += " ORDER BY date ASC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_SPAM_SQL)) {
+
+                if (messageSplit.length != 2) {
+                    preparedStatement.setString(1, messageSplit[3] + "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("date")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("ByUser")).append("|END");
+                        } else {
+                            result.append(rs.getString("ByUser"));
+                        }
+
+                        String fullReturn = "AdminGetListSpam|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetListNew(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_NEW_SQL = "SELECT * FROM public.\"test_users\"";
+
+            if (messageSplit.length == 4) {
+                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE";
+            } else {
+                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE AND username LIKE ?";
+            }
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_NEW_SQL += " ORDER BY fullname ASC";
+            } else if (messageSplit[3].equals("-1")) {
+                ADMIN_GET_LIST_NEW_SQL += " ORDER BY date ASC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_NEW_SQL)) {
+
+                preparedStatement.setString(1, messageSplit[1]);
+                preparedStatement.setString(2, messageSplit[2]);
+                if (messageSplit.length != 4) {
+                    preparedStatement.setString(3, messageSplit[3]);
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListNew|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("fullname")).append(", ");
+                        result.append(rs.getString("address")).append(", ");
+                        result.append(rs.getString("dob")).append(", ");
+                        result.append(rs.getString("gender")).append(", ");
+                        result.append(rs.getString("email")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("createAt")).append("|END");
+                        } else {
+                            result.append(rs.getString("createAt"));
+                        }
+
+                        String fullReturn = "AdminGetListNew|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetChartNew(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            // WITH months AS (
+            //    SELECT generate_series(1, 12) AS month
+            //)
+            //SELECT months.month,
+            //       COUNT(public.test_users."createAt") AS row_count
+            //FROM months
+            //LEFT JOIN public.test_users ON EXTRACT(MONTH FROM public.test_users."createAt") = months.month
+            //                   AND EXTRACT(YEAR FROM public.test_users."createAt") = 2023
+            //GROUP BY months.month
+            //ORDER BY months.month;
+            String ADMIN_GET_CHART_NEW_SQL = "SELECT * FROM public.\"spams\"";
+
+            if (messageSplit.length == 2) {} else {
+                if (messageSplit[2].equals("1")) {
+                    ADMIN_GET_CHART_NEW_SQL += " WHERE username LIKE ?";
+                } else if (messageSplit[2].equals("-1")) {
+                    ADMIN_GET_CHART_NEW_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
+                }
+            }
+
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_CHART_NEW_SQL += " ORDER BY username ASC";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_CHART_NEW_SQL += " ORDER BY date ASC";
+            }
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_CHART_NEW_SQL)) {
+
+                if (messageSplit.length != 2) {
+                    preparedStatement.setString(1, messageSplit[3] + "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("date")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getString("ByUser")).append("|END");
+                        } else {
+                            result.append(rs.getString("ByUser"));
+                        }
+
+                        String fullReturn = "AdminGetListSpam|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //------------------------------------------------------------------------------------------------------------
     //Admin Get Login Activities
     public static ArrayList<String> AdminGetLoginActivities() {

@@ -107,6 +107,7 @@ public class Admin_demo {
     private JRadioButton btnSortDatet8;
     private JTextField inputNameSearcht8;
     private JTextField inputDir_open;
+    private JTextField inputYearT6;
     private GridBagConstraints gbcMain;
 
     /**
@@ -600,85 +601,212 @@ public class Admin_demo {
             gbcListLogin.gridy = 0;
         }
     }
+    private void updateListGroup(ArrayList<String> listGroupInString, int checkEnd) {
+        if (gbcListGroup.gridy == 0) {
+            int compCount = listGroup.getComponentCount();
+            if (compCount > 4) {
+                for (int i = compCount - 1; i >= 4; i--) {
+                    listGroup.remove(i);
+                }
+            }
 
-    private void updateListGroup(ArrayList<ArrayList<String>> listGroupInString) {
-        // list of group will be here
-        for (ArrayList<String> strings : listGroupInString) {
             gbcListGroup.gridy += 1;
             gbcListGroup.gridx = 0;
-            for (String string : strings) {
+            for (String string : listGroupInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listGroup.add(label, gbcListGroup);
 
                 gbcListGroup.gridx += 1;
             }
-        }
-        listGroup.revalidate();
-    }
 
-    private void updateListMemGroup(ArrayList<ArrayList<String>> listMemGroupInString) {
-        // list of group will be here
-        for (ArrayList<String> strings : listMemGroupInString) {
+            listGroup.revalidate();
+            listGroup.repaint();
+        } else {
+            gbcListGroup.gridy += 1;
+            gbcListGroup.gridx = 0;
+            for (String string : listGroupInString) {
+                JLabel label = new JLabel(string);
+
+                listGroup.add(label, gbcListGroup);
+
+                gbcListGroup.gridx += 1;
+            }
+            listGroup.revalidate();
+        }
+
+        if (checkEnd == 1) {
+            gbcListGroup.gridy = 0;
+        }
+    }
+    private void updateListMemGroup(ArrayList<String> listMemInString, int checkEnd) {
+        if (gbcListMember.gridy == 0) {
+            int compCount = listMember.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listMember.remove(i);
+                }
+            }
+
             gbcListMember.gridy += 1;
             gbcListMember.gridx = 0;
-            for (String string : strings) {
+            for (String string : listMemInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listMember.add(label, gbcListMember);
 
                 gbcListMember.gridx += 1;
             }
-        }
-        listMember.revalidate();
-    }
 
-    private void updateListAdmin(ArrayList<ArrayList<String>> listAdminInString) {
-        // list of admin will be here
-        for (ArrayList<String> strings : listAdminInString) {
+            listMember.revalidate();
+            listMember.repaint();
+        } else {
+            gbcListMember.gridy += 1;
+            gbcListMember.gridx = 0;
+            for (String string : listMemInString) {
+                JLabel label = new JLabel(string);
+
+                listMember.add(label, gbcListMember);
+
+                gbcListMember.gridx += 1;
+            }
+            listMember.revalidate();
+        }
+
+        if (checkEnd == 1) {
+            gbcListMember.gridy = 0;
+        }
+    }
+    private void updateListAdmin(ArrayList<String> listAdminInString, int checkEnd) {
+        if (gbcListAdmin.gridy == 0) {
+            int compCount = listAdmin.getComponentCount();
+            if (compCount > 2) {
+                for (int i = compCount - 1; i >= 2; i--) {
+                    listAdmin.remove(i);
+                }
+            }
+
             gbcListAdmin.gridy += 1;
             gbcListAdmin.gridx = 0;
-            for (String string : strings) {
+            for (String string : listAdminInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listAdmin.add(label, gbcListAdmin);
 
                 gbcListAdmin.gridx += 1;
             }
+
+            listAdmin.revalidate();
+            listAdmin.repaint();
+        } else {
+            gbcListAdmin.gridy += 1;
+            gbcListAdmin.gridx = 0;
+            for (String string : listAdminInString) {
+                JLabel label = new JLabel(string);
+
+                listAdmin.add(label, gbcListAdmin);
+
+                gbcListAdmin.gridx += 1;
+            }
+            listAdmin.revalidate();
         }
-        listAdmin.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListAdmin.gridy = 0;
+        }
     }
 
-    private void updateListSpam(ArrayList<ArrayList<String>> listSpamInString) {
-        // list of spam will be here
-        for (ArrayList<String> strings : listSpamInString) {
+    private void updateListSpam(ArrayList<String> listSpamInString, int checkEnd) {
+        if (gbcListSpam.gridy == 0) {
+            int compCount = listSpam.getComponentCount();
+            if (compCount > 3) {
+                for (int i = compCount - 1; i >= 3; i--) {
+                    listSpam.remove(i);
+                }
+            }
+
             gbcListSpam.gridy += 1;
             gbcListSpam.gridx = 0;
-            for (String string : strings) {
+            for (String string : listSpamInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listSpam.add(label, gbcListSpam);
 
                 gbcListSpam.gridx += 1;
             }
+
+            listSpam.revalidate();
+            listSpam.repaint();
+        } else {
+            gbcListSpam.gridy += 1;
+            gbcListSpam.gridx = 0;
+            for (String string : listSpamInString) {
+                JLabel label = new JLabel(string);
+
+                listSpam.add(label, gbcListSpam);
+
+                gbcListSpam.gridx += 1;
+            }
+            listSpam.revalidate();
         }
-        listSpam.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListSpam.gridy = 0;
+        }
     }
 
-    private void updateListNew(ArrayList<ArrayList<String>> listNewInString) {
-        // list of new user will be here
-        for (ArrayList<String> strings : listNewInString) {
+    private void updateListNew(ArrayList<String> listNewInString, int checkEnd) {
+        if (gbcListNew.gridy == 0) {
+            int compCount = listNew.getComponentCount();
+            if (compCount > 7) {
+                for (int i = compCount - 1; i >= 7; i--) {
+                    listNew.remove(i);
+                }
+            }
+
             gbcListNew.gridy += 1;
             gbcListNew.gridx = 0;
-            for (String string : strings) {
+            for (String string : listNewInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listNew.add(label, gbcListNew);
 
                 gbcListNew.gridx += 1;
             }
+
+            listNew.revalidate();
+            listNew.repaint();
+        } else {
+            gbcListNew.gridy += 1;
+            gbcListNew.gridx = 0;
+            for (String string : listNewInString) {
+                JLabel label = new JLabel(string);
+
+                listNew.add(label, gbcListNew);
+
+                gbcListNew.gridx += 1;
+            }
+            listNew.revalidate();
         }
-        listNew.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListNew.gridy = 0;
+        }
     }
 
     private void updateListFriendPlus(ArrayList<ArrayList<String>> listFriendPlusInString) {
@@ -1441,7 +1569,7 @@ public class Admin_demo {
         listGroup.setSize(800, 800);
         listGroup.setLayout(new GridBagLayout());
         gbcListGroup = new GridBagConstraints();
-        gbcListGroup.insets = new Insets(0, 2, 5, 2);
+        gbcListGroup.insets = new Insets(0, 5, 5, 5);
 
         JLabel gname = new JLabel("Tên nhóm");
         JLabel nummember = new JLabel("Số thành viên");
@@ -1497,11 +1625,17 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortName.isSelected() ? 1 : 0;
+                String sortBy1 = btnSortName.isSelected() ? "1" : "0";
+                String sortBy2 = btnSortDateCreate.isSelected() ? "1" : "0";
                 String tempInputGSearch = inputGSearch.getText();
-                // write info to the server
-                ArrayList<ArrayList<String>> temp = null;
-                updateListGroup(temp);
+                try {
+                    write("AdminGetListGroup|%s|%s|%s".formatted(sortBy1, sortBy2, tempInputGSearch));
+                    inputGSearch.setText("");
+                    btnSortName.setSelected(false);
+                    btnSortDateCreate.setSelected(false);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -1587,9 +1721,14 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempGName = inputMemGroupSearch.getText();
-                // write info to the server and get the data back
-                ArrayList<ArrayList<String>> temp = null;
-                updateListMemGroup(temp);
+                if (!tempGName.isEmpty()) {
+                    try {
+                        write("AdminGetListMemGroup|%s".formatted(tempGName));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    inputMemGroupSearch.setText("");
+                }
             }
         });
 
@@ -1658,9 +1797,11 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempGName = inputAdminSearch.getText();
-                // write info to the server and get the data back
-                ArrayList<ArrayList<String>> temp = null;
-                updateListAdmin(temp);
+                try {
+                    write("AdminGetListAdmin|%s".formatted(tempGName));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -1700,8 +1841,10 @@ public class Admin_demo {
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel timespam = new JLabel("Thời gian báo cáo");
+        JLabel byuser = new JLabel("Người báo cáo");
 
         setLabel(uname);
+        setLabel(byuser);
         setLabel(timespam);
 
         gbcListSpam.gridx = 0;
@@ -1712,10 +1855,14 @@ public class Admin_demo {
         gbcListSpam.gridy = 0;
         listSpam.add(timespam, gbcListSpam);
 
+        gbcListSpam.gridx = 2;
+        gbcListSpam.gridy = 0;
+        listSpam.add(byuser, gbcListSpam);
+
         listSpam.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         JScrollPane myScrollSpam = new JScrollPane(listSpam);
-        myScrollSpam.setPreferredSize(new Dimension(400, 300));
+        myScrollSpam.setPreferredSize(new Dimension(600, 300));
         myScrollSpam.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         myScrollSpam.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         myScrollSpam.getVerticalScrollBar().setUnitIncrement(20);
@@ -1738,12 +1885,23 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet4.isSelected() ? 1 : btnSortDatet4.isSelected() ? -1 : 0;
-                int filterBy = btnFilterName.isSelected() ? 1 : btnFilterDate.isSelected() ? -1 : 0;
+                String sortBy = btnSortNamet4.isSelected() ? "1" : btnSortDatet4.isSelected() ? "-1" : "0";
+                String filterBy = btnFilterName.isSelected() ? "1" : btnFilterDate.isSelected() ? "-1" : "0";
                 String tempInputSpamSearch = inputSpamSearch.getText();
-
-                ArrayList<ArrayList<String>> temp = null;
-                updateListSpam(temp);
+                if (filterBy.equals("0") && tempInputSpamSearch.isEmpty()) {
+                    try {
+                        write("AdminGetListSpam|%s".formatted(sortBy));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                else if (!filterBy.equals("0") && !tempInputSpamSearch.isEmpty()) {
+                    try {
+                        write("AdminGetListSpam|%s|%s|%s".formatted(sortBy, filterBy, tempInputSpamSearch));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -1803,7 +1961,13 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String tempInputLockT4 = inputLockt4.getText();
-                // write info to the server
+                if (!tempInputLockT4.isEmpty()) {
+                    try {
+                        write("AdminLockAccount|%s".formatted(tempInputLockT4));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -1838,7 +2002,7 @@ public class Admin_demo {
         listNew.setSize(800, 800);
         listNew.setLayout(new GridBagLayout());
         gbcListNew = new GridBagConstraints();
-        gbcListNew.insets = new Insets(0, 2, 5, 2);
+        gbcListNew.insets = new Insets(0, 5, 5, 5);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel fname = new JLabel("Họ & tên");
@@ -1912,14 +2076,18 @@ public class Admin_demo {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet5.isSelected() ? 1 : btnSortDatet5.isSelected() ? -1 : 0;
+                String sortBy = btnSortNamet5.isSelected() ? "1" : btnSortDatet5.isSelected() ? "-1" : "0";
                 String tempInputNewSearch = inputNewSearch.getText();
                 String tempInputFromDate = inputFromDate.getText();
                 String tempInputToDate = inputToDate.getText();
 
-                ArrayList<ArrayList<String>> temp = null;
-
-                updateListNew(temp);
+                if (!tempInputFromDate.isEmpty() && !tempInputToDate.isEmpty()) {
+                    try {
+                        write("AdminGetListNew|%s|%s|%s|%s".formatted(tempInputFromDate, tempInputToDate, sortBy, tempInputNewSearch));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
@@ -1991,11 +2159,26 @@ public class Admin_demo {
         chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
 
         JLabel year = new JLabel("Năm");
-        JTextField inputYear = new JTextField();
+        inputYearT6 = new JTextField();
         JButton btn = new JButton("Xem biểu đồ");
 
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempInputYear = inputYearT6.getText();
+                if (!tempInputYear.isEmpty()) {
+                    try {
+                        int number = Integer.parseInt(tempInputYear);
+                        write("AdminGetChartNew|%d".formatted(number));
+                    } catch (NumberFormatException | IOException ne) {
+                        throw new RuntimeException(ne);
+                    }
+                }
+            }
+        });
+
         setLabel(year);
-        setTextfield(inputYear);
+        setTextfield(inputYearT6);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2010,7 +2193,7 @@ public class Admin_demo {
         mainPanel.add(year, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputYear, gbcMain);
+        mainPanel.add(inputYearT6, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
@@ -2809,6 +2992,36 @@ public class Admin_demo {
                                     updateListLogin(result, 1);
                                 } else {
                                     updateListLogin(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListGroup|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListGroup(result, 1);
+                                } else {
+                                    updateListGroup(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListMemGroup|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListMemGroup(result, 1);
+                                } else {
+                                    updateListMemGroup(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListAdmin|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListAdmin(result, 1);
+                                } else {
+                                    updateListAdmin(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListSpam|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListSpam(result, 1);
+                                } else {
+                                    updateListSpam(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetListNew|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListNew(result, 1);
+                                } else {
+                                    updateListNew(result, 0);
                                 }
                             }
                         }
