@@ -26,7 +26,22 @@ public class login {
 	public JFrame frmLogin;
 	private JTextField email;
 	private JTextField password;
-	private UserAuthentication auth = new UserAuthentication();
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					login window = new login();
+					window.frmLogin.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
 	/**
 	 * Create the application.
@@ -47,81 +62,56 @@ public class login {
 		frmLogin.setBackground(Color.WHITE);
 		frmLogin.getContentPane().setFont(new Font("Source Code Pro Medium", Font.PLAIN, 11));
 		frmLogin.getContentPane().setLayout(new BoxLayout(frmLogin.getContentPane(), BoxLayout.X_AXIS));
-
+		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(135, 206, 250));
 		frmLogin.getContentPane().add(panel);
-
+		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
 		frmLogin.getContentPane().add(panel_1);
 		panel_1.setLayout(null);
-
+		
 		JLabel lblNewLabel = new JLabel("Login");
 		lblNewLabel.setFont(new Font("Source Code Pro ExtraBold", Font.PLAIN, 14));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(0, 70, 290, 28);
 		panel_1.add(lblNewLabel);
-
+		
 		email = new JTextField();
 		email.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		email.setPreferredSize(new Dimension(7, 22));
 		email.setBounds(46, 129, 202, 28);
 		panel_1.add(email);
 		email.setColumns(10);
-
+		
 		JLabel lblNewLabel_1 = new JLabel("email:");
 		lblNewLabel_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		lblNewLabel_1.setBounds(46, 108, 202, 14);
 		panel_1.add(lblNewLabel_1);
-
+		
 		password = new JTextField();
 		password.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		password.setPreferredSize(new Dimension(7, 22));
 		password.setColumns(10);
 		password.setBounds(46, 189, 202, 28);
 		panel_1.add(password);
-
+		
 		JLabel lblNewLabel_1_1 = new JLabel("password:");
 		lblNewLabel_1_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		lblNewLabel_1_1.setBounds(46, 168, 202, 14);
 		panel_1.add(lblNewLabel_1_1);
-
+		
 		JButton btnNewButton = new JButton("Login");
 		btnNewButton.setBorder(UIManager.getBorder("Button.border"));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(password.getText() != "" && email.getText() != "") {
-					String hashedPW = User.hashPassword(password.getText());
-					if (hashedPW == null) hashedPW = password.getText();
-
-					User user = new User(email.getText(),hashedPW);
-
+					User user = new User(email.getText(),password.getText());
+					
 					String _id = user.LogIn();
 					if(!_id.equals("")) {
-						if (user.update())
-						{
-							System.out.println(user.getId());
-							System.out.println(user.getName());
-							System.out.println(user.getEmail());
-							System.out.println(user.getBlockList());
-							System.out.println(user.getFriends());
-							System.out.println(user.getOnlineList());
-							System.out.println(user.isAdmin());
-							System.out.println(user.isLocked());
-							System.out.println(user.isOnline());
-
-							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
-							friends flist = new friends();
-							chatting c = new chatting();
-							globalChatHistory gbc = new globalChatHistory();
-							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
-							Application.getApplicationFrame().setVisible(true);
-							frmLogin.dispose();
-						}
-					}
-					else {
-						JOptionPane.showMessageDialog(Application.getApplicationFrame(), "Invalid credentials, try again");
+						chatting chatting =new chatting(frmLogin,_id);
 					}
 				}
 			}
@@ -131,12 +121,12 @@ public class login {
 		btnNewButton.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
 		btnNewButton.setBounds(46, 246, 203, 38);
 		panel_1.add(btnNewButton);
-
+		
 		JButton btnlogin = new JButton("Register");
 		btnlogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				register register = new register();
-				register.frmRegister.setVisible(true);
+				register.frmRegister.show();
 				frmLogin.dispose();
 			}
 		});
