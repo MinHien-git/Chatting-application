@@ -17,7 +17,7 @@ public class onlineUsers extends JPanel {
 
             if (value instanceof User) {
                 String status = ((User) value).isOnline() ? "online" : "offline";
-                setText(((User) value).getName() + status);
+                setText(((User) value).getName() + " - Status: " + status);
                 setForeground(Color.BLUE);
             }
             if (value instanceof groupChat)
@@ -201,7 +201,7 @@ public class onlineUsers extends JPanel {
                         if (bounds != null && bounds.contains(e.getPoint()))
                         {
                             usersAndgroups.setSelectedIndex(index);
-                            if (usersAndgroups.getModel().getElementAt(index).getClass().getName() == "groupChat") {
+                            if (usersAndgroups.getModel().getElementAt(index).getClass().getSimpleName().equalsIgnoreCase("groupChat")) {
                                 showPopupMenuGroup(e.getX(), e.getY(), usersAndgroups);
                             }
                             else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups);
