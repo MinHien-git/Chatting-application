@@ -64,6 +64,9 @@ public class home extends JPanel implements ActionListener{
 
         mainFrame.add(controlPanel, BorderLayout.NORTH);
         mainFrame.add(this, BorderLayout.CENTER);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setSize(800, 600);
+        mainFrame.setLocationRelativeTo(null);
     }
 
     public static void main(String[] args) {
@@ -71,16 +74,12 @@ public class home extends JPanel implements ActionListener{
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JFrame mainFrame = new JFrame();
-                onlineUsers onl = new onlineUsers(mainFrame);
-                friends flist = new friends();
-                chatting c = new chatting();
-                globalChatHistory gch = new globalChatHistory();
-                home h = new home(mainFrame, onl, flist, c, gch);
-                mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                mainFrame.setSize(800, 600);
-                mainFrame.setLocationRelativeTo(null);
-                mainFrame.setVisible(true);
+                //JFrame mainFrame = new JFrame();
+                //onlineUsers onl = new onlineUsers(mainFrame);
+//                friends flist = new friends();
+//                chatting c = new chatting();
+//                globalChatHistory gch = new globalChatHistory();
+//                home h = new home(mainFrame, onl, flist, c, gch);
             }
         });
     }
