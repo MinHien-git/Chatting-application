@@ -1,38 +1,48 @@
 package client;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import java.awt.Font;
-import java.awt.GridLayout;
-import javax.swing.JSplitPane;
 import java.awt.Color;
 import javax.swing.*;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-//import java.security.Identity;
 import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
 import javax.swing.UIManager;
 import java.awt.Dimension;
-import java.awt.Window.Type;
+import java.security.SecureRandom;
+import java.util.Properties;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 public class login {
 
 	public JFrame frmLogin;
 	private JTextField email;
 	private JTextField password;
-	private UserAuthentication auth = new UserAuthentication();
-
 	/**
 	 * Create the application.
 	 */
 	public login() {
 		initialize();
+	}
+
+	public static String generateRandomPassword(int length) {
+		String validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		SecureRandom random = new SecureRandom();
+		StringBuilder password = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			int randomIndex = random.nextInt(validChars.length());
+			password.append(validChars.charAt(randomIndex));
+		}
+
+		return password.toString();
 	}
 
 	/**
@@ -101,19 +111,8 @@ public class login {
 					if(!_id.equals("")) {
 						if (user.update())
 						{
-//							System.out.println(user.getId());
-//							System.out.println(user.getName());
-//							System.out.println(user.getEmail());
-//							System.out.println(user.getBlockList());
-//							System.out.println(user.getFriends());
-//							System.out.println(user.getOnlineList());
-//							System.out.println(user.isAdmin());
-//							System.out.println(user.isLocked());
-//							System.out.println(user.isOnline());
-//							System.out.println(user.getGroupList());
-
 							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
-							friends flist = new friends();
+							friends flist = new friends(user);
 							chatting c = new chatting();
 							globalChatHistory gbc = new globalChatHistory();
 							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
@@ -146,6 +145,59 @@ public class login {
 		btnlogin.setBackground(Color.WHITE);
 		btnlogin.setBounds(46, 294, 203, 38);
 		panel_1.add(btnlogin);
+
+		JButton resetPW = new JButton("Reset Password");
+		resetPW.setBorder(UIManager.getBorder("Button.border"));
+		resetPW.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final String fromEmail = "chattingapplication21ktpm4@gmail.com";
+				final String password = "testpassword123";
+				String toEmail = JOptionPane.showInputDialog("Please specify your email for password recovery");
+
+				System.out.println("TLS Email Start");
+				Properties props = new Properties();
+				props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
+				props.put("mail.smtp.port", "587"); //TLS Port
+				props.put("mail.smtp.auth", "true"); //enable authentication
+				props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
+
+				//create Authenticator object to pass in Session.getInstance argument
+				Authenticator auth = new Authenticator() {
+					//override the getPasswordAuthentication method
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(fromEmail, password);
+					}
+				};
+				Session session = Session.getInstance(props,auth);
+				try {
+					Message message = new MimeMessage(session);
+					message.setFrom(new InternetAddress(fromEmail)); // Sender's email
+					message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Recipient's email
+					message.setSubject("Password Reset - Chatting Application");
+
+					String messageContent = """
+							Dear user,
+							You received this message as a request to reset your password
+							Your new password is: """;
+					String newPw = generateRandomPassword(15);
+					UserAuthentication.resetPassword(User.hashPassword(newPw), toEmail);
+					messageContent += newPw + "\nIf you did not make this request, please ignore this email. \nBest regards,";
+					message.setText(messageContent);
+
+					Transport.send(message);
+					System.out.println("Email sent successfully!");
+				} catch (MessagingException me) {
+					System.out.println("Failed to send email");
+					me.printStackTrace();
+				}
+			}
+		});
+		resetPW.setForeground(Color.WHITE);
+		resetPW.setBackground(Color.RED);
+		resetPW.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
+		resetPW.setBounds(46, 342, 203, 38);
+		panel_1.add(resetPW);
+
 		frmLogin.setBounds(100, 100, 605, 476);
 		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

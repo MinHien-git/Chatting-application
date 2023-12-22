@@ -25,10 +25,10 @@ import java.util.Objects;
 import client.User;
 
 public class ServerThread implements Runnable {
-    static final String URL = "jdbc:postgresql://localhost:5432/chatting";
+    static final String URL = "jdbc:postgresql://localhost:5432/chatting-application";
     static final String JDBC_DRIVER = "org.postgresql.Driver";
     static final String USER = "postgres";
-    static final String PW = "WokCao196";
+    static final String PW = "123456";
 
     private Socket socketOfServer;
     private String clientNumber;
@@ -121,8 +121,8 @@ public class ServerThread implements Runnable {
                     Server.serverThreadBus.boardCast(id1, "send-to-user|" + String.join(", ", mess[1]));
                     Server.serverThreadBus.boardCast(id2, "send-to-user|" + String.join(", ", mess[1]));
                 } else if (commandString.equals("AddFriend")) {
-                    String id1 = messageSplit[1];//Người gửi
-                    String id2 = messageSplit[2];//Từ user
+                    String id1 = messageSplit[1];//From
+                    String id2 = messageSplit[2];//To
                     AddFriend(id1, id2);
                     System.out.println("AddFriend");
                 } else if (commandString.equals("DeleteFriend")) {
