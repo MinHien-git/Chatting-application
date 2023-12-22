@@ -1,15 +1,30 @@
 package client;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class friends extends JPanel {
-    DefaultListModel<String> allFriends;
-    private JList<String> userList;
+    DefaultListModel<User> allFriends;
+    private JList<User> userList;
     private JTextField searchBar;
 
-    private void SetPlaceholder(JTextField textField, String placeholder)
-    {
+    static class CustomCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+            if (value instanceof User) {
+                setText(((User) value).getName());
+                setForeground(Color.BLUE);
+            }
+
+            return renderer;
+        }
+    }
+
+    private void SetPlaceholder(JTextField textField, String placeholder) {
         textField.setForeground(Color.GRAY);
         textField.setText(placeholder);
 
@@ -32,21 +47,34 @@ public class friends extends JPanel {
         });
     }
 
-    private void showPopupMenu(int x, int y, JList<String> list) {
+    private void showPopupMenu(int x, int y, JList<User> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem unfriend = new JMenuItem("Unfriend");
         JMenuItem block = new JMenuItem("Block");
 
         unfriend.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            User deletedFriend = list.getSelectedValue();
+
+            String fromUser = user.getId();
+            String deletedUser = deletedFriend.getId();
+
+            if (deletedUser != null) {
+                try {
+                    Application.write("DeleteFriend|"+fromUser+"|"+deletedUser);
+                    System.out.println("deleted friend successfully");
+                    UserAuthentication.updateFriendsList(user);
+
+                    allFriends.removeElement(deletedFriend);
+                } catch (IOException ex) {
+                    ex.getStackTrace();
+                    System.out.println("Unable to carry out action");
+                }
+            }
         });
 
         block.addActionListener(e -> {
             // You can perform an action here, e.g., based on the selected item
-            String selectedItem = list.getSelectedValue();
-            System.out.println("Perform action on: " + selectedItem);
+            System.out.println("Perform action on: ");
         });
 
         popupMenu.add(block);
@@ -54,10 +82,10 @@ public class friends extends JPanel {
         popupMenu.show(list, x, y);
     }
 
-    public friends() {
+    public friends(User user) {
         this.setLayout(new BorderLayout());
         searchBar = new JTextField();
-        searchBar.setMargin(new Insets(15,10,15,10));
+        searchBar.setMargin(new Insets(15, 10, 15, 10));
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -65,20 +93,27 @@ public class friends extends JPanel {
         SetPlaceholder(searchBar, "Add A New Friend");
 
         //add event for enter key -> query user -> add...
-        searchBar.addKeyListener(new KeyListener() {
+        searchBar.addActionListener(new ActionListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == searchBar) {
+                    String fromUser = user.getId();
+                    String toUser = UserAuthentication.usernameToID(searchBar.getText());
+                    User newFriend = UserAuthentication.idToUser(toUser);
 
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
+                    if (toUser != null) {
+                        try {
+                            Application.write("AddFriend|" + fromUser + "|" + toUser);
+                            System.out.println("added friend successfully");
+                            UserAuthentication.updateFriendsList(user);
+                            allFriends.addElement(newFriend);
+                            searchBar.setText("");
+                        } catch (IOException ex) {
+                            ex.getStackTrace();
+                            System.out.println("Unable to carry out action");
+                        }
+                    }
+                }
             }
         });
 
@@ -87,12 +122,13 @@ public class friends extends JPanel {
 
         allFriends = new DefaultListModel<>();
         //we can dynamically add users here
-        allFriends.add(0, "user1");
-        allFriends.add(1, "user2");
-        allFriends.add(2, "user3");
+        for (User friend : user.getFriends()) {
+            allFriends.addElement(friend);
+        }
+
         userList = new JList<>(allFriends);
         userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+        userList.setCellRenderer(new CustomCellRenderer());
         userList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -100,7 +136,7 @@ public class friends extends JPanel {
                     int index = userList.locationToIndex(e.getPoint());
                     if (index != -1) {
                         userList.setSelectedIndex(index);
-                        showPopupMenu(e.getX(), e.getY(), userList);
+                        showPopupMenu(e.getX(), e.getY(), userList, user);
                     }
                 }
             }

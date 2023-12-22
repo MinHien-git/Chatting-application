@@ -22,6 +22,8 @@ public class UserAuthentication {
 
 	private static final String ID_EXISTS = "SELECT * FROM public.\"users\" where id = ? ";
 
+	private static final String USERNAME_EXISTS = "SELECT * FROM public.\"users\" where name = ?";
+
 	private static final String UPDATE_REGISTER = "UPDATE public.\"users\" SET friends = array[]::text[], \"isAdmin\" = false , lock = false, history = '', \"isOnline\" = false, blocks = array[]::text[] where id = ?";
 
 	private static final String FIND_BLOCK_LIST = "SELECT u.blocks FROM public.\"users\" u where u.id = ?";
@@ -32,6 +34,7 @@ public class UserAuthentication {
 
 	private static final String FIND_GROUPS = "SELECT g.* FROM public.\"users\" u JOIN public.\"groups\" g ON u.id = ANY(g.users) where u.id = ?";
 
+	private static final String RESET_PW = "UPDATE public.\"users\" SET \"password\" = ? where email = ?";
 	public UserAuthentication() {
 		try {
 			Class.forName(JDBC_DRIVER);
@@ -65,6 +68,25 @@ public class UserAuthentication {
 		}
 	}
 
+	public static String usernameToID(String _username)
+	{
+		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement id = connection.prepareStatement(USERNAME_EXISTS);
+			id.setString(1, _username);
+			ResultSet results = id.executeQuery();
+
+			if (results.next())
+			{
+				return results.getString("id");
+			}
+			return null;
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return null;
+		}
+	}
+
 	public static String SignIn(User user) {
 		try (Connection connection = DriverManager.getConnection(URL, USER, PW);
 			 // Step 2:Create a statement using connection object
@@ -84,6 +106,24 @@ public class UserAuthentication {
 			System.exit(1);
 			// print SQL exception information
 			return "";
+		}
+	}
+
+	public static boolean resetPassword(String pw, String email)
+	{
+		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement reset = connection.prepareStatement(RESET_PW);
+			reset.setString(1, pw);
+			reset.setString(2, email);
+
+			int results = reset.executeUpdate();
+
+			if (results != 0) return true;
+			return false;
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return false;
 		}
 	}
 
