@@ -2308,7 +2308,7 @@ public class Admin_demo {
             public void actionPerformed(ActionEvent e) {
                 String sortBy = btnSortNamet7.isSelected() ? "1" : btnSortDatet7.isSelected() ? "-1" : "0";
                 String tempInputNameSearch = inputNameSearch.getText();
-                String tempInputDir_fr = inputDir_open.getText();
+                String tempInputDir_fr = inputDir_fr.getText();
 
                 if (tempInputNameSearch.isEmpty()) {
                     try {

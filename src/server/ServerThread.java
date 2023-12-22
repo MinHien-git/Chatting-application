@@ -1316,34 +1316,25 @@ public class ServerThread implements Runnable {
     public static void AdminGetListFriendPlus(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "";
-            if (messageSplit.length == 2) {
-                if (messageSplit[1].equals("1")) {
+            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM (SELECT tu1.username, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM test_users tu1 LEFT JOIN test_users tu2 ON tu2.username = ANY(tu1.friends) GROUP BY tu1.username, tu1.friends) AS fr JOIN test_users tu3 ON tu3.username = fr.username";
 
-                } else if (messageSplit[1].equals("-1")) {
+            if (messageSplit.length >= 3) {
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE fr.username LIKE ?";
+            }
+            if (messageSplit.length == 4) {
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " AND fr.dirfr " + messageSplit[3].charAt(0) + " " + Integer.parseInt(messageSplit[3].substring(1));
+            }
 
-                } else if (messageSplit[1].equals("0")) {
-                    ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT\n" +
-                            "    tu1.username,\n" +
-                            "\tarray_length(tu1.friends, 1) AS dirfr,\n" +
-                            "    SUM(array_length(tu2.friends, 1)) AS total_friends_count\n" +
-                            "FROM\n" +
-                            "    test_users tu1\n" +
-                            "LEFT JOIN\n" +
-                            "    test_users tu2 ON tu2.username = ANY(tu1.friends)\n" +
-                            "GROUP BY\n" +
-                            "    tu1.username,\n" +
-                            "\ttu1.friends\n" +
-                            "ORDER BY\n" +
-                            "    tu1.username;";
-                }
-            } else if (messageSplit.length == 3) {
-
-            } else if (messageSplit.length == 4) {
-
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY tu3.username";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY tu3.\"createAt\"";
             }
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_PLUS_SQL)) {
+                if (messageSplit.length >= 3) {
+                    preparedStatement.setString(1, messageSplit[2] + "%");
+                }
 
                 ResultSet rs = preparedStatement.executeQuery();
 
@@ -1355,9 +1346,9 @@ public class ServerThread implements Runnable {
                         result.append(rs.getString("username")).append(", ");
                         result.append(rs.getInt("dirfr")).append(", ");
                         if (rs.isLast()) {
-                            result.append(rs.getInt("total_friends_count") + rs.getInt("dirfr")).append("|END");
+                            result.append(rs.getInt("total") + rs.getInt("dirfr")).append("|END");
                         } else {
-                            result.append(rs.getInt("total_friends_count") + rs.getInt("dirfr"));
+                            result.append(rs.getInt("total") + rs.getInt("dirfr"));
                         }
 
                         String fullReturn = "AdminGetListFriendPlus|" + result;
