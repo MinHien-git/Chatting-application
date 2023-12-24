@@ -33,7 +33,7 @@ public class ServerThreadBus {
     
     public void boardCast(String id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
-            if (!serverThread.getClientNumber().equals(id)) {
+            if (!serverThread.getuserID().equals(id)) {
                 continue;
             } else {
                 try {
@@ -70,7 +70,7 @@ public class ServerThreadBus {
 //    }
     public void remove(String id){
         for(int i=0; i<Server.serverThreadBus.getLength(); i++){
-            if(Server.serverThreadBus.getListServerThreads().get(i).getClientNumber()==id){
+            if(Server.serverThreadBus.getListServerThreads().get(i).getuserID()==id){
                 Server.serverThreadBus.listServerThreads.remove(i);
             }
         }

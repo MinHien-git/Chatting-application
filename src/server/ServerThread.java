@@ -1,6 +1,5 @@
 package server;
 
-import java.awt.Taskbar.State;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,12 +15,9 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
+import client.Application;
 import client.User;
 
 public class ServerThread implements Runnable {
@@ -31,7 +27,7 @@ public class ServerThread implements Runnable {
     static final String PW = "123456";
 
     private Socket socketOfServer;
-    private String clientNumber;
+    private static String userID;
     private BufferedReader is;
     private BufferedWriter os;
     private boolean isClosed;
@@ -67,22 +63,26 @@ public class ServerThread implements Runnable {
         return is;
     }
 
-    public void setclientNumber(String id) {
-        clientNumber = id;
+    public static void setuserID(String id) {
+        userID = id;
+    }
+
+    public static String getUserID() {
+        return userID;
     }
 
     public BufferedWriter getOs() {
         return os;
     }
 
-    public String getClientNumber() {
-        return clientNumber;
+    public String getuserID() {
+        return userID;
     }
 
-    public ServerThread(Socket socketOfServer, String clientNumber) {
+    public ServerThread(Socket socketOfServer, String userID) {
         this.socketOfServer = socketOfServer;
-        this.clientNumber = clientNumber;
-        System.out.println("Server thread number " + clientNumber + " Started");
+        this.userID = userID;
+        System.out.println("Server thread number " + userID + " started");
         isClosed = false;
     }
 
@@ -92,9 +92,9 @@ public class ServerThread implements Runnable {
             // Mở luồng vào ra trên Socket tại Server.
             is = new BufferedReader(new InputStreamReader(socketOfServer.getInputStream()));
             os = new BufferedWriter(new OutputStreamWriter(socketOfServer.getOutputStream()));
-            System.out.println("Khời động luông mới thành công, ID là: " + clientNumber);
+            System.out.println("Khời động luông mới thành công, ID là: " + userID);
 //            Server.serverThreadBus.sendOnlineList();
-            //Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.clientNumber+" đã đăng nhập---");
+            //Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.userID+" đã đăng nhập---");
             String message;
             while (!isClosed) {
                 message = is.readLine();
@@ -260,15 +260,14 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("AdminGetActiveAmountByYear")) {
                     System.out.println("AdminGetActiveAmountByYear");
                 }
-
-
             }
         } catch (IOException e) {
             isClosed = true;
-            Server.serverThreadBus.remove(clientNumber);
-            System.out.println(this.clientNumber + " đã thoát");
-//            Server.serverThreadBus.sendOnlineList();
-            Server.serverThreadBus.mutilCastSend("global-message" + "," + "---Client " + this.clientNumber + " đã thoát---");
+            Server.serverThreadBus.remove(userID);
+            System.out.println(userID + " exited");
+        }
+        finally {
+
         }
     }
 
@@ -470,7 +469,7 @@ public class ServerThread implements Runnable {
 
     //SET ONLINE
     public static boolean SetOnline(String id) {
-        String SET_ONLINE_SQL = "UPDATE public.\"users\" SET isOnline = true where id = ?";
+        String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = true where id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) {
             preparedStatement.setString(1, id);
@@ -487,7 +486,7 @@ public class ServerThread implements Runnable {
 
     //SET OFFLINE
     public static boolean SetOffline(String id) {
-        String SET_ONLINE_SQL = "UPDATE public.\"users\" SET isOnline = false where id = ?";
+        String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = false where id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) {
             preparedStatement.setString(1, id);
@@ -603,11 +602,11 @@ public class ServerThread implements Runnable {
 
     //Report Spam
     public static boolean ReportSpam(String username, String byUser) {
-        String UPDATE_MESSAGE_SQL = "Insert into public.\"spams\" SET (username,date,byUser) Values (?,current_timestamp,?)";
+        String UPDATE_MESSAGE_SQL = "Insert into public.\"spams\" Values (?,current_timestamp,?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
             preparedStatement.setString(1, username);
-            preparedStatement.setString(1, byUser);
+            preparedStatement.setString(2, byUser);
             int count = preparedStatement.executeUpdate();
 
             return count > 0;

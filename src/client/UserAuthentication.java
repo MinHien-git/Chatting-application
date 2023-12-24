@@ -177,6 +177,8 @@ public class UserAuthentication {
 			blocks.setString(1, user.getId());
 			ResultSet blockList = blocks.executeQuery();
 
+			user.getBlockList().clear();
+
 			if (blockList.next())
 			{
 				java.sql.Array bl = blockList.getArray("blocks");
@@ -197,7 +199,7 @@ public class UserAuthentication {
 			PreparedStatement friends = connection.prepareStatement(FIND_FRIENDS);
 			friends.setString(1, user.getId());
 			ResultSet friendList = friends.executeQuery();
-
+			user.getFriends().clear();
 			while (friendList.next())
 			{
 				String _id = friendList.getString("id");
@@ -226,6 +228,7 @@ public class UserAuthentication {
 			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
 			online.setString(1, user.getId());
 			ResultSet friendList = online.executeQuery();
+			user.getOnlineList().clear();
 
 			while (friendList.next())
 			{
@@ -259,6 +262,7 @@ public class UserAuthentication {
 			ArrayList<User> adminList = new ArrayList<>();
 			ArrayList<User> userList = new ArrayList<>();
 
+			user.getGroupList().clear();
 			while (groupList.next())
 			{
 				String gID = groupList.getString("groupid");

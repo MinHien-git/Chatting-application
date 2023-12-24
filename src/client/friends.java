@@ -24,14 +24,14 @@ public class friends extends JPanel {
         }
     }
 
-    private void SetPlaceholder(JTextField textField, String placeholder) {
+    private void SetPlaceholder(JTextField textField) {
         textField.setForeground(Color.GRAY);
-        textField.setText(placeholder);
+        textField.setText("Add A New Friend");
 
         textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
+                if (textField.getText().equals("Add A New Friend")) {
                     textField.setText("");
                     textField.setForeground(Color.BLACK); // Set text color to default when focused
                 }
@@ -41,7 +41,7 @@ public class friends extends JPanel {
             public void focusLost(FocusEvent e) {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(Color.GRAY);
-                    textField.setText(placeholder); // Reset placeholder text when focus is lost
+                    textField.setText("Add A New Friend"); // Reset placeholder text when focus is lost
                 }
             }
         });
@@ -59,27 +59,65 @@ public class friends extends JPanel {
             String deletedUser = deletedFriend.getId();
 
             if (deletedUser != null) {
-                try {
-                    Application.write("DeleteFriend|"+fromUser+"|"+deletedUser);
-                    System.out.println("deleted friend successfully");
-                    UserAuthentication.updateFriendsList(user);
+                if (JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + deletedFriend.getName() + " from your friends list?","Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    try {
+                        Application.write("DeleteFriend|"+fromUser+"|"+deletedUser);
+                        JOptionPane.showMessageDialog(this, "Successfully removed " + deletedFriend.getName() + " from the friends list");
+                        UserAuthentication.updateFriendsList(user);
 
-                    allFriends.removeElement(deletedFriend);
-                } catch (IOException ex) {
-                    ex.getStackTrace();
-                    System.out.println("Unable to carry out action");
+                        allFriends.removeElement(deletedFriend);
+                    } catch (IOException ex) {
+                        ex.getStackTrace();
+                        System.out.println("Unable to carry out action");
+                    }
                 }
             }
         });
 
         block.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            System.out.println("Perform action on: ");
+            User blockedFriend = list.getSelectedValue();
+
+            String fromUser = user.getId();
+            String blockedUser = blockedFriend.getId();
+
+            if (blockedUser != null) {
+                if (JOptionPane.showConfirmDialog(this, "Are you sure you want to block " + blockedFriend.getName() + "?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+                {
+                    try {
+                        Application.write("BlockAccount|"+fromUser+"|"+blockedUser);
+                        JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + "blocked from the friends list");
+                        UserAuthentication.updateBlockList(user);
+                        UserAuthentication.updateFriendsList(user);
+
+                        allFriends.removeElement(blockedFriend);
+                    } catch (IOException ex) {
+                        ex.getStackTrace();
+                        System.out.println("Unable to carry out action");
+                    }
+                }
+            }
         });
 
         popupMenu.add(block);
         popupMenu.add(unfriend);
         popupMenu.show(list, x, y);
+    }
+
+    private void showPopupOptions(int x, int y, JList<User> list, User user) {
+        JPopupMenu options = new JPopupMenu();
+        JMenuItem refresh = new JMenuItem("Refresh");
+
+        refresh.addActionListener(e -> {
+            UserAuthentication.updateBlockList(user);
+            UserAuthentication.updateFriendsList(user);
+            allFriends.clear();
+            for (User friend : user.getFriends()) {
+                allFriends.addElement(friend);
+            }
+        });
+
+        options.add(refresh);
+        options.show(list, x, y);
     }
 
     public friends(User user) {
@@ -90,28 +128,25 @@ public class friends extends JPanel {
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchBar.setSize(new Dimension(600, 200));
-        SetPlaceholder(searchBar, "Add A New Friend");
+        SetPlaceholder(searchBar);
 
         //add event for enter key -> query user -> add...
-        searchBar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == searchBar) {
-                    String fromUser = user.getId();
-                    String toUser = UserAuthentication.usernameToID(searchBar.getText());
-                    User newFriend = UserAuthentication.idToUser(toUser);
+        searchBar.addActionListener(e -> {
+            if (e.getSource() == searchBar) {
+                String fromUser = user.getId();
+                String toUser = UserAuthentication.usernameToID(searchBar.getText());
+                User newFriend = UserAuthentication.idToUser(toUser);
 
-                    if (toUser != null) {
-                        try {
-                            Application.write("AddFriend|" + fromUser + "|" + toUser);
-                            System.out.println("added friend successfully");
-                            UserAuthentication.updateFriendsList(user);
-                            allFriends.addElement(newFriend);
-                            searchBar.setText("");
-                        } catch (IOException ex) {
-                            ex.getStackTrace();
-                            System.out.println("Unable to carry out action");
-                        }
+                if (toUser != null && newFriend != null) {
+                    try {
+                        Application.write("AddFriend|" + fromUser + "|" + toUser);
+                        JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
+                        UserAuthentication.updateFriendsList(user);
+                        allFriends.addElement(newFriend);
+                        searchBar.setText("");
+                    } catch (IOException ex) {
+                        ex.getStackTrace();
+                        System.out.println("Unable to carry out action");
                     }
                 }
             }
@@ -135,8 +170,17 @@ public class friends extends JPanel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     int index = userList.locationToIndex(e.getPoint());
                     if (index != -1) {
-                        userList.setSelectedIndex(index);
-                        showPopupMenu(e.getX(), e.getY(), userList, user);
+                        Rectangle bounds = userList.getCellBounds(index, index);
+                        if (bounds != null && bounds.contains(e.getPoint()))
+                        {
+                            userList.setSelectedIndex(index);
+                            showPopupMenu(e.getX(), e.getY(), userList, user);
+                        }
+                        else showPopupOptions(e.getX(), e.getY(), userList, user);
+                    }
+                    if (index == -1 && allFriends.isEmpty())
+                    {
+                        showPopupOptions(e.getX(), e.getY(), userList, user);
                     }
                 }
             }
