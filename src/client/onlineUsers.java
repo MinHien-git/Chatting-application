@@ -3,6 +3,7 @@ package client;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class onlineUsers extends JPanel {
     private DefaultListModel<Object> sideList;
@@ -30,7 +31,7 @@ public class onlineUsers extends JPanel {
         }
     }
 
-    private void showPopupMenuDirect(int x, int y, JList<Object> list) {
+    private void showPopupMenuDirect(int x, int y, JList<Object> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem spam = new JMenuItem("Report For Spam");
         JMenuItem viewChatHistory = new JMenuItem("View Chat History");
@@ -38,8 +39,21 @@ public class onlineUsers extends JPanel {
         JMenuItem searchChatHistory = new JMenuItem("Search Chat History");
 
         spam.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            System.out.println("Perform action on: ");
+            Object selected = list.getSelectedValue();
+            if (selected!= null && selected instanceof User) {
+                User reportedUser = (User) selected;
+                String reportedName = reportedUser.getName();
+                String byUserName = user.getName();
+                try {
+                    Application.write("ReportSpam|" + reportedName + "|" + byUserName);
+                    JOptionPane.showMessageDialog(this, "The user is successfully reported!");
+                    Application.write("BlockAccount|"+user.getId()+"|"+reportedUser.getId());
+                    sideList.removeElement(selected);
+                }catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
+                }
+            }
         });
 
         viewChatHistory.addActionListener(e -> {
@@ -67,7 +81,7 @@ public class onlineUsers extends JPanel {
         popupMenu.show(list, x, y);
     }
 
-    private void showPopupMenuGroup(int x, int y, JList<Object> list) {
+    private void showPopupMenuGroup(int x, int y, JList<Object> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem changeName = new JMenuItem("Change Group's Name");
         JMenuItem addMember = new JMenuItem("Add A New Member To The Group");
@@ -98,6 +112,32 @@ public class onlineUsers extends JPanel {
         popupMenu.add(addMember);
         popupMenu.add(showMembers);
         popupMenu.show(list, x, y);
+    }
+
+    private void showPopupOptions(int x, int y, JList<Object> list, User user) {
+        JPopupMenu options = new JPopupMenu();
+        JMenuItem refresh = new JMenuItem("Refresh");
+
+        refresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                UserAuthentication.updateOnlList(user);
+                sideList.clear();
+                int i = 0;
+                for (int j = 0; j < user.getOnlineList().size(); ++i, ++j)
+                {
+                    sideList.add(i, user.getOnlineList().get(j));
+                }
+
+                for (int j = 0; j < user.getGroupList().size(); ++i, ++j)
+                {
+                    sideList.add(i, user.getGroupList().get(j));
+                }
+            }
+        });
+
+        options.add(refresh);
+        options.show(list,x,y);
     }
 
     private void SetPlaceholder(JTextField textField, String placeholder)
@@ -202,71 +242,17 @@ public class onlineUsers extends JPanel {
                         {
                             usersAndgroups.setSelectedIndex(index);
                             if (usersAndgroups.getModel().getElementAt(index).getClass().getSimpleName().equalsIgnoreCase("groupChat")) {
-                                showPopupMenuGroup(e.getX(), e.getY(), usersAndgroups);
+                                showPopupMenuGroup(e.getX(), e.getY(), usersAndgroups, user);
                             }
-                            else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups);
+                            else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups, user);
                         }
+                        else showPopupOptions(e.getX(), e.getY(), usersAndgroups, user);
+                    }
+                    if (index == -1 && sideList.isEmpty())
+                    {
+                        showPopupOptions(e.getX(), e.getY(), usersAndgroups, user);
                     }
                 }
-            }
-        });
-
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem blockedList = new JMenuItem("Blocked List");
-        JMenuItem spamList = new JMenuItem("Spam List");
-        JMenuItem options = new JMenuItem("Options");
-        JMenuItem logout = new JMenuItem("Log Out");
-
-        blockedList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "Shows Blocked List");
-            }
-        });
-
-        spamList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "Shows Spam List");
-            }
-        });
-
-        options.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "Navigates To Options");
-            }
-        });
-
-        logout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "User Logged Out");
-            }
-        });
-
-        popupMenu.add(blockedList);
-        popupMenu.add(spamList);
-        popupMenu.add(options);
-        popupMenu.add(logout);
-
-        navigation.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showPopupMenu(e);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showPopupMenu(e);
-                }
-            }
-
-            private void showPopupMenu(MouseEvent e) {
-                popupMenu.show(e.getComponent(), e.getX(), e.getY());
             }
         });
 
@@ -278,25 +264,5 @@ public class onlineUsers extends JPanel {
         this.add(navigation, BorderLayout.NORTH);
         this.add(usersAndgroupsPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
-    }
-
-    private class AddUsersListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String username = JOptionPane.showInputDialog("Enter Username:");
-            if (username != null && !username.trim().isEmpty()) {
-                sideList.addElement(username);
-            }
-        }
-    }
-
-    private class RemoveUsersListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int selectedIndex = usersAndgroups.getSelectedIndex();
-            if (selectedIndex != -1) {
-                sideList.remove(selectedIndex);
-            }
-        }
     }
 }

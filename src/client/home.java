@@ -10,11 +10,11 @@ public class home extends JPanel implements ActionListener{
     final static String CHAT_PANEL = "Chat Panel";
     final static String FRIENDS_PANEL = "Friends Panel";
     final static String GLOBAL_CHAT_HISTORY = "Search In Global Chat";
-    private JPanel chatPanel;
-    private JPanel userPanel;
+    private static JPanel chatPanel;
+    private static JPanel userPanel;
     private JPanel mainPanel;
-    private JPanel friendsList;
-    private JPanel chatHistory;
+    private static JPanel friendsList;
+    private static JPanel chatHistory;
 
     public void actionPerformed(ActionEvent e) {
         CardLayout cardLayout = (CardLayout) (this.getLayout());
@@ -67,20 +67,5 @@ public class home extends JPanel implements ActionListener{
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(800, 600);
         mainFrame.setLocationRelativeTo(null);
-    }
-
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //JFrame mainFrame = new JFrame();
-                //onlineUsers onl = new onlineUsers(mainFrame);
-//                friends flist = new friends();
-//                chatting c = new chatting();
-//                globalChatHistory gch = new globalChatHistory();
-//                home h = new home(mainFrame, onl, flist, c, gch);
-            }
-        });
     }
 }

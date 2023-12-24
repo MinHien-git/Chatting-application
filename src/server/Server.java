@@ -16,8 +16,7 @@ public class Server {
     public static void main(String[] args) {
         ServerSocket listener = null;
         serverThreadBus = new ServerThreadBus();
-        System.out.println("Server is waiting to accept user...");
-        int clientNumber = 0;
+        System.out.println("Server is waiting to accept users...");
 
         try {
             listener = new ServerSocket(7777);
@@ -33,14 +32,16 @@ public class Server {
                 new ArrayBlockingQueue<>(8) // queueCapacity
         );
         try {
+            char newKey = 'a';
+            String id = "";
             while (true) {
                 socketOfServer = listener.accept();
                 //ID là client Number nhớ thay đổi tham số 2 của serverThread
-                ServerThread serverThread = new ServerThread(socketOfServer, "1");
+                id += newKey++;
+                ServerThread serverThread = new ServerThread(socketOfServer, id);
                 serverThreadBus.add(serverThread);
-                System.out.println("Số thread đang chạy là: "+serverThreadBus.getLength());
+                System.out.println("Number of users active: " + serverThreadBus.getLength());
                 executor.execute(serverThread);
-                
             }
         } catch (IOException ex) {
             ex.printStackTrace();

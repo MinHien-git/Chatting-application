@@ -13,17 +13,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 import java.awt.Dimension;
+import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.HashSet;
 import java.util.Properties;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import server.Server;
+import server.ServerThread;
+import server.ServerThreadBus;
 
 public class login {
 
 	public JFrame frmLogin;
 	private JTextField email;
 	private JTextField password;
+
 	/**
 	 * Create the application.
 	 */
@@ -106,7 +112,6 @@ public class login {
 					if (hashedPW == null) hashedPW = password.getText();
 
 					User user = new User(email.getText(),hashedPW);
-
 					String _id = user.LogIn();
 					if(!_id.equals("")) {
 						if (user.update())
@@ -116,6 +121,12 @@ public class login {
 							chatting c = new chatting();
 							globalChatHistory gbc = new globalChatHistory();
 							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
+							try {
+								Application.write("Online|"+user.getId());
+							}catch (IOException ex) {
+								System.out.println("An error occurred");
+								ex.printStackTrace();
+							}
 							Application.getApplicationFrame().setVisible(true);
 							frmLogin.dispose();
 						}

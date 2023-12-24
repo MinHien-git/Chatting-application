@@ -36,7 +36,8 @@ public class Application {
 
                         while (true) {
                             message = is.readLine();
-                            if (message == "Disconnect") {
+                            System.out.println(message);
+                            if (message == null) {
                                 break;
                             }
                         }
