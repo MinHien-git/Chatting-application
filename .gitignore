@@ -19,3 +19,5 @@ bin/server/Server.class
 bin/server/ServerThread.class
 bin/server/ServerThreadBus.class
 bin/ui/activity/Application.class
+/bin/
+bin/server/ServerThread$1.class

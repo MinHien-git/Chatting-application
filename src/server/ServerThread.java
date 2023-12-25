@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.security.SecureRandom;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +18,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import client.Application;
 import client.User;
 
@@ -27,7 +36,7 @@ public class ServerThread implements Runnable {
     static final String PW = "123456";
 
     private Socket socketOfServer;
-    private static String userID;
+    private String userID;
     private BufferedReader is;
     private BufferedWriter os;
     private boolean isClosed;
@@ -63,11 +72,11 @@ public class ServerThread implements Runnable {
         return is;
     }
 
-    public static void setuserID(String id) {
+    public void setuserID(String id) {
         userID = id;
     }
 
-    public static String getUserID() {
+    public String getUserID() {
         return userID;
     }
 
@@ -95,6 +104,7 @@ public class ServerThread implements Runnable {
             System.out.println("Khời động luông mới thành công, ID là: " + userID);
 //            Server.serverThreadBus.sendOnlineList();
             //Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.userID+" đã đăng nhập---");
+            Server.serverThreadBus.boardCast(userID, "id" + "|" + userID);
             String message;
             while (!isClosed) {
                 message = is.readLine();
@@ -104,7 +114,24 @@ public class ServerThread implements Runnable {
                 String[] messageSplit = message.split("\\|");
                 String commandString = messageSplit[0];
                 System.out.println(commandString);
-                if (commandString.equals("DirectMessage")) {
+                if(commandString.equals("Login")) {
+                	String result = Login(messageSplit[1],messageSplit[2]);
+                	if(!result.equals("")) {
+                		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success"+result);
+                	}
+                	System.out.println(result);
+                }else if(commandString.equals("Register")) {
+                	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4])) {
+                		System.out.println("Dang ki thanh cong"+messageSplit[messageSplit.length -1]);
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Register_Success|");
+                	}
+                }else if(commandString.equals("ResetPassword")) {
+                	if(ForgotPassword(messageSplit[1])) {
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Reset_password|");
+                	}
+                }
+                else if (commandString.equals("DirectMessage")) {
                     System.out.println("DirectMessage");
                     String id1 = messageSplit[1];//Người gửi
                     String id2 = messageSplit[2];//Từ user
@@ -276,7 +303,113 @@ public class ServerThread implements Runnable {
         os.newLine();
         os.flush();
     }
+    //Register
+    public static boolean Register(String id,String name,String email,String password) {
+    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id,name, email,password) values (?,?,?,?)";
+    	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
+    	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+   			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
+   			 // Step 2:Create a statement using connection object
+   			 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USERS_SQL)) {
+   			preparedStatement.setString(1, id);
+   			preparedStatement.setString(2, name);
+   			preparedStatement.setString(3, email);
+   			preparedStatement.setString(4, password);
 
+   			stmt.setString(1, email);
+   			ResultSet rs = stmt.executeQuery();
+   			if (rs.next()) {
+   				System.out.print(rs.getString("id"));
+   				return false;
+   			}
+
+   			// Step 3: Execute the query or update query
+   			int count = preparedStatement.executeUpdate();
+   			System.out.println(count);
+   			return count > 0;
+   		} catch (SQLException e) {
+   			System.out.println("Unable to connect to database");
+   			e.printStackTrace();
+   			System.exit(1);
+   			// print SQL exception information
+   			return false;
+   		}
+	}
+   //Login 
+    public static String Login(String email,String password) {
+    	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where email = ? and password = ?";
+    	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+   			 // Step 2:Create a statement using connection object
+   			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL)) {
+   			preparedStatement.setString(1, email);
+   			preparedStatement.setString(2, password);
+
+   			// Step 3: Execute the query or update query
+   			ResultSet rs = preparedStatement.executeQuery();
+   			if (rs.next()) {
+   				return rs.getString("id") + "|" +  rs.getString("name") + "|" +  rs.getString("email");   				
+   			}
+   			return "";
+   		} catch (SQLException e) {
+   			System.out.println("Unable to connect to database");
+   			e.printStackTrace();
+   			System.exit(1);
+   			// print SQL exception information
+   			return "";
+   		}
+    }
+    //Forgot password
+    public static String generateRandomPassword(int length) {
+		String validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		SecureRandom random = new SecureRandom();
+		StringBuilder password = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			int randomIndex = random.nextInt(validChars.length());
+			password.append(validChars.charAt(randomIndex));
+		}
+
+		return password.toString();
+	}
+    
+    public static boolean ForgotPassword(String email) {
+    	final String email_password = "LMinhHien16102003";
+		String from = "lmhien21@clc.fitus.edu.vn";
+		String host = "smtp.gmail.com";//or IP address  
+  
+		Properties props = new Properties();
+		 props.put("mail.smtp.auth", "true");
+	      props.put("mail.smtp.starttls.enable", "true");
+	      props.put("mail.smtp.ssl.trust", "*");
+	      props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+	      props.put("mail.smtp.host", host);
+	      props.put("mail.smtp.port", "587");
+
+		     
+	   Session session = Session.getDefaultInstance(props,  
+			   new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+               return new PasswordAuthentication(from, email_password);
+            }
+         });
+	  
+	   //Compose the message  
+	    try {  
+	     MimeMessage message = new MimeMessage(session);  
+	     message.setFrom(new InternetAddress(from));  
+	     message.addRecipient(Message.RecipientType.TO,new InternetAddress(email));  
+	     message.setSubject("Reset Password");  
+	     message.setText("Your updated password is :" + generateRandomPassword(15));  
+	       
+	    //send the message  
+	     Transport.send(message);  
+	  
+	     System.out.println("message sent successfully...");  
+	     return true;
+	     } catch (MessagingException err) {err.printStackTrace();}  
+	    return false;
+    }
     //DirectMessage
 
     public static String[] CheckMessageExists(String id, String id2) {

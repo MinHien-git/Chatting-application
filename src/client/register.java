@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
 import javax.xml.crypto.dsig.SignedInfo;
@@ -16,20 +17,19 @@ import java.awt.Window.Type;
 import java.awt.Dialog.ModalExclusionType;
 import java.util.ArrayList;
 
-public class register {
-
-	public JFrame frmRegister;
+public class register extends JPanel {
 	private JTextField email;
-	private JTextField password;
+	private JPasswordField password;
 	private JTextField name;
 	private UserAuthentication auth = new UserAuthentication();
 	private static int maxUserID = 1000000;
 	private static int minUserID = 1;
-
+	private Application parent;
 	/**
 	 * Create the application.
 	 */
-	public register() {
+	public register(Application app) {
+		this.parent = app;
 		initialize();
 	}
 
@@ -37,23 +37,22 @@ public class register {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmRegister = new JFrame();
-		frmRegister.setResizable(false);
-		frmRegister.setForeground(Color.BLACK);
-		frmRegister.setTitle("Register");
-		frmRegister.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
-		frmRegister.getContentPane().setBackground(Color.WHITE);
-		frmRegister.setBackground(Color.WHITE);
-		frmRegister.getContentPane().setFont(new Font("Source Code Pro Medium", Font.PLAIN, 11));
-		frmRegister.getContentPane().setLayout(new BoxLayout(frmRegister.getContentPane(), BoxLayout.X_AXIS));
+		//setResizable(false);
+		setForeground(Color.BLACK);
+		//setTitle("Register");
+		setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
+		setBackground(Color.WHITE);
+		//frmRegister.setBackground(Color.WHITE);
+		setFont(new Font("Source Code Pro Medium", Font.PLAIN, 11));
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(135, 206, 250));
-		frmRegister.getContentPane().add(panel);
+		add(panel);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
-		frmRegister.getContentPane().add(panel_1);
+		add(panel_1);
 		panel_1.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Register");
@@ -74,7 +73,7 @@ public class register {
 		lblNewLabel_1.setBounds(45, 129, 202, 14);
 		panel_1.add(lblNewLabel_1);
 
-		password = new JTextField();
+		password = new JPasswordField();
 		password.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		password.setPreferredSize(new Dimension(7, 22));
 		password.setColumns(10);
@@ -95,14 +94,13 @@ public class register {
 					String hashedPW = User.hashPassword(password.getText());
 
 					if (hashedPW == null) hashedPW = password.getText();
-
-					User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
-					if(user.SignUp()) {
-						JOptionPane.showMessageDialog(frmRegister, "You are successfully registered, you will be redirected to the login page shortly");
-						login window = new login();
-						window.frmLogin.setVisible(true);
-						frmRegister.dispose();
+					try {
+						parent.write("Register|"+id+name.getText()+"|"+email.getText()+"|"+"|"+hashedPW);
+					}catch (IOException ex) {
+						System.out.println("An error occurred");
+						ex.printStackTrace();
 					}
+					
 				}
 			}
 		});
@@ -116,9 +114,7 @@ public class register {
 		btnLogin.setBorder(UIManager.getBorder("Button.border"));
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				login login =new login();
-				login.frmLogin.show();
-				frmRegister.dispose();
+				parent.ChangeTab(new login(parent), 605, 476);
 			}
 		});
 		btnLogin.setForeground(new Color(30, 144, 255));
@@ -138,7 +134,7 @@ public class register {
 		lblNewLabel_1_2.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		lblNewLabel_1_2.setBounds(45, 74, 202, 14);
 		panel_1.add(lblNewLabel_1_2);
-		frmRegister.setBounds(100, 100, 605, 492);
-		frmRegister.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 605, 492);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }

@@ -40,8 +40,10 @@ public class Server {
                 id += newKey++;
                 ServerThread serverThread = new ServerThread(socketOfServer, id);
                 serverThreadBus.add(serverThread);
+                
                 System.out.println("Number of users active: " + serverThreadBus.getLength());
                 executor.execute(serverThread);
+
             }
         } catch (IOException ex) {
             ex.printStackTrace();
