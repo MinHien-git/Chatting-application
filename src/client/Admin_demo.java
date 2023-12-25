@@ -108,6 +108,8 @@ public class Admin_demo {
     private JTextField inputNameSearcht8;
     private JTextField inputDir_open;
     private JTextField inputYearT6;
+    private JTextField inputFromDatet8;
+    private JTextField inputToDatet8;
     private ChartPanel chartPanel;
     private GridBagConstraints gbcMain;
 
@@ -132,231 +134,6 @@ public class Admin_demo {
      */
     private void initialize() {
         frame = new JFrame();
-//        //Get users
-//        GetUserButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String nameString = GetUser_EMAIL.getText();
-//                int account_status = GetUser_STATUS.isSelected() ? 1 : 0;
-//                int sort_by_name = GetUser_SORTNAME.isSelected() ? 1 : 0;
-//                int sort_by_date = GetUser_SORTDATE.isSelected() ? 1 : 0;
-//                String name = GetUser_NAME.getText();
-//                String fromDateString = GetUser_FROMDATE.getText();
-//                String toDateString = GetUser_TODATE.getText();
-//
-//                try {
-//                    write("AdminGetUser|" + nameString + "|" + account_status + "|" + sort_by_name + "|" + sort_by_date + "|" + name + "|" + fromDateString + "|" + toDateString);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET LOGIN ACTIVITIES
-//        GetLOGIN_ACTIVITIES_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                try {
-//                    write("AdminGetLoginActivities");
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET GROUP
-//        GETGROUP_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String groupString = GETGROUP_NAME.getText();
-//                int account_status = GETGROUP_SORT_NAME.isSelected() ? 1 : 0;
-//                int sort_by_name = GETGROUP_SORT_DATE.isSelected() ? 1 : 0;
-//
-//                try {
-//                    write("AdminGetGroup|" + groupString + "|" + account_status + "|" + sort_by_name);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //DELETE ACCOUNT
-//        DELETEACCOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String username = DELETEACCOUNT_name.getText();
-//
-//                try {
-//                    write("AdminDeleteAccount|" + username);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //ADD ACCOUNT
-//        ADDACCOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String name = ADDACCOUNT_USERNAME.getText();
-//                String pw = ADDACCOUNT_PW.getText();
-//                int sxString = ADDACCOUNT_SX.isSelected() ? 1 : 0;
-//                String birth = ADDACCOUNT_BIRTH.getText();
-//                try {
-//                    write("AdminAddAccount|" + name + pw + sxString + birth);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //EDIT ACCOUNT
-//        EDITACCOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String name = EDITACCOUNT_NAME.getText();
-//                String pw = EDITACCOUNT_PW.getText();
-//                int sxString = EDITACCOUNT_SX.isSelected() ? 1 : 0;
-//                String birth = EDITACCOUNT_BIRTH.getText();
-//                try {
-//                    write("AdminEditAccount|" + name + pw + sxString + birth);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET GROUP ADMIN
-//        GETGROUPADMIN_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String id = GETGROUPADMIN_ID.getText();
-//                try {
-//                    write("AdminGetGroupAdmin|" + id);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-//
-//        //GET GROUP MEMBER
-//        GETGROUPMEMBER_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String id = GETGROUPMEMBER_ID.getText();
-//                try {
-//                    write("AdminGetGroupMember|" + id);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET SPAM LIST
-//        GETSPAM_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String nameString = GETSPAM_NAME.getText();
-//                int sort_by_name = GETSPAM_SORTNAME.isSelected() ? 1 : 0;
-//                int sort_by_date = GETSPAM_SORTDATE.isSelected() ? 1 : 0;
-//                String name = GetUser_NAME.getText();
-//                String fromDateString = GETSPAM_DATEFROM.getText();
-//                String toDateString = GETSPAM_DATETO.getText();
-//
-//                try {
-//                    write("AdminSpamlist|" + nameString + "|" + sort_by_name + "|" + sort_by_date + "|" + name + "|" + fromDateString + "|" + toDateString);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET REGISTER LIST
-//        GETREGISTERLIST_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                int sort_by_name = GETREGISTERLIST_SORTNAME.isSelected() ? 1 : 0;
-//                int sort_by_date = GETREGISTERLIST_SORTNAME.isSelected() ? 1 : 0;
-//                String fromDateString = GETREGISTERLIST_DATE_FROM.getText();
-//                String toDateString = GETREGISTERLIST_DATE_TO.getText();
-//
-//                try {
-//                    write("AdminRegisterStatistic|" + sort_by_date + "|" + sort_by_name + "|" + fromDateString + "|" + toDateString);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //LOCK ACCOUNT
-//        LOCKACCOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String name = LOCKACCOUNT_NAME.getText();
-//
-//                try {
-//                    write("AdminLockAccount|" + name);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //UNLOCK ACCOUNT
-//        UNLOCKACCOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String name = UNLOCKACCOUNT_NAME.getText();
-//
-//                try {
-//                    write("AdminUnLockAccount|" + name);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET USER FRIENDS
-//        USERSFRIEND_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String name = USERSFRIEND_NAME.getText();
-//                String account_friend = USERSFRIEND_AMOUNT_FRIEND.getText();
-//                int sort_by_name = USERSFRIEND_SORT_NAME.isSelected() ? 1 : 0;
-//                int sort_by_date = USERSFRIEND_SORT_DATE.isSelected() ? 1 : 0;
-//
-//                try {
-//                    write("AdminGetUserFriends|" + name + "|" + account_friend + "|" + sort_by_name + "|" + sort_by_date);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET REGISTER AMOUNT
-//        GETREGISTERAMOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String year = GETREGISTERAMOUNT_YEAR.getText();
-//                try {
-//                    write("AdminGetRegisterAmountByYear|" + year);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
-
-//        //GET ACTIVE LOG
-//        GETACTIVEAMOUNT_BTN.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String year = GETACTIVEAMOUNT_YEAR.getText();
-//                try {
-//                    write("AdminGetActiveAmountByYear|" + year);
-//
-//                } catch (IOException ex) {
-//                    //JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
-//                }
-//            }
-//        });
 
         JPanel defaultPanel = new JPanel();
         JPanel panel1 = new JPanel();
@@ -725,7 +502,6 @@ public class Admin_demo {
             gbcListAdmin.gridy = 0;
         }
     }
-
     private void updateListSpam(ArrayList<String> listSpamInString, int checkEnd) {
         if (gbcListSpam.gridy == 0) {
             int compCount = listSpam.getComponentCount();
@@ -767,7 +543,6 @@ public class Admin_demo {
             gbcListSpam.gridy = 0;
         }
     }
-
     private void updateListNew(ArrayList<String> listNewInString, int checkEnd) {
         if (gbcListNew.gridy == 0) {
             int compCount = listNew.getComponentCount();
@@ -809,7 +584,6 @@ public class Admin_demo {
             gbcListNew.gridy = 0;
         }
     }
-
     private void updateChartNew(ArrayList<String> ChartValue, String year) {
         JFreeChart chart = this.createChart(this.createDataset(ChartValue), year);
         CategoryPlot plot = chart.getCategoryPlot();
@@ -820,7 +594,6 @@ public class Admin_demo {
         chartPanel.revalidate();
         chartPanel.setChart(chart);
     }
-
     private void updateListFriendPlus(ArrayList<String> listFriendPlusInString, int checkEnd) {
         if (gbcListFriendPlus.gridy == 0) {
             int compCount = listFriendPlus.getComponentCount();
@@ -1521,7 +1294,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JScrollPane trang2() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -1595,7 +1367,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JScrollPane trang3() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -1863,7 +1634,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JScrollPane trang4() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2028,7 +1798,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JScrollPane trang5() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2185,7 +1954,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JPanel trang6() {
         String[] month = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
         ArrayList<String> temp = new ArrayList<>();
@@ -2246,7 +2014,6 @@ public class Admin_demo {
 
         return mainPanel;
     }
-
     private JScrollPane trang7() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2386,7 +2153,6 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JScrollPane trang8() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2445,24 +2211,68 @@ public class Admin_demo {
         inputNameSearcht8 = new JTextField();
         JLabel dir_open = new JLabel("Số lượng hoạt động");
         inputDir_open = new JTextField();
+        JLabel fromDate = new JLabel("Từ ngày");
+        JLabel toDate = new JLabel("Đến ngày");
+        inputFromDatet8 = new JTextField();
+        inputToDatet8 = new JTextField();
 
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int sortBy = btnSortNamet8.isSelected() ? 1 : btnSortDatet8.isSelected() ? -1 : 0;
-                String tempInputNameSearcht8 = inputNameSearcht8.getText();
-                String tempInputDir_open = inputDir_open.getText();
+                String sortBy = btnSortNamet8.isSelected() ? "1" : btnSortDatet8.isSelected() ? "-1" : "0";
+                String tempInputNameSearch = inputNameSearcht8.getText();
+                String tempInputOpen = inputDir_open.getText();
+                String tempInputFromDate = inputFromDatet8.getText();
+                String tempInputToDate = inputToDatet8.getText();
 
-                ArrayList<ArrayList<String>> temp = null;
-
-                updateListOpen(temp);
+                if (!tempInputFromDate.isEmpty() && !tempInputToDate.isEmpty()) {
+                    if (tempInputNameSearch.isEmpty()) {
+                        if (tempInputOpen.isEmpty()) {
+                            try {
+                                write("AdminGetListOpen|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate));
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                        else {
+                            try {
+                                write("AdminGetListOpen|%s|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputOpen));
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    } else {
+                        if (tempInputOpen.isEmpty()) {
+                            try {
+                                write("AdminGetListOpen|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch));
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        } else {
+                            try {
+                                write("AdminGetListOpen|%s|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch, tempInputOpen));
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
+                }
+                btnSortNamet8.setSelected(false);
+                btnSortDatet8.setSelected(false);
+                inputFromDatet8.setText("");
+                inputToDatet8.setText("");
+                inputNameSearcht8.setText("");
             }
         });
 
         setLabel(dir_open);
         setLabel(labelNName);
+        setLabel(fromDate);
+        setLabel(toDate);
         setTextfield(inputDir_open);
         setTextfield(inputNameSearcht8);
+        setTextfield(inputFromDatet8);
+        setTextfield(inputToDatet8);
 
         ButtonGroup btnG = new ButtonGroup();
         btnG.add(btnSortNamet8);
@@ -2475,6 +2285,18 @@ public class Admin_demo {
 
         gbcMain.gridy += 1;
         mainPanel.add(btnSortDatet8, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(fromDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputFromDatet8, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(toDate, gbcMain);
+
+        gbcMain.gridy += 1;
+        mainPanel.add(inputToDatet8, gbcMain);
 
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
         gbcMain.gridy += 1;
@@ -2695,7 +2517,6 @@ public class Admin_demo {
 
         return list;
     }
-
     private JPanel getFunction1() {
         JPanel outerPanel1 = new JPanel();
         JPanel panel1 = new JPanel(new GridBagLayout());
@@ -2735,7 +2556,6 @@ public class Admin_demo {
 
         return outerPanel1;
     }
-
     private JPanel getFunction2() {
         JPanel outerPanel2 = new JPanel();
         JPanel panel2 = new JPanel(new GridBagLayout());
@@ -2763,7 +2583,6 @@ public class Admin_demo {
 
         return outerPanel2;
     }
-
     private JPanel getFunction3() {
         JPanel outerPanel3 = new JPanel();
         JPanel panel3 = new JPanel(new GridBagLayout());
@@ -2799,7 +2618,6 @@ public class Admin_demo {
 
         return outerPanel3;
     }
-
     private JPanel getFunction4() {
         JPanel outerPanel4 = new JPanel();
         JPanel panel4 = new JPanel(new GridBagLayout());
@@ -2835,7 +2653,6 @@ public class Admin_demo {
 
         return outerPanel4;
     }
-
     private JPanel getFunction5() {
         JPanel outerPanel5 = new JPanel();
         JPanel panel5 = new JPanel(new GridBagLayout());
@@ -2867,7 +2684,6 @@ public class Admin_demo {
 
         return outerPanel5;
     }
-
     private JPanel getFunction6() {
         JPanel outerPanel6 = new JPanel();
         JPanel panel6 = new JPanel(new GridBagLayout());
@@ -2895,7 +2711,6 @@ public class Admin_demo {
 
         return outerPanel6;
     }
-
     private JPanel getFunction7() {
         JPanel outerPanel7 = new JPanel();
         JPanel panel7 = new JPanel(new GridBagLayout());
@@ -2929,7 +2744,6 @@ public class Admin_demo {
 
         return outerPanel7;
     }
-
     private JPanel getFunction8() {
         JPanel outerPanel8 = new JPanel();
         JPanel panel8 = new JPanel(new GridBagLayout());

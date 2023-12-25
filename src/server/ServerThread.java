@@ -21,10 +21,10 @@ import client.Application;
 import client.User;
 
 public class ServerThread implements Runnable {
-    static final String URL = "jdbc:postgresql://localhost:5432/chatting-application";
+    static final String URL = "jdbc:postgresql://localhost:5432/chatting";
     static final String JDBC_DRIVER = "org.postgresql.Driver";
     static final String USER = "postgres";
-    static final String PW = "123456";
+    static final String PW = "WokCao196";
 
     private Socket socketOfServer;
     private static String userID;
@@ -218,6 +218,8 @@ public class ServerThread implements Runnable {
                     AdminGetChartNew(messageSplit);
                 } else if (commandString.equals("AdminGetListFriendPlus")) {
                     AdminGetListFriendPlus(messageSplit);
+                } else if (commandString.equals("AdminGetListOpen")) {
+                    AdminGetListOpen(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -632,7 +634,6 @@ public class ServerThread implements Runnable {
                 }
 
                 if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
-                    System.out.println("IN");
                     ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
                 } else if (messageSplit[2].equals("1")) {
                     ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
@@ -1331,6 +1332,45 @@ public class ServerThread implements Runnable {
             }
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_PLUS_SQL)) {
+                if (messageSplit.length >= 3) {
+                    preparedStatement.setString(1, messageSplit[2] + "%");
+                }
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetListFriendPlus|no data|END");
+                } else {
+                    do {
+                        StringBuilder result = new StringBuilder();
+                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getInt("dirfr")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getInt("total") + rs.getInt("dirfr")).append("|END");
+                        } else {
+                            result.append(rs.getInt("total") + rs.getInt("dirfr"));
+                        }
+
+                        String fullReturn = "AdminGetListFriendPlus|" + result;
+                        Server.serverThreadBus.boardCast("1", fullReturn);
+                    } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void AdminGetListOpen(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_LIST_OPEN_SQL = "SELECT ";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_OPEN_SQL)) {
                 if (messageSplit.length >= 3) {
                     preparedStatement.setString(1, messageSplit[2] + "%");
                 }
