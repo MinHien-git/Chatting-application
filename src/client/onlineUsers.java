@@ -1,6 +1,8 @@
 package client;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -21,8 +23,7 @@ public class onlineUsers extends JPanel {
                 setText(((User) value).getName() + " - Status: " + status);
                 setForeground(Color.BLUE);
             }
-            if (value instanceof groupChat)
-            {
+            if (value instanceof groupChat) {
                 setText("Group chat - " + ((groupChat) value).getGroupName());
                 setForeground(Color.BLACK);
             }
@@ -40,16 +41,16 @@ public class onlineUsers extends JPanel {
 
         spam.addActionListener(e -> {
             Object selected = list.getSelectedValue();
-            if (selected!= null && selected instanceof User) {
+            if (selected != null && selected instanceof User) {
                 User reportedUser = (User) selected;
                 String reportedName = reportedUser.getName();
                 String byUserName = user.getName();
                 try {
                     Application.write("ReportSpam|" + reportedName + "|" + byUserName);
                     JOptionPane.showMessageDialog(this, "The user is successfully reported!");
-                    Application.write("BlockAccount|"+user.getId()+"|"+reportedUser.getId());
+                    Application.write("BlockAccount|" + user.getId() + "|" + reportedUser.getId());
                     sideList.removeElement(selected);
-                }catch (IOException ex) {
+                } catch (IOException ex) {
                     System.out.println("Unable to write");
                     ex.printStackTrace();
                 }
@@ -122,26 +123,24 @@ public class onlineUsers extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UserAuthentication.updateOnlList(user);
+                UserAuthentication.updateGroups(user);
                 sideList.clear();
                 int i = 0;
-                for (int j = 0; j < user.getOnlineList().size(); ++i, ++j)
-                {
+                for (int j = 0; j < user.getOnlineList().size(); ++i, ++j) {
                     sideList.add(i, user.getOnlineList().get(j));
                 }
 
-                for (int j = 0; j < user.getGroupList().size(); ++i, ++j)
-                {
+                for (int j = 0; j < user.getGroupList().size(); ++i, ++j) {
                     sideList.add(i, user.getGroupList().get(j));
                 }
             }
         });
 
         options.add(refresh);
-        options.show(list,x,y);
+        options.show(list, x, y);
     }
 
-    private void SetPlaceholder(JTextField textField, String placeholder)
-    {
+    private void SetPlaceholder(JTextField textField, String placeholder) {
         textField.setForeground(Color.GRAY);
         textField.setText(placeholder);
 
@@ -173,7 +172,7 @@ public class onlineUsers extends JPanel {
         navigation.setBackground(Color.LIGHT_GRAY);
 
         searchBar = new JTextField();
-        searchBar.setMargin(new Insets(15,10,15,10));
+        searchBar.setMargin(new Insets(15, 10, 15, 10));
         searchBar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY), // Border color
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -196,20 +195,15 @@ public class onlineUsers extends JPanel {
                 }
             }
         });
-        searchBar.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
 
-            }
+        searchBar.addActionListener(e -> {
+            if (e.getSource() == searchBar) {
+                String name = searchBar.getText();
+                String id = UserAuthentication.usernameToID(name);
+                User addedUser = UserAuthentication.idToUser(id);
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
+                sideList.addElement(addedUser);
+                searchBar.setText("");
             }
         });
 
@@ -218,19 +212,47 @@ public class onlineUsers extends JPanel {
         sideList = new DefaultListModel<>();
         //we can dynamically add users/groups here
         int i = 0;
-        for (int j = 0; j < user.getOnlineList().size(); ++i, ++j)
-        {
+        for (int j = 0; j < user.getOnlineList().size(); ++i, ++j) {
             sideList.add(i, user.getOnlineList().get(j));
         }
 
-        for (int j = 0; j < user.getGroupList().size(); ++i, ++j)
-        {
+        for (int j = 0; j < user.getGroupList().size(); ++i, ++j) {
             sideList.add(i, user.getGroupList().get(j));
         }
 
         usersAndgroups = new JList<>(sideList);
         usersAndgroups.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         usersAndgroups.setCellRenderer(new CustomRenderer());
+        usersAndgroups.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    Object selected = usersAndgroups.getSelectedValue();
+                    if (selected.getClass().getSimpleName().equals("User")) {
+                        User selectedUser = (User) selected;
+                        String id = selectedUser.getId();
+                        chatting userChat = new chatting(user.getId(), id);
+                        Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
+
+                        if (tmp.getClass().getSimpleName().equals("home")) {
+                            home b = (home) tmp;
+                            b.setChatPanel(userChat);
+                        }
+                    } else if (selected.getClass().getSimpleName().equals("groupChat")) {
+                        groupChat selectedGroup = (groupChat) selected;
+                        String id = selectedGroup.getGroupID();
+                        chatting userChat = new chatting(id);
+                        Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
+
+                        if (tmp.getClass().getSimpleName().equals("home")) {
+                            home b = (home) tmp;
+                            b.setChatPanel(userChat);
+                        }
+                    }
+                }
+            }
+        });
+
         usersAndgroups.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -238,18 +260,14 @@ public class onlineUsers extends JPanel {
                     int index = usersAndgroups.locationToIndex(e.getPoint());
                     if (index != -1) {
                         Rectangle bounds = usersAndgroups.getCellBounds(index, index);
-                        if (bounds != null && bounds.contains(e.getPoint()))
-                        {
+                        if (bounds != null && bounds.contains(e.getPoint())) {
                             usersAndgroups.setSelectedIndex(index);
                             if (usersAndgroups.getModel().getElementAt(index).getClass().getSimpleName().equalsIgnoreCase("groupChat")) {
                                 showPopupMenuGroup(e.getX(), e.getY(), usersAndgroups, user);
-                            }
-                            else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups, user);
-                        }
-                        else showPopupOptions(e.getX(), e.getY(), usersAndgroups, user);
+                            } else showPopupMenuDirect(e.getX(), e.getY(), usersAndgroups, user);
+                        } else showPopupOptions(e.getX(), e.getY(), usersAndgroups, user);
                     }
-                    if (index == -1 && sideList.isEmpty())
-                    {
+                    if (index == -1 && sideList.isEmpty()) {
                         showPopupOptions(e.getX(), e.getY(), usersAndgroups, user);
                     }
                 }

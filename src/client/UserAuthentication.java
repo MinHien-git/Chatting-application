@@ -35,6 +35,10 @@ public class UserAuthentication {
 	private static final String FIND_GROUPS = "SELECT g.* FROM public.\"users\" u JOIN public.\"groups\" g ON u.id = ANY(g.users) where u.id = ?";
 
 	private static final String RESET_PW = "UPDATE public.\"users\" SET \"password\" = ? where email = ?";
+
+	private static final String RETRIEVE_MSG = "SELECT * FROM public.messages m where ? = any(m.users) and ? = any(m.users)";
+
+	private static final String RETRIEVE_GR_MSG = "SELECT g.\"content\" FROM public.\"groups\" g where g.groupid = ?";
 	public UserAuthentication() {
 		try {
 			Class.forName(JDBC_DRIVER);
@@ -297,6 +301,56 @@ public class UserAuthentication {
 
 		if (updateBlockList(user) && updateFriendsList(user) && updateOnlList(user) && updateGroups(user)) return true;
 		else return false;
+	}
+
+	public static ArrayList<String> getMessageContent(String _id1, String _id2) {
+		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement msg = connection.prepareStatement(RETRIEVE_MSG);
+			msg.setString(1, _id1);
+			msg.setString(2, _id2);
+			ResultSet results = msg.executeQuery();
+
+			ArrayList<String> messages = new ArrayList<>();
+
+			if (results.next()) {
+				String content = results.getString("content");
+				String[] chat = content.split("\\|");
+				for (String c : chat) {
+					messages.add(c);
+				}
+				return messages;
+			}
+			return null;
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return null;
+		}
+	}
+
+	public static ArrayList<String> getGroupContent(String groupID) {
+		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement gr = connection.prepareStatement(RETRIEVE_GR_MSG);
+			gr.setString(1, groupID);
+			ResultSet results = gr.executeQuery();
+
+			ArrayList<String> messages = new ArrayList<>();
+
+			if (results.next())
+			{
+				String content = results.getString("content");
+				String[] chat = content.split("\\|");
+				for (String c : chat) {
+					messages.add(c);
+				}
+				return messages;
+			}
+			return null;
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return null;
+		}
 	}
 
 	public static boolean SignUp(User user) {
