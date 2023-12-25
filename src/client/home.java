@@ -10,15 +10,27 @@ public class home extends JPanel implements ActionListener{
     final static String CHAT_PANEL = "Chat Panel";
     final static String FRIENDS_PANEL = "Friends Panel";
     final static String GLOBAL_CHAT_HISTORY = "Search In Global Chat";
-    private static JPanel chatPanel;
-    private static JPanel userPanel;
+    private JPanel chatPanel;
+    private JPanel userPanel;
     private JPanel mainPanel;
-    private static JPanel friendsList;
-    private static JPanel chatHistory;
+    private JPanel friendsList;
+    private JPanel chatHistory;
 
     public void actionPerformed(ActionEvent e) {
         CardLayout cardLayout = (CardLayout) (this.getLayout());
         cardLayout.show(this, e.getActionCommand());
+    }
+
+    public JPanel getChatPanel() { return chatPanel; }
+
+    public void setChatPanel(JPanel chat) {
+        mainPanel.remove(1);
+        chatPanel = chat;
+        mainPanel.add(chatPanel, BorderLayout.CENTER);
+        mainPanel.repaint();
+        mainPanel.revalidate();
+        this.repaint();
+        this.revalidate();
     }
 
     public home(JFrame mainFrame, JPanel users, JPanel friends, JPanel chat, JPanel history) {
