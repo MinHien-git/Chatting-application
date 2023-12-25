@@ -17,18 +17,18 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Properties;
-import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import server.Server;
 import server.ServerThread;
 import server.ServerThreadBus;
+import javax.mail.*;  
+import javax.mail.internet.*;  
+import javax.activation.*;
 
 public class login {
 
 	public JFrame frmLogin;
 	private JTextField email;
-	private JTextField password;
+	private JPasswordField password;
 
 	/**
 	 * Create the application.
@@ -91,7 +91,7 @@ public class login {
 		lblNewLabel_1.setBounds(46, 108, 202, 14);
 		panel_1.add(lblNewLabel_1);
 
-		password = new JTextField();
+		password = new JPasswordField();
 		password.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		password.setPreferredSize(new Dimension(7, 22));
 		password.setColumns(10);
@@ -161,47 +161,46 @@ public class login {
 		resetPW.setBorder(UIManager.getBorder("Button.border"));
 		resetPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				final String fromEmail = "chattingapplication21ktpm4@gmail.com";
-				final String password = "testpassword123";
 				String toEmail = JOptionPane.showInputDialog("Please specify your email for password recovery");
 
 				System.out.println("TLS Email Start");
+				
+				final String email_password = "LMinhHien16102003";
+				String to = "hienb697@gmail.com";
+				String from = "lmhien21@clc.fitus.edu.vn";
+				String host = "smtp.gmail.com";//or IP address  
+		  
 				Properties props = new Properties();
-				props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
-				props.put("mail.smtp.port", "587"); //TLS Port
-				props.put("mail.smtp.auth", "true"); //enable authentication
-				props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
+				 props.put("mail.smtp.auth", "true");
+			      props.put("mail.smtp.starttls.enable", "true");
+			      props.put("mail.smtp.ssl.trust", "*");
+			      props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+			      props.put("mail.smtp.host", host);
+			      props.put("mail.smtp.port", "587");
 
-				//create Authenticator object to pass in Session.getInstance argument
-				Authenticator auth = new Authenticator() {
-					//override the getPasswordAuthentication method
-					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(fromEmail, password);
-					}
-				};
-				Session session = Session.getInstance(props,auth);
-				try {
-					Message message = new MimeMessage(session);
-					message.setFrom(new InternetAddress(fromEmail)); // Sender's email
-					message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail)); // Recipient's email
-					message.setSubject("Password Reset - Chatting Application");
-
-					String messageContent = """
-							Dear user,
-							You received this message as a request to reset your password
-							Your new password is: """;
-					String newPw = generateRandomPassword(15);
-					UserAuthentication.resetPassword(User.hashPassword(newPw), toEmail);
-					messageContent += newPw + "\nIf you did not make this request, please ignore this email. \nBest regards,";
-					message.setText(messageContent);
-
-					Transport.send(message);
-					System.out.println("Email sent successfully!");
-				} catch (MessagingException me) {
-					System.out.println("Failed to send email");
-					me.printStackTrace();
-				}
-			}
+				     
+			   Session session = Session.getDefaultInstance(props,  
+					   new javax.mail.Authenticator() {
+		            protected PasswordAuthentication getPasswordAuthentication() {
+		               return new PasswordAuthentication(from, email_password);
+		            }
+		         });
+			  
+			   //Compose the message  
+			    try {  
+			     MimeMessage message = new MimeMessage(session);  
+			     message.setFrom(new InternetAddress(from));  
+			     message.addRecipient(Message.RecipientType.TO,new InternetAddress(toEmail));  
+			     message.setSubject("Reset Password");  
+			     message.setText("Your updated password is :" + generateRandomPassword(15));  
+			       
+			    //send the message  
+			     Transport.send(message);  
+			  
+			     System.out.println("message sent successfully...");  
+			   
+			     } catch (MessagingException err) {err.printStackTrace();}  
+			 }  
 		});
 		resetPW.setForeground(Color.WHITE);
 		resetPW.setBackground(Color.RED);
