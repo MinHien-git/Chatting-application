@@ -37,8 +37,8 @@ public class Server {
             while (true) {
                 socketOfServer = listener.accept();
                 //ID là client Number nhớ thay đổi tham số 2 của serverThread
-                id += newKey++;
-                ServerThread serverThread = new ServerThread(socketOfServer, id);
+//                id += newKey++;
+                ServerThread serverThread = new ServerThread(socketOfServer, "1");
                 serverThreadBus.add(serverThread);
                 
                 System.out.println("Number of users active: " + serverThreadBus.getLength());
