@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Array;
 import java.sql.Connection;
@@ -30,10 +32,10 @@ import client.Application;
 import client.User;
 
 public class ServerThread implements Runnable {
-    static final String URL = "jdbc:postgresql://localhost:5432/chatting";
+    static final String URL = "jdbc:postgresql://localhost:5432/chatting-application";
     static final String JDBC_DRIVER = "org.postgresql.Driver";
     static final String USER = "postgres";
-    static final String PW = "WokCao196";
+    static final String PW = "123456";
 
     private Socket socketOfServer;
     private String userID;
@@ -105,6 +107,7 @@ public class ServerThread implements Runnable {
 //            Server.serverThreadBus.sendOnlineList();
             //Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+this.userID+" đã đăng nhập---");
             Server.serverThreadBus.boardCast(userID, "id" + "|" + userID);
+            
             String message;
             while (!isClosed) {
                 message = is.readLine();
@@ -118,7 +121,7 @@ public class ServerThread implements Runnable {
                 	String result = Login(messageSplit[1],messageSplit[2]);
                 	if(!result.equals("")) {
                 		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
-                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success"+result);
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
                 	}
                 	System.out.println(result);
                 }else if(commandString.equals("Register")) {
@@ -349,7 +352,7 @@ public class ServerThread implements Runnable {
    			// Step 3: Execute the query or update query
    			ResultSet rs = preparedStatement.executeQuery();
    			if (rs.next()) {
-   				return rs.getString("id") + "|" +  rs.getString("name") + "|" +  rs.getString("email");   				
+   				return rs.getString("id") + "|" +  rs.getString("name") + "|" +  rs.getString("email")+ "|" +  rs.getString("password");   				
    			}
    			return "";
    		} catch (SQLException e) {
@@ -361,6 +364,26 @@ public class ServerThread implements Runnable {
    		}
     }
     //Forgot password
+    public static boolean UpdatePassword(String email,String password) {
+    	String UPDATE_USERS_SQL = "UPDATE public.\"users\" set \"password\" = ? where email=?";
+    	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+   			 // Step 2:Create a statement using connection object
+   			 PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USERS_SQL)) {
+   			preparedStatement.setString(1, password);
+   			preparedStatement.setString(2, email);
+   			
+   			int count = preparedStatement.executeUpdate();
+   			System.out.println(count);
+   			return count > 0;
+   		} catch (SQLException e) {
+   			System.out.println("Unable to connect to database");
+   			e.printStackTrace();
+   			System.exit(1);
+   			// print SQL exception information
+   			return false;
+   		}
+	}
+    
     public static String generateRandomPassword(int length) {
 		String validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -373,6 +396,31 @@ public class ServerThread implements Runnable {
 		}
 
 		return password.toString();
+	}
+    
+    public static String hashPassword(String pw)
+	{
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hashedBytes = digest.digest(pw.getBytes());
+
+			// Convert byte array to a hexadecimal string
+			StringBuilder hexString = new StringBuilder();
+			for (byte hashedByte : hashedBytes) {
+				String hex = Integer.toHexString(0xff & hashedByte);
+				if (hex.length() == 1) {
+					hexString.append('0');
+				}
+				hexString.append(hex);
+			}
+
+			String hashedPW = hexString.toString();
+			return hashedPW;
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("Hashing algorithm not found");
+			e.printStackTrace();
+			return null;
+		}
 	}
     
     public static boolean ForgotPassword(String email) {
@@ -402,8 +450,9 @@ public class ServerThread implements Runnable {
 	     message.setFrom(new InternetAddress(from));  
 	     message.addRecipient(Message.RecipientType.TO,new InternetAddress(email));  
 	     message.setSubject("Reset Password");  
-	     message.setText("Your updated password is :" + generateRandomPassword(15));  
-	       
+	     String password = generateRandomPassword(15);
+	     message.setText("Your updated password is :" + password);  
+	     UpdatePassword(email,hashPassword(password));
 	    //send the message  
 	     Transport.send(message);  
 	  
@@ -412,6 +461,7 @@ public class ServerThread implements Runnable {
 	     } catch (MessagingException err) {err.printStackTrace();}  
 	    return false;
     }
+    
     //DirectMessage
 
     public static String[] CheckMessageExists(String id, String id2) {

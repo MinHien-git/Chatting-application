@@ -12,7 +12,7 @@ public class onlineUsers extends JPanel {
     private JList<Object> usersAndgroups;
     private JTextField searchBar;
     private JLabel navigation;
-
+    private Application parent;
     static class CustomRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -46,9 +46,9 @@ public class onlineUsers extends JPanel {
                 String reportedName = reportedUser.getName();
                 String byUserName = user.getName();
                 try {
-                    Application.write("ReportSpam|" + reportedName + "|" + byUserName);
+                	parent.write("ReportSpam|" + reportedName + "|" + byUserName);
                     JOptionPane.showMessageDialog(this, "The user is successfully reported!");
-                    Application.write("BlockAccount|" + user.getId() + "|" + reportedUser.getId());
+                    parent.write("BlockAccount|" + user.getId() + "|" + reportedUser.getId());
                     sideList.removeElement(selected);
                 } catch (IOException ex) {
                     System.out.println("Unable to write");
@@ -163,7 +163,8 @@ public class onlineUsers extends JPanel {
         });
     }
 
-    public onlineUsers(JFrame mainFrame, User user) {
+    public onlineUsers(Application app, User user) {
+    	this.parent = app;
         this.setLayout(new BorderLayout());
         navigation = new JLabel("Welcome, " + user.getName());
         navigation.setFont(new Font("Source Code Pro", Font.BOLD, 14));

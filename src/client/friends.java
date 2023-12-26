@@ -9,7 +9,8 @@ public class friends extends JPanel {
     DefaultListModel<User> allFriends;
     private JList<User> userList;
     private JTextField searchBar;
-
+    private Application parent;
+    
     static class CustomCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -61,7 +62,7 @@ public class friends extends JPanel {
             if (deletedUser != null) {
                 if (JOptionPane.showConfirmDialog(this, "Are you sure you want to remove " + deletedFriend.getName() + " from your friends list?","Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     try {
-                        Application.write("DeleteFriend|"+fromUser+"|"+deletedUser);
+                    	parent.write("DeleteFriend|"+fromUser+"|"+deletedUser);
                         JOptionPane.showMessageDialog(this, "Successfully removed " + deletedFriend.getName() + " from the friends list");
                         UserAuthentication.updateFriendsList(user);
 
@@ -84,7 +85,7 @@ public class friends extends JPanel {
                 if (JOptionPane.showConfirmDialog(this, "Are you sure you want to block " + blockedFriend.getName() + "?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                 {
                     try {
-                        Application.write("BlockAccount|"+fromUser+"|"+blockedUser);
+                    	parent.write("BlockAccount|"+fromUser+"|"+blockedUser);
                         JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + "blocked from the friends list");
                         UserAuthentication.updateBlockList(user);
                         UserAuthentication.updateFriendsList(user);
@@ -120,7 +121,8 @@ public class friends extends JPanel {
         options.show(list, x, y);
     }
 
-    public friends(User user) {
+    public friends(Application app,User user) {
+    	this.parent = app;
         this.setLayout(new BorderLayout());
         searchBar = new JTextField();
         searchBar.setMargin(new Insets(15, 10, 15, 10));
@@ -139,7 +141,7 @@ public class friends extends JPanel {
 
                 if (toUser != null && newFriend != null) {
                     try {
-                        Application.write("AddFriend|" + fromUser + "|" + toUser);
+                    	parent.write("AddFriend|" + fromUser + "|" + toUser);
                         JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
                         UserAuthentication.updateFriendsList(user);
                         allFriends.addElement(newFriend);

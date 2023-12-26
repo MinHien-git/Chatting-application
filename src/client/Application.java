@@ -30,8 +30,9 @@ public class Application {
     private Socket socketOfClient;
     public User currentUser;
     public static String id;
+    public static String userID;
     public static Application app;
-    
+   
     public void write(String message) throws IOException{
     	System.out.println(message + "|" + id);
         os.write(message + "|" + id);
@@ -66,9 +67,21 @@ public class Application {
                             	System.out.println(id);
                             }
                             if(dataSplit[0].equals("Login_Success")) {
-                            	
+                            	currentUser = new User(dataSplit[1],dataSplit[2],dataSplit[3],dataSplit[4]);
+                            	onlineUsers onlList = new onlineUsers(app, currentUser);
+                            	friends flist = new friends(app,currentUser);
+    							chatting c = new chatting();
+    							globalChatHistory gbc = new globalChatHistory();
+    							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
+    							try {
+    								write("Online|"+ currentUser.getId());
+    							}catch (IOException ex) {
+    								System.out.println("An error occurred");
+    								ex.printStackTrace();
+    							}
+    							Application.getApplicationFrame().setVisible(true);
+    							ChangeTab(h,800, 600);
                             	//User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
-            					
                             }if(dataSplit[0].equals("Reset_password")){
                             	JOptionPane.showMessageDialog(applicationFrame,"Please Check your email");
                         	}
