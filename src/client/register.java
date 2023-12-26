@@ -114,6 +114,8 @@ public class register extends JPanel {
 		btnLogin.setBorder(UIManager.getBorder("Button.border"));
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				parent.ClearTab();
+				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
 				parent.ChangeTab(new login(parent), 605, 476);
 			}
 		});

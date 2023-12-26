@@ -38,7 +38,8 @@ public class ServerThread implements Runnable {
     static final String PW = "123456";
 
     private Socket socketOfServer;
-    private String userID;
+    private String userID;//SocketID
+    private String actual_userID;
     private BufferedReader is;
     private BufferedWriter os;
     private boolean isClosed;
@@ -120,6 +121,7 @@ public class ServerThread implements Runnable {
                 if(commandString.equals("Login")) {
                 	String result = Login(messageSplit[1],messageSplit[2]);
                 	if(!result.equals("")) {
+                		actual_userID = result.split("\\|")[0];
                 		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
                 	}
@@ -295,8 +297,11 @@ public class ServerThread implements Runnable {
             }
         } catch (IOException e) {
             isClosed = true;
+            if(!actual_userID.equals("")) {
+            	SetOffline(actual_userID);
+            }
             Server.serverThreadBus.remove(userID);
-            System.out.println(userID + " exited");
+            System.out.println(userID + " exited " + actual_userID);
         }
         finally {
 
@@ -671,6 +676,7 @@ public class ServerThread implements Runnable {
 
     //SET OFFLINE
     public static boolean SetOffline(String id) {
+    	System.out.println("Offline");
         String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = false where id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) {

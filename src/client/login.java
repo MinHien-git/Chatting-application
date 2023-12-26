@@ -145,6 +145,8 @@ public class login extends JPanel {
 		JButton btnlogin = new JButton("Register");
 		btnlogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				parent.ClearTab();
+				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
 				parent.ChangeTab(new register(parent), 605, 476);
 			}
 		});
@@ -165,43 +167,6 @@ public class login extends JPanel {
 					System.out.println("An error occurred");
 					ex.printStackTrace();
 				}
-//				System.out.println("TLS Email Start");
-//				
-//				final String email_password = "LMinhHien16102003";
-//				String to = "hienb697@gmail.com";
-//				String from = "lmhien21@clc.fitus.edu.vn";
-//				String host = "smtp.gmail.com";//or IP address  
-//		  
-//				Properties props = new Properties();
-//				 props.put("mail.smtp.auth", "true");
-//			      props.put("mail.smtp.starttls.enable", "true");
-//			      props.put("mail.smtp.ssl.trust", "*");
-//			      props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-//			      props.put("mail.smtp.host", host);
-//			      props.put("mail.smtp.port", "587");
-//
-//				     
-//			   Session session = Session.getDefaultInstance(props,  
-//					   new javax.mail.Authenticator() {
-//		            protected PasswordAuthentication getPasswordAuthentication() {
-//		               return new PasswordAuthentication(from, email_password);
-//		            }
-//		         });
-//			  
-//			   //Compose the message  
-//			    try {  
-//			     MimeMessage message = new MimeMessage(session);  
-//			     message.setFrom(new InternetAddress(from));  
-//			     message.addRecipient(Message.RecipientType.TO,new InternetAddress(toEmail));  
-//			     message.setSubject("Reset Password");  
-//			     message.setText("Your updated password is :" + generateRandomPassword(15));  
-//			       
-//			    //send the message  
-//			     Transport.send(message);  
-//			  
-//			     System.out.println("message sent successfully...");  
-//			   
-//			     } catch (MessagingException err) {err.printStackTrace();}  
 			 }  
 		});
 		resetPW.setForeground(Color.WHITE);

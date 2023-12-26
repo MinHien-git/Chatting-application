@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.*;
-
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
@@ -23,7 +23,7 @@ import javax.mail.internet.*;
 import javax.activation.*;
 
 public class Application {
-    private static JFrame applicationFrame;
+    public static JFrame applicationFrame;
     private Thread thread;
     private static BufferedWriter os;
     private static BufferedReader is;
@@ -72,15 +72,16 @@ public class Application {
                             	friends flist = new friends(app,currentUser);
     							chatting c = new chatting();
     							globalChatHistory gbc = new globalChatHistory();
-    							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
+    							ClearTab();
     							try {
     								write("Online|"+ currentUser.getId());
     							}catch (IOException ex) {
     								System.out.println("An error occurred");
     								ex.printStackTrace();
     							}
-    							Application.getApplicationFrame().setVisible(true);
-    							ChangeTab(h,800, 600);
+    							applicationFrame.setLayout(new BorderLayout());
+    							//Application.getApplicationFrame().setVisible(true);
+    							ChangeTab(new home(applicationFrame,onlList, flist, c, gbc),600, 600);
                             	//User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
                             }if(dataSplit[0].equals("Reset_password")){
                             	JOptionPane.showMessageDialog(applicationFrame,"Please Check your email");
@@ -129,9 +130,10 @@ public class Application {
     public static JFrame getApplicationFrame() {
         return applicationFrame;
     }
-    
-    public static void ChangeTab(JPanel newPanel,int h,int w) {
+    public void ClearTab() {
     	applicationFrame.getContentPane().removeAll();
+    }
+    public static void ChangeTab(JPanel newPanel,int h,int w) {
     	applicationFrame.add(newPanel);
     	
     	applicationFrame.setForeground(Color.BLACK);
