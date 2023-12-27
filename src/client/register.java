@@ -95,7 +95,7 @@ public class register extends JPanel {
 
 					if (hashedPW == null) hashedPW = password.getText();
 					try {
-						parent.write("Register|"+id+name.getText()+"|"+email.getText()+"|"+"|"+hashedPW);
+						parent.write("Register|"+id+"|"+name.getText()+"|"+email.getText()+"|"+hashedPW);
 					}catch (IOException ex) {
 						System.out.println("An error occurred");
 						ex.printStackTrace();
@@ -115,7 +115,7 @@ public class register extends JPanel {
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				parent.ClearTab();
-				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
+				//parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
 				parent.ChangeTab(new login(parent), 605, 476);
 			}
 		});

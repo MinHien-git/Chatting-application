@@ -46,30 +46,27 @@ public class ServerThreadBus {
             }
         }
     }
+    
+    public void boardCastUser(String user_id, String message){
+    	System.out.println(user_id+"|"+message);
+        for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
+            if (!serverThread.getActualUserID().equals(user_id)) {
+                continue;
+            } else {
+                try {
+                	System.out.println("add");
+                    serverThread.write(message);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+    
     public int getLength(){
         return listServerThreads.size();
     }
     
-//    public void sendOnlineList(){
-//        String res = "";
-//        List<ServerThread> threadbus = Server.serverThreadBus.getListServerThreads();
-//        for(ServerThread serverThread : threadbus){
-//            res+=serverThread.getClientNumber()+"-";
-//        }
-//        Server.serverThreadBus.mutilCastSend("update-online-list"+","+res);
-//    }
-//    public void sendMessageToPersion(String id, String message){
-//        for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
-//            if(serverThread.getClientNumber()==id){
-//                try {
-//                    serverThread.write("global-message"+","+message);
-//                    break;
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//        }
-//    }
     public void remove(String id){
         for(int i=0; i<Server.serverThreadBus.getLength(); i++){
             if(Server.serverThreadBus.getListServerThreads().get(i).getuserID()==id){

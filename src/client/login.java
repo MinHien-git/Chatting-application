@@ -146,7 +146,7 @@ public class login extends JPanel {
 		btnlogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				parent.ClearTab();
-				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
+				//parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
 				parent.ChangeTab(new register(parent), 605, 476);
 			}
 		});

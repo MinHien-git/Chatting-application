@@ -90,6 +90,10 @@ public class ServerThread implements Runnable {
     public String getuserID() {
         return userID;
     }
+    
+    public String getActualUserID() {
+        return actual_userID;
+    }
 
     public ServerThread(Socket socketOfServer, String userID) {
         this.socketOfServer = socketOfServer;
@@ -124,6 +128,8 @@ public class ServerThread implements Runnable {
                 		actual_userID = result.split("\\|")[0];
                 		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
+                		String onlineList = GetOnlineFriends(actual_userID);
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                 	}
                 	System.out.println(result);
                 }else if(commandString.equals("Register")) {
@@ -467,6 +473,33 @@ public class ServerThread implements Runnable {
 	    return false;
     }
     
+    public static String GetOnlineFriends(String id) {
+    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\", "
+    			+ "u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 ON u2.id = ANY (u.friends) where u.id = ? and u2.\"isOnline\" = true and u2.id not exits ANY (u.blocks)";
+    	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
+			online.setString(1,id);
+			ResultSet friendList = online.executeQuery();
+			String friendString = new String("");
+			while (friendList.next())
+			{
+				String _id = friendList.getString("id");
+				boolean isLocked = friendList.getBoolean("lock");
+				java.sql.Array bl = friendList.getArray("blocks");
+				ArrayList<String> blocks = new ArrayList<>(Arrays.asList((String []) bl.getArray()));
+				if (isLocked || blocks.contains(id)) continue;
+				String _name = friendList.getString("name");
+
+				friendString += "||"+_id +"|"+ _name;
+			}
+			return friendString;
+
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return "";
+		}
+    }
     //DirectMessage
 
     public static String[] CheckMessageExists(String id, String id2) {
@@ -547,7 +580,7 @@ public class ServerThread implements Runnable {
             return false;
         }
     }
-
+   
     //AddFriend
     public static boolean AddFriend(String userId, String FriendId) {
         String ADD_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_append(friends,?)"

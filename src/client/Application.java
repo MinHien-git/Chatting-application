@@ -89,6 +89,7 @@ public class Application {
                             if(dataSplit[0].equals("Register_Success")) {
                             	System.out.print("Register_Success");
                             	JOptionPane.showMessageDialog(applicationFrame, "You are successfully registered, you will be redirected to the login page shortly");
+                            	ClearTab();
                             	ChangeTab(new login(app),605, 476);
                             }
                         }
@@ -130,10 +131,16 @@ public class Application {
     public static JFrame getApplicationFrame() {
         return applicationFrame;
     }
+    
     public void ClearTab() {
     	applicationFrame.getContentPane().removeAll();
     }
-    public static void ChangeTab(JPanel newPanel,int h,int w) {
+    
+    public void ChangeTab(String name) {
+    	applicationFrame.setTitle(name);
+    }
+    
+    public void ChangeTab(JPanel newPanel,int h,int w) {
     	applicationFrame.add(newPanel);
     	
     	applicationFrame.setForeground(Color.BLACK);
