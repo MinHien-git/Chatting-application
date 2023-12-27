@@ -1589,7 +1589,32 @@ public class ServerThread implements Runnable {
     public static void AdminGetListOpen(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_OPEN_SQL = "SELECT ";
+            //WITH LogAppearance AS (
+            //    SELECT
+            //        username,
+            //        COUNT(*) AS appearance_count
+            //    FROM
+            //        test_logs
+            //    WHERE
+            //        logdate BETWEEN '2020-10-01' AND '2023-10-01'
+            //    GROUP BY
+            //        username
+            //)
+            //
+            //SELECT
+            //    LogAppearance.username,
+            //    LogAppearance.appearance_count,
+            //    COUNT(*) FILTER (WHERE LogAppearance.username = ANY(public.groups.users)) AS numgroup,
+            //    COUNT(*) FILTER (WHERE LogAppearance.username = ANY(messages.users)) AS numchat
+            //FROM
+            //    LogAppearance
+            //LEFT JOIN
+            //    public.groups ON LogAppearance.username = ANY(users)
+            //LEFT JOIN
+            //    public.messages AS messages ON LogAppearance.username = ANY(messages.users)
+            //GROUP BY
+            //    LogAppearance.username, LogAppearance.appearance_count;
+            String ADMIN_GET_LIST_OPEN_SQL = "";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_OPEN_SQL)) {
