@@ -15,10 +15,10 @@ public class home extends JPanel implements ActionListener{
     private JPanel mainPanel;
     private JPanel friendsList;
     private JPanel chatHistory;
-
+    JPanel mainContainer;
     public void actionPerformed(ActionEvent e) {
-        CardLayout cardLayout = (CardLayout) (this.getLayout());
-        cardLayout.show(this, e.getActionCommand());
+        CardLayout cardLayout = (CardLayout) (mainContainer.getLayout());
+        cardLayout.show(mainContainer, e.getActionCommand());
     }
 
     public JPanel getChatPanel() { return chatPanel; }
@@ -34,7 +34,8 @@ public class home extends JPanel implements ActionListener{
     }
 
     public home(JFrame mainFrame, JPanel users, JPanel friends, JPanel chat, JPanel history) {
-        this.setLayout(new CardLayout());
+        this.setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+        mainContainer = new JPanel(new CardLayout());
         mainPanel = new JPanel(new BorderLayout());
 
         int totalWidth = 600;
@@ -69,14 +70,15 @@ public class home extends JPanel implements ActionListener{
         controlPanel.add(toChat);
         controlPanel.add(toFriends);
         controlPanel.add(toChatHistory);
+        controlPanel.setLayout(new GridLayout());
+        
+        mainContainer.add(mainPanel, CHAT_PANEL);
+        mainContainer.add(friendsList, FRIENDS_PANEL);
+        mainContainer.add(chatHistory, GLOBAL_CHAT_HISTORY);
 
-        this.add(mainPanel, CHAT_PANEL);
-        this.add(friendsList, FRIENDS_PANEL);
-        this.add(chatHistory, GLOBAL_CHAT_HISTORY);
+        this.add(controlPanel, BorderLayout.NORTH);
 
-        mainFrame.add(controlPanel, BorderLayout.NORTH);
-        mainFrame.add(this, BorderLayout.CENTER);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.add(mainContainer, BorderLayout.CENTER);
         mainFrame.setSize(800, 600);
         mainFrame.setLocationRelativeTo(null);
     }
