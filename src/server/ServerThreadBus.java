@@ -32,11 +32,13 @@ public class ServerThreadBus {
     }
     
     public void boardCast(String id, String message){
+    	System.out.println(id+"|"+message);
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if (!serverThread.getuserID().equals(id)) {
                 continue;
             } else {
                 try {
+                	System.out.println("add");
                     serverThread.write(message);
                 } catch (IOException ex) {
                     ex.printStackTrace();

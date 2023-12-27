@@ -24,16 +24,15 @@ import javax.mail.*;
 import javax.mail.internet.*;  
 import javax.activation.*;
 
-public class login {
-
-	public JFrame frmLogin;
+public class login extends JPanel {
 	private JTextField email;
 	private JPasswordField password;
-
+	private Application parent;
 	/**
 	 * Create the application.
 	 */
-	public login() {
+	public login(Application parent) {
+		this.parent = parent;
 		initialize();
 	}
 
@@ -55,22 +54,16 @@ public class login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmLogin = new JFrame();
-		frmLogin.setForeground(Color.BLACK);
-		frmLogin.setTitle("Login");
-		frmLogin.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
-		frmLogin.getContentPane().setBackground(Color.WHITE);
-		frmLogin.setBackground(Color.WHITE);
-		frmLogin.getContentPane().setFont(new Font("Source Code Pro Medium", Font.PLAIN, 11));
-		frmLogin.getContentPane().setLayout(new BoxLayout(frmLogin.getContentPane(), BoxLayout.X_AXIS));
+		setForeground(Color.BLACK);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(135, 206, 250));
-		frmLogin.getContentPane().add(panel);
+		add(panel);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
-		frmLogin.getContentPane().add(panel_1);
+		add(panel_1);
 		panel_1.setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("Login");
@@ -113,27 +106,33 @@ public class login {
 
 					User user = new User(email.getText(),hashedPW);
 					String _id = user.LogIn();
-					if(!_id.equals("")) {
-						if (user.update())
-						{
-							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
-							friends flist = new friends(user);
-							chatting c = new chatting();
-							globalChatHistory gbc = new globalChatHistory();
-							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
-							try {
-								Application.write("Online|"+user.getId());
-							}catch (IOException ex) {
-								System.out.println("An error occurred");
-								ex.printStackTrace();
-							}
-							Application.getApplicationFrame().setVisible(true);
-							frmLogin.dispose();
-						}
+					try {
+						parent.write("Login|"+email.getText()+"|"+hashedPW);
+					}catch (IOException ex) {
+						System.out.println("An error occurred");
+						ex.printStackTrace();
 					}
-					else {
-						JOptionPane.showMessageDialog(Application.getApplicationFrame(), "Invalid credentials, try again");
-					}
+//					if(!_id.equals("")) {
+//						if (user.update())
+//						{
+//							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
+//							friends flist = new friends(user);
+//							chatting c = new chatting();
+//							globalChatHistory gbc = new globalChatHistory();
+//							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
+//							try {
+//								Application.write("Online|"+user.getId());
+//							}catch (IOException ex) {
+//								System.out.println("An error occurred");
+//								ex.printStackTrace();
+//							}
+//							Application.getApplicationFrame().setVisible(true);
+//							frmLogin.dispose();
+//						}
+//					}
+//					else {
+//						JOptionPane.showMessageDialog(Application.getApplicationFrame(), "Invalid credentials, try again");
+//					}
 				}
 			}
 		});
@@ -146,9 +145,9 @@ public class login {
 		JButton btnlogin = new JButton("Register");
 		btnlogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				register register = new register();
-				register.frmRegister.setVisible(true);
-				frmLogin.dispose();
+				parent.ClearTab();
+				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
+				parent.ChangeTab(new register(parent), 605, 476);
 			}
 		});
 		btnlogin.setForeground(new Color(30, 144, 255));
@@ -162,44 +161,12 @@ public class login {
 		resetPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String toEmail = JOptionPane.showInputDialog("Please specify your email for password recovery");
-
-				System.out.println("TLS Email Start");
-				
-				final String email_password = "LMinhHien16102003";
-				String to = "hienb697@gmail.com";
-				String from = "lmhien21@clc.fitus.edu.vn";
-				String host = "smtp.gmail.com";//or IP address  
-		  
-				Properties props = new Properties();
-				 props.put("mail.smtp.auth", "true");
-			      props.put("mail.smtp.starttls.enable", "true");
-			      props.put("mail.smtp.ssl.trust", "*");
-			      props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-			      props.put("mail.smtp.host", host);
-			      props.put("mail.smtp.port", "587");
-
-				     
-			   Session session = Session.getDefaultInstance(props,  
-					   new javax.mail.Authenticator() {
-		            protected PasswordAuthentication getPasswordAuthentication() {
-		               return new PasswordAuthentication(from, email_password);
-		            }
-		         });
-			  
-			   //Compose the message  
-			    try {  
-			     MimeMessage message = new MimeMessage(session);  
-			     message.setFrom(new InternetAddress(from));  
-			     message.addRecipient(Message.RecipientType.TO,new InternetAddress(toEmail));  
-			     message.setSubject("Reset Password");  
-			     message.setText("Your updated password is :" + generateRandomPassword(15));  
-			       
-			    //send the message  
-			     Transport.send(message);  
-			  
-			     System.out.println("message sent successfully...");  
-			   
-			     } catch (MessagingException err) {err.printStackTrace();}  
+				try {
+					parent.write("ResetPassword|"+toEmail);
+				}catch (IOException ex) {
+					System.out.println("An error occurred");
+					ex.printStackTrace();
+				}
 			 }  
 		});
 		resetPW.setForeground(Color.WHITE);
@@ -207,8 +174,8 @@ public class login {
 		resetPW.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
 		resetPW.setBounds(46, 342, 203, 38);
 		panel_1.add(resetPW);
-
-		frmLogin.setBounds(100, 100, 605, 476);
-		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		setBounds(100, 100, 605, 476);
+//		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }
