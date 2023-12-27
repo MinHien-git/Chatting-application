@@ -105,7 +105,7 @@ public class login extends JPanel {
 					if (hashedPW == null) hashedPW = password.getText();
 
 					User user = new User(email.getText(),hashedPW);
-					String _id = user.LogIn();
+					//String _id = user.LogIn();
 					try {
 						parent.write("Login|"+email.getText()+"|"+hashedPW);
 					}catch (IOException ex) {

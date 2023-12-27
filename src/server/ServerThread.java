@@ -142,12 +142,21 @@ public class ServerThread implements Runnable {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Reset_password|");
                 	}
                 }
+                else if (commandString.equals("MessageData")) {
+                    String id1 = messageSplit[2];//Người gửi
+                    String id2 = messageSplit[3];//Từ user
+                    String[] mess = GetMessage(id1+"|"+ id2);
+                    if(!mess[0].equals("")) {
+                    	
+                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "MessageData|"+mess[0]+"||"+mess[1]);
+                    }
+                }
                 else if (commandString.equals("DirectMessage")) {
                     System.out.println("DirectMessage");
                     String id1 = messageSplit[1];//Người gửi
                     String id2 = messageSplit[2];//Từ user
                     String content = messageSplit[3];
-                    String[] mess = ServerThread.CheckMessageExists(id1, id2);
+                    String[] mess = CheckMessageExists(id1, id2);
                     if (!mess[0].equals("")) {
                         System.out.println("Update");
                         ServerThread.UpdateExistsMessage(id1, id2, content);
@@ -155,7 +164,7 @@ public class ServerThread implements Runnable {
                         System.out.println("Insert");
                         ServerThread.InsertMessage(id1, id2, content);
                     }
-                    mess = ServerThread.CheckMessageExists(id1, id2);
+                  
                     Server.serverThreadBus.boardCast(id1, "send-to-user|" + String.join(", ", mess[1]));
                     Server.serverThreadBus.boardCast(id2, "send-to-user|" + String.join(", ", mess[1]));
                 } else if (commandString.equals("AddFriend")) {
@@ -474,8 +483,8 @@ public class ServerThread implements Runnable {
     }
     
     public static String GetOnlineFriends(String id) {
-    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\", "
-    			+ "u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 ON u2.id = ANY (u.friends) where u.id = ? and u2.\"isOnline\" = true and u2.id not exits ANY (u.blocks)";
+    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
+    			+ "ON u2.id = ANY (u.friends) where u.id = ? and not(u2.id = ANY(u.blocks))  ";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
 			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
 			online.setString(1,id);
@@ -485,12 +494,17 @@ public class ServerThread implements Runnable {
 			{
 				String _id = friendList.getString("id");
 				boolean isLocked = friendList.getBoolean("lock");
-				java.sql.Array bl = friendList.getArray("blocks");
-				ArrayList<String> blocks = new ArrayList<>(Arrays.asList((String []) bl.getArray()));
-				if (isLocked || blocks.contains(id)) continue;
+				boolean isOnline = friendList.getBoolean("isOnline");
+//				java.sql.Array bl;
+//				ArrayList<String> blocks;
+//				if(friendList.getArray("blocks") != null) {
+//					bl = friendList.getArray("blocks");
+//					blocks = new ArrayList<>(Arrays.asList((String []) bl.getArray()));
+//				}
+				//if (isLocked || blocks.contains(id)) continue;
 				String _name = friendList.getString("name");
 
-				friendString += "||"+_id +"|"+ _name;
+				friendString += "||"+"user"+"|"+_id +"|"+ _name + "|"+isOnline;
 			}
 			return friendString;
 
@@ -500,8 +514,45 @@ public class ServerThread implements Runnable {
 			return "";
 		}
     }
-    //DirectMessage
+  //Get Message Data
+    public static String[] GetMessage(String id) {
+        String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ?";
+        
+        String[] result = new String[2];
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
 
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
+            preparedStatement.setString(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            
+            if (rs.next()) {
+            	Array  arr =  rs.getArray("content");;
+                result[0] = rs.getString("idChat");
+                
+                result[1] = "";
+                String[] m = (String[]) arr.getArray();
+                for(int i = 0;i<m.length;++i) {
+                	if(i == m.length-1)
+                		result[1] += m[i];
+                	else
+                		result[1] += m[i] + "|";
+                }
+                System.out.println(result[1]);
+                
+                
+            } else {
+                result[0] = "";
+                result[1] ="";
+            }
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return result;
+        }
+    }
+    
     public static String[] CheckMessageExists(String id, String id2) {
         String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
         String idChat1 = id + "|" + id2;
@@ -527,7 +578,7 @@ public class ServerThread implements Runnable {
             return result;
         }
     }
-
+  //DirectMessage
     public static boolean UpdateExistsMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;

@@ -9,7 +9,7 @@ public class User {
 	public String name;
 	public String password;
 	public String email;
-	private ArrayList<User> friends = new ArrayList<>();
+	public ArrayList<User> friends = new ArrayList<>();
 	private boolean isAdmin;
 	private boolean isLocked;
 	private String history;
@@ -63,6 +63,12 @@ public class User {
 		this.name = n;
 		this.email = e;
 		this.password = p;
+	}
+	
+	public User(String id,String n,boolean isOnline) {
+		this.id = id;
+		this.name = n;
+		this.isOnline = isOnline;
 	}
 
 	public void setId(String id) {
@@ -149,13 +155,13 @@ public class User {
 		return isOnline;
 	}
 
-	public boolean SignUp() {
-		return UserAuthentication.SignUp(this);
-	}
-
-	public String LogIn() {
-		return UserAuthentication.SignIn(this);
-	}
+//	public boolean SignUp() {
+//		return UserAuthentication.SignUp(this);
+//	}
+//
+//	public String LogIn() {
+//		return UserAuthentication.SignIn(this);
+//	}
 
 	public boolean update() { return UserAuthentication.updateUser(this); }
 }

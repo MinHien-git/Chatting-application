@@ -9,12 +9,13 @@ import java.awt.event.MouseEvent;
 public class home extends JPanel implements ActionListener{
     final static String CHAT_PANEL = "Chat Panel";
     final static String FRIENDS_PANEL = "Friends Panel";
-    final static String GLOBAL_CHAT_HISTORY = "Search In Global Chat";
-    private JPanel chatPanel;
-    private JPanel userPanel;
-    private JPanel mainPanel;
-    private JPanel friendsList;
-    private JPanel chatHistory;
+    final static String GLOBAL_CHAT_HISTORY = "Search In Chat";
+    final static String CREATE_GROUP = "Create Group";
+    public JPanel chatPanel;
+    public JPanel userPanel;
+    public JPanel mainPanel;
+    public JPanel friendsList;
+    public JPanel chatHistory;
     JPanel mainContainer;
     public void actionPerformed(ActionEvent e) {
         CardLayout cardLayout = (CardLayout) (mainContainer.getLayout());
@@ -62,14 +63,17 @@ public class home extends JPanel implements ActionListener{
         toFriends.setActionCommand(FRIENDS_PANEL);
         toFriends.addActionListener(this);
 
-        JButton toChatHistory = new JButton("Search In Global Chat History");
+        JButton toChatHistory = new JButton("Search In Chat");
         toChatHistory.setActionCommand(GLOBAL_CHAT_HISTORY);
         toChatHistory.addActionListener(this);
+        
+        JButton toCreateGroup = new JButton("Create Group");
 
         JPanel controlPanel = new JPanel();
         controlPanel.add(toChat);
         controlPanel.add(toFriends);
         controlPanel.add(toChatHistory);
+        controlPanel.add(toCreateGroup);
         controlPanel.setLayout(new GridLayout());
         
         mainContainer.add(mainPanel, CHAT_PANEL);

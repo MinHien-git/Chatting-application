@@ -229,27 +229,38 @@ public class onlineUsers extends JPanel {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     Object selected = usersAndgroups.getSelectedValue();
-                    if (selected.getClass().getSimpleName().equals("User")) {
-                        User selectedUser = (User) selected;
-                        String id = selectedUser.getId();
-                        chatting userChat = new chatting(user.getId(), id);
-                        Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
+	                  
+            	   if (selected.getClass().getSimpleName().equals("User")) {
+                       User selectedUser = (User) selected;
+                       String id = selectedUser.getId();
+                       parent.focusIDString = selectedUser.getId();
+                       parent.focusNameString = selectedUser.getName();
+                       if(parent.mainPanel instanceof home) {
+                    	   	home h =(home) parent.mainPanel;
+                    	   	chatting userChat =(chatting)h.chatPanel;
+                       		userChat.ClearChat();
+                       }
+                       try {
+                       	parent.write("MessageData"+"|"+"user"+"|"+user.getId()+"|"+id);
+                     
+                       } catch (IOException ex) {
+                           System.out.println("Unable to write");
+                           ex.printStackTrace();
+                       }
+                       
+                   } else if (selected.getClass().getSimpleName().equals("groupChat")) {
+                       groupChat selectedGroup = (groupChat) selected;
+                       String id = selectedGroup.getGroupID();
+                       chatting userChat = new chatting(id);
+                       Component tmp = parent.getApplicationFrame().getContentPane().getComponent(1);
 
-                        if (tmp.getClass().getSimpleName().equals("home")) {
-                            home b = (home) tmp;
-                            b.setChatPanel(userChat);
-                        }
-                    } else if (selected.getClass().getSimpleName().equals("groupChat")) {
-                        groupChat selectedGroup = (groupChat) selected;
-                        String id = selectedGroup.getGroupID();
-                        chatting userChat = new chatting(id);
-                        Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
-
-                        if (tmp.getClass().getSimpleName().equals("home")) {
-                            home b = (home) tmp;
-                            b.setChatPanel(userChat);
-                        }
-                    }
+                       if (tmp.getClass().getSimpleName().equals("home")) {
+                           home b = (home) tmp;
+                           b.setChatPanel(userChat);
+                       }
+                   }
+	                  
+                    
                 }
             }
         });
@@ -283,5 +294,20 @@ public class onlineUsers extends JPanel {
         this.add(navigation, BorderLayout.NORTH);
         this.add(usersAndgroupsPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
+    }
+    
+    public void UpdateList(User user) {
+        //we can dynamically add users/groups here
+        int i = 0;
+        for (int j = 0; j < user.friends.size(); ++i, ++j) {
+        	sideList.addElement(user.friends.get(j));
+            System.out.println("call _ user onlinelist " + user.friends.size());
+        }
+
+        for (int j = 0; j < user.getGroupList().size(); ++i, ++j) {
+            sideList.add(i, user.getGroupList().get(j));
+        }
+
+        System.out.println("end user list");
     }
 }
