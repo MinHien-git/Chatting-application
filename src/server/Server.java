@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.*;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,6 +15,33 @@ public class Server {
     public static Socket socketOfServer;
 
     public static void main(String[] args) {
+        String jdbcUrl = "jdbc:postgresql://localhost:5432/";
+        String username = "postgres";
+        String password = "123456";
+        String databaseName = "\"chatting-application\"";
+        String dbName = "chatting-application";
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
+            if (!databaseExists(connection, databaseName)) {
+                createDatabase(connection, databaseName);
+
+                jdbcUrl += dbName;
+                try(Connection connectionNew = DriverManager.getConnection(jdbcUrl, username, password)) {
+                    createTables(connectionNew);
+
+                    System.out.println("Database and tables created successfully.");
+                }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Database already exists. Doing nothing.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
         ServerSocket listener = null;
         serverThreadBus = new ServerThreadBus();
         System.out.println("Server is waiting to accept users...");
@@ -53,6 +81,77 @@ public class Server {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+    }
+
+    public static boolean databaseExists(Connection connection, String databaseName) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT 1 FROM pg_database WHERE datname = '" + databaseName + "'");
+            return ((ResultSet) resultSet).next();
+        }
+    }
+
+    public static void createDatabase(Connection connection, String databaseName) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            String createDatabaseQuery = "CREATE DATABASE " + databaseName;
+            statement.executeUpdate(createDatabaseQuery);
+        }
+    }
+
+    private static void createTables(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            String createUsers = "CREATE TABLE IF NOT EXISTS users (" +
+                    "id TEXT PRIMARY KEY," +
+                    "username TEXT," +
+                    "fullname TEXT," +
+                    "email TEXT," +
+                    "password TEXT," +
+                    "friends TEXT[]," +
+                    "\"isAdmin\" BOOLEAN," +
+                    "lock BOOLEAN," +
+                    "\"isOnline\" BOOLEAN," +
+                    "\"createAt\" DATE," +
+                    "address TEXT," +
+                    "dob DATE," +
+                    "gender TEXT)";
+
+            String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +
+                    "username TEXT," +
+                    "logdate TIMESTAMP WITH TIME ZONE, " +
+                    "PRIMARY KEY(username, logdate))";
+
+            String createMessages = "CREATE TABLE IF NOT EXISTS messages (" +
+                    "\"idChat\" TEXT PRIMARY KEY," +
+                    "users TEXT[]," +
+                    "content TEXT[])";
+
+            String createSpams = "CREATE TABLE IF NOT EXISTS spams (" +
+                    "username TEXT," +
+                    "\"ByUser\" TEXT," +
+                    "date DATE," +
+                    "PRIMARY KEY(username, \"ByUser\"))";
+
+            String createGroups = "CREATE TABLE IF NOT EXISTS groups (" +
+                    "groupid TEXT PRIMARY KEY," +
+                    "admin TEXT[]," +
+                    "groupname TEXT," +
+                    "users TEXT[]," +
+                    "content TEXT[]," +
+                    "\"createAt\" DATE)";
+
+            String createSystems = "CREATE TABLE IF NOT EXISTS systems (" +
+                    "username TEXT," +
+                    "type INTEGER," +
+                    "\"idChat\" TEXT," +
+                    "\"time\" TIMESTAMP WITH TIME ZONE," +
+                    "PRIMARY KEY(username, \"time\"))";
+
+            statement.executeUpdate(createUsers);
+            statement.executeUpdate(createLogs);
+            statement.executeUpdate(createSpams);
+            statement.executeUpdate(createGroups);
+            statement.executeUpdate(createMessages);
+            statement.executeUpdate(createSystems);
         }
     }
 }
