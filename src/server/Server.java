@@ -113,11 +113,12 @@ public class Server {
                     "password TEXT," +
                     "friends TEXT[]," +
                     "\"isAdmin\" BOOLEAN," +
-                    "lock BOOLEAN," +
-                    "\"isOnline\" BOOLEAN," +
+                    "lock BOOLEAN DEFAULT false," +
+                    "\"isOnline\" BOOLEAN DEFAULT false," +
                     "\"createAt\" DATE," +
                     "address TEXT," +
                     "dob DATE," +
+                    "blocks TEXT[]," +
                     "gender TEXT)";
 
             String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +

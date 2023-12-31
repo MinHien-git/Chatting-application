@@ -9,15 +9,15 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import javax.mail.Message;
@@ -336,16 +336,23 @@ public class ServerThread implements Runnable {
     }
     //Register
     public static boolean Register(String id,String name,String email,String password) {
-    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id,name, email,password) values (?,?,?,?)";
+    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id, name, email, password, \"createAt\") values (?, ?, ?, ?, ?)";
     	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
    			 // Step 2:Create a statement using connection object
    			 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USERS_SQL)) {
+            ZoneId utc = ZoneId.of("UTC+7");
+            ZonedDateTime curDate = ZonedDateTime.now(utc);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedDate = curDate.format(formatter);
+            Date sqlDate = Date.valueOf(formattedDate);
+
    			preparedStatement.setString(1, id);
    			preparedStatement.setString(2, name);
    			preparedStatement.setString(3, email);
    			preparedStatement.setString(4, password);
+               preparedStatement.setDate(5, sqlDate);
 
    			stmt.setString(1, email);
    			ResultSet rs = stmt.executeQuery();
@@ -369,15 +376,25 @@ public class ServerThread implements Runnable {
    //Login 
     public static String Login(String email,String password) {
     	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where email = ? and password = ?";
+        String ADD_TO_LOGS_SQL = "INSERT INTO logs (username, logdate) VALUES (?, ?)";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 // Step 2:Create a statement using connection object
-   			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL)) {
+   			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL);
+                PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_TO_LOGS_SQL)) {
    			preparedStatement.setString(1, email);
    			preparedStatement.setString(2, password);
 
    			// Step 3: Execute the query or update query
    			ResultSet rs = preparedStatement.executeQuery();
    			if (rs.next()) {
+                ZoneId utc = ZoneId.of("UTC+7");
+                ZonedDateTime curDate = ZonedDateTime.now(utc);
+                LocalDateTime localDateTime = curDate.toLocalDateTime();
+                Timestamp timestamp = Timestamp.valueOf(localDateTime);
+
+                   preparedStatement1.setString(1, rs.getString("name"));
+                   preparedStatement1.setTimestamp(2, timestamp);
+                   int rowsAffected = preparedStatement1.executeUpdate();
    				return rs.getString("id") + "|" +  rs.getString("name") + "|" +  rs.getString("email")+ "|" +  rs.getString("password");   				
    			}
    			return "";
@@ -609,9 +626,16 @@ public class ServerThread implements Runnable {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
         String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,users,content) values (?,?,?)";
+        String GET_IDCHAT_SQL = "SELECT \"idChat\" FROM messages WHERE users && ?";
+        String GET_USERNAME_SQL = "SELECT name FROM users WHERE id = ?";
+        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, idChat, time) VALUES (?, ?, ?, ?)";
+
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_MESSAGE_SQL);
-             PreparedStatement preparedStatement1 = connection.prepareStatement(INSERT_MESSAGE_SQL)) {
+             PreparedStatement preparedStatement1 = connection.prepareStatement(INSERT_MESSAGE_SQL);
+             PreparedStatement preparedStatement2 = connection.prepareStatement(GET_IDCHAT_SQL);
+             PreparedStatement preparedStatement3 = connection.prepareStatement(GET_USERNAME_SQL);
+             PreparedStatement preparedStatement4 = connection.prepareStatement(ADD_TO_SYSTEMS_SQL)) {
             String[] contents = new String[1];
             contents[0] = content;
             Array array = connection.createArrayOf("TEXT", contents);
@@ -627,6 +651,31 @@ public class ServerThread implements Runnable {
             preparedStatement1.setString(1, idChat2);
             preparedStatement1.setArray(2, u);
             preparedStatement1.setArray(3, array);
+
+            preparedStatement2.setArray(1, u);
+            preparedStatement3.setString(1, id);
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            ResultSet resultSet1 = preparedStatement3.executeQuery();
+            String username = "";
+            String idChat = "";
+            if (resultSet.next()) {
+                idChat = resultSet.getString("\"idChat\"");
+            }
+            if (resultSet1.next()) {
+                username = resultSet1.getString("name");
+            }
+
+            ZoneId utc = ZoneId.of("UTC+7");
+            ZonedDateTime curDate = ZonedDateTime.now(utc);
+            LocalDateTime localDateTime = curDate.toLocalDateTime();
+            Timestamp timestamp = Timestamp.valueOf(localDateTime);
+
+            preparedStatement3.setString(1, username);
+            preparedStatement3.setInt(2, 1);
+            preparedStatement3.setString(3, idChat);
+            preparedStatement3.setTimestamp(4, timestamp);
+
+            int rowsAffected = preparedStatement.executeUpdate();
 
             int count = preparedStatement.executeUpdate();
             int count2 = preparedStatement1.executeUpdate();
@@ -931,11 +980,18 @@ public class ServerThread implements Runnable {
 
     //Report Spam
     public static boolean ReportSpam(String username, String byUser) {
-        String UPDATE_MESSAGE_SQL = "Insert into public.\"spams\" Values (?,current_timestamp,?)";
+        String UPDATE_MESSAGE_SQL = "Insert into public.\"spams\" (username, \"ByUser\", date) Values (?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
+            ZoneId utc = ZoneId.of("UTC+7");
+            ZonedDateTime curDate = ZonedDateTime.now(utc);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedDate = curDate.format(formatter);
+            Date sqlDate = Date.valueOf(formattedDate);
+
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, byUser);
+            preparedStatement.setDate(3, sqlDate);
             int count = preparedStatement.executeUpdate();
 
             return count > 0;
