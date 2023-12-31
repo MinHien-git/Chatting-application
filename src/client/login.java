@@ -105,7 +105,7 @@ public class login extends JPanel {
 					if (hashedPW == null) hashedPW = password.getText();
 
 					User user = new User(email.getText(),hashedPW);
-					String _id = user.LogIn();
+					//String _id = user.LogIn();
 					try {
 						parent.write("Login|"+email.getText()+"|"+hashedPW);
 					}catch (IOException ex) {
@@ -146,7 +146,7 @@ public class login extends JPanel {
 		btnlogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				parent.ClearTab();
-				parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
+				//parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
 				parent.ChangeTab(new register(parent), 605, 476);
 			}
 		});

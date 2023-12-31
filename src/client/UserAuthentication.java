@@ -91,60 +91,60 @@ public class UserAuthentication {
 		}
 	}
 
-	public static String SignIn(User user) {
-		try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-			 // Step 2:Create a statement using connection object
-			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL)) {
-			preparedStatement.setString(1, user.email);
-			preparedStatement.setString(2, user.password);
+//	public static String SignIn(User user) {
+//		try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+//			 // Step 2:Create a statement using connection object
+//			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL)) {
+//			preparedStatement.setString(1, user.email);
+//			preparedStatement.setString(2, user.password);
+//
+//			// Step 3: Execute the query or update query
+//			ResultSet rs = preparedStatement.executeQuery();
+//			if (rs.next()) {
+//				return rs.getString("id");
+//			}
+//			return "";
+//		} catch (SQLException e) {
+//			System.out.println("Unable to connect to database");
+//			e.printStackTrace();
+//			System.exit(1);
+//			// print SQL exception information
+//			return "";
+//		}
+//	}
 
-			// Step 3: Execute the query or update query
-			ResultSet rs = preparedStatement.executeQuery();
-			if (rs.next()) {
-				return rs.getString("id");
-			}
-			return "";
-		} catch (SQLException e) {
-			System.out.println("Unable to connect to database");
-			e.printStackTrace();
-			System.exit(1);
-			// print SQL exception information
-			return "";
-		}
-	}
+//	public static boolean resetPassword(String pw, String email)
+//	{
+//		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+//			PreparedStatement reset = connection.prepareStatement(RESET_PW);
+//			reset.setString(1, pw);
+//			reset.setString(2, email);
+//
+//			int results = reset.executeUpdate();
+//
+//			if (results != 0) return true;
+//			return false;
+//		} catch (SQLException sqlException) {
+//			System.out.println("Unable to connect to database");
+//			sqlException.printStackTrace();
+//			return false;
+//		}
+//	}
 
-	public static boolean resetPassword(String pw, String email)
-	{
-		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
-			PreparedStatement reset = connection.prepareStatement(RESET_PW);
-			reset.setString(1, pw);
-			reset.setString(2, email);
-
-			int results = reset.executeUpdate();
-
-			if (results != 0) return true;
-			return false;
-		} catch (SQLException sqlException) {
-			System.out.println("Unable to connect to database");
-			sqlException.printStackTrace();
-			return false;
-		}
-	}
-
-	public static boolean updateRegister(User user) {
-		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
-			PreparedStatement update = connection.prepareStatement(UPDATE_REGISTER);
-			update.setString(1, user.getId());
-			int results = update.executeUpdate();
-
-			if (results != 0) return true;
-			return false;
-		} catch (SQLException sqlException) {
-			System.out.println("Unable to connect to database");
-			sqlException.printStackTrace();
-			return false;
-		}
-	}
+//	public static boolean updateRegister(User user) {
+//		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+//			PreparedStatement update = connection.prepareStatement(UPDATE_REGISTER);
+//			update.setString(1, user.getId());
+//			int results = update.executeUpdate();
+//
+//			if (results != 0) return true;
+//			return false;
+//		} catch (SQLException sqlException) {
+//			System.out.println("Unable to connect to database");
+//			sqlException.printStackTrace();
+//			return false;
+//		}
+//	}
 
 	public static boolean updateCredentials(User user) {
 		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
@@ -353,52 +353,52 @@ public class UserAuthentication {
 		}
 	}
 
-	public static boolean SignUp(User user) {
-		while (!checkIDExists(user.getId())) {
-			int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
-			user.setId(Integer.toString(id));
-		}
+//	public static boolean SignUp(User user) {
+//		while (!checkIDExists(user.getId())) {
+//			int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
+//			user.setId(Integer.toString(id));
+//		}
+//
+//		try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+//			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
+//			 // Step 2:Create a statement using connection object
+//			 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USERS_SQL)) {
+//			preparedStatement.setString(1, user.id);
+//			preparedStatement.setString(2, user.name);
+//			preparedStatement.setString(3, user.email);
+//			preparedStatement.setString(4, user.password);
+//
+//			stmt.setString(1, user.email);
+//			ResultSet rs = stmt.executeQuery();
+//			if (rs.next()) {
+//				System.out.print(rs.getString("id"));
+//				return false;
+//			}
+//
+//			// Step 3: Execute the query or update query
+//			int count = preparedStatement.executeUpdate();
+//			System.out.println(count);
+//			return count > 0 && updateRegister(user);
+//		} catch (SQLException e) {
+//			System.out.println("Unable to connect to database");
+//			e.printStackTrace();
+//			System.exit(1);
+//			// print SQL exception information
+//			return false;
+//		}
+//	}
 
-		try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
-			 // Step 2:Create a statement using connection object
-			 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USERS_SQL)) {
-			preparedStatement.setString(1, user.id);
-			preparedStatement.setString(2, user.name);
-			preparedStatement.setString(3, user.email);
-			preparedStatement.setString(4, user.password);
-
-			stmt.setString(1, user.email);
-			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				System.out.print(rs.getString("id"));
-				return false;
-			}
-
-			// Step 3: Execute the query or update query
-			int count = preparedStatement.executeUpdate();
-			System.out.println(count);
-			return count > 0 && updateRegister(user);
-		} catch (SQLException e) {
-			System.out.println("Unable to connect to database");
-			e.printStackTrace();
-			System.exit(1);
-			// print SQL exception information
-			return false;
-		}
-	}
-
-	private static boolean checkIDExists(String _id) {
-		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
-			PreparedStatement idExists = connection.prepareStatement(ID_EXISTS);
-			idExists.setString(1, _id);
-			ResultSet results = idExists.executeQuery();
-
-			return !results.next();
-		} catch (SQLException sqlException) {
-			System.out.println("Unable to connect to database");
-			sqlException.printStackTrace();
-			return false;
-		}
-	}
+//	private static boolean checkIDExists(String _id) {
+//		try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+//			PreparedStatement idExists = connection.prepareStatement(ID_EXISTS);
+//			idExists.setString(1, _id);
+//			ResultSet results = idExists.executeQuery();
+//
+//			return !results.next();
+//		} catch (SQLException sqlException) {
+//			System.out.println("Unable to connect to database");
+//			sqlException.printStackTrace();
+//			return false;
+//		}
+//	}
 }

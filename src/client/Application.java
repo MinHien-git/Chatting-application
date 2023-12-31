@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.sql.Array;
 import java.util.HashSet;
 import java.util.Properties;
 import server.Server;
@@ -32,7 +33,10 @@ public class Application {
     public static String id;
     public static String userID;
     public static Application app;
-   
+    public JPanel mainPanel;
+    public String focusIDString;
+    public String focusNameString;
+    
     public void write(String message) throws IOException{
     	System.out.println(message + "|" + id);
         os.write(message + "|" + id);
@@ -70,7 +74,7 @@ public class Application {
                             	currentUser = new User(dataSplit[1],dataSplit[2],dataSplit[3],dataSplit[4]);
                             	onlineUsers onlList = new onlineUsers(app, currentUser);
                             	friends flist = new friends(app,currentUser);
-    							chatting c = new chatting();
+    							chatting c = new chatting(app);
     							globalChatHistory gbc = new globalChatHistory();
     							ClearTab();
     							try {
@@ -83,13 +87,45 @@ public class Application {
     							//Application.getApplicationFrame().setVisible(true);
     							ChangeTab(new home(applicationFrame,onlList, flist, c, gbc),600, 600);
                             	//User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
-                            }if(dataSplit[0].equals("Reset_password")){
+                            }else if(dataSplit[0].equals("Reset_password")){
                             	JOptionPane.showMessageDialog(applicationFrame,"Please Check your email");
                         	}
-                            if(dataSplit[0].equals("Register_Success")) {
+                            else if(dataSplit[0].equals("Register_Success")) {
                             	System.out.print("Register_Success");
                             	JOptionPane.showMessageDialog(applicationFrame, "You are successfully registered, you will be redirected to the login page shortly");
+                            	ClearTab();
                             	ChangeTab(new login(app),605, 476);
+                            }else if(dataSplit[0].equals("OnlineList")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		onlineUsers olUsers  = (onlineUsers)home.userPanel;
+                            		currentUser.friends.clear();
+                            		String[] current = message.split("\\|\\|");
+                            		for(int i= 1;i < current.length;++i) {
+                            			String[] m = current[i].split("\\|");
+                            			
+                            			if(m[0].equals("user")) {
+                            				currentUser.friends.add(new User(m[1],m[2],m[3].equals("true") ? true : false));
+                            				System.out.println(current[i] +"| "+ current.length);
+                            			}
+                            			System.out.println(current[i] +"| "+m[0]);
+                            		}
+                            		
+                            		olUsers.UpdateList(currentUser);
+                            	}
+                            }else if(dataSplit[0].equals("MessageData")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+                            		
+                            		String[] chatSplit = message.split("\\|\\|");
+                            		String[] messageStrings = chatSplit[1].split("\\|");
+                            		for(int i =0;i < messageStrings.length;++i) {
+                            			String msg = messageStrings[i].replace(app.focusIDString +" -","("+app.focusNameString+")")
+                            					.replace(app.currentUser.getId() +" -","("+app.currentUser.getName()+")");
+                            			chatting.AddChat(msg);
+                            		}
+                            	}
                             }
                         }
                     os.close();
@@ -130,10 +166,16 @@ public class Application {
     public static JFrame getApplicationFrame() {
         return applicationFrame;
     }
+    
     public void ClearTab() {
     	applicationFrame.getContentPane().removeAll();
     }
-    public static void ChangeTab(JPanel newPanel,int h,int w) {
+    
+    public void ChangeTab(String name) {
+    	applicationFrame.setTitle(name);
+    }
+    
+    public void ChangeTab(JPanel newPanel,int h,int w) {
     	applicationFrame.add(newPanel);
     	
     	applicationFrame.setForeground(Color.BLACK);
@@ -146,6 +188,7 @@ public class Application {
     	applicationFrame.pack();
         applicationFrame.setVisible(true);
         applicationFrame.setSize(h, w);
+        mainPanel = newPanel;
     }
 
     public static void main(String[] args) {

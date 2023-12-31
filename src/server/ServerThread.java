@@ -90,6 +90,10 @@ public class ServerThread implements Runnable {
     public String getuserID() {
         return userID;
     }
+    
+    public String getActualUserID() {
+        return actual_userID;
+    }
 
     public ServerThread(Socket socketOfServer, String userID) {
         this.socketOfServer = socketOfServer;
@@ -124,6 +128,8 @@ public class ServerThread implements Runnable {
                 		actual_userID = result.split("\\|")[0];
                 		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
+                		String onlineList = GetOnlineFriends(actual_userID);
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                 	}
                 	System.out.println(result);
                 }else if(commandString.equals("Register")) {
@@ -136,12 +142,21 @@ public class ServerThread implements Runnable {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Reset_password|");
                 	}
                 }
+                else if (commandString.equals("MessageData")) {
+                    String id1 = messageSplit[2];//Người gửi
+                    String id2 = messageSplit[3];//Từ user
+                    String[] mess = GetMessage(id1+"|"+ id2);
+                    if(!mess[0].equals("")) {
+                    	
+                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "MessageData|"+mess[0]+"||"+mess[1]);
+                    }
+                }
                 else if (commandString.equals("DirectMessage")) {
                     System.out.println("DirectMessage");
                     String id1 = messageSplit[1];//Người gửi
                     String id2 = messageSplit[2];//Từ user
                     String content = messageSplit[3];
-                    String[] mess = ServerThread.CheckMessageExists(id1, id2);
+                    String[] mess = CheckMessageExists(id1, id2);
                     if (!mess[0].equals("")) {
                         System.out.println("Update");
                         ServerThread.UpdateExistsMessage(id1, id2, content);
@@ -149,7 +164,7 @@ public class ServerThread implements Runnable {
                         System.out.println("Insert");
                         ServerThread.InsertMessage(id1, id2, content);
                     }
-                    mess = ServerThread.CheckMessageExists(id1, id2);
+                  
                     Server.serverThreadBus.boardCast(id1, "send-to-user|" + String.join(", ", mess[1]));
                     Server.serverThreadBus.boardCast(id2, "send-to-user|" + String.join(", ", mess[1]));
                 } else if (commandString.equals("AddFriend")) {
@@ -467,8 +482,77 @@ public class ServerThread implements Runnable {
 	    return false;
     }
     
-    //DirectMessage
+    public static String GetOnlineFriends(String id) {
+    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
+    			+ "ON u2.id = ANY (u.friends) where u.id = ? and not(u2.id = ANY(u.blocks))  ";
+    	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
+			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
+			online.setString(1,id);
+			ResultSet friendList = online.executeQuery();
+			String friendString = new String("");
+			while (friendList.next())
+			{
+				String _id = friendList.getString("id");
+				boolean isLocked = friendList.getBoolean("lock");
+				boolean isOnline = friendList.getBoolean("isOnline");
+//				java.sql.Array bl;
+//				ArrayList<String> blocks;
+//				if(friendList.getArray("blocks") != null) {
+//					bl = friendList.getArray("blocks");
+//					blocks = new ArrayList<>(Arrays.asList((String []) bl.getArray()));
+//				}
+				//if (isLocked || blocks.contains(id)) continue;
+				String _name = friendList.getString("name");
 
+				friendString += "||"+"user"+"|"+_id +"|"+ _name + "|"+isOnline;
+			}
+			return friendString;
+
+		} catch (SQLException sqlException) {
+			System.out.println("Unable to connect to database");
+			sqlException.printStackTrace();
+			return "";
+		}
+    }
+  //Get Message Data
+    public static String[] GetMessage(String id) {
+        String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ?";
+        
+        String[] result = new String[2];
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
+            preparedStatement.setString(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            
+            if (rs.next()) {
+            	Array  arr =  rs.getArray("content");;
+                result[0] = rs.getString("idChat");
+                
+                result[1] = "";
+                String[] m = (String[]) arr.getArray();
+                for(int i = 0;i<m.length;++i) {
+                	if(i == m.length-1)
+                		result[1] += m[i];
+                	else
+                		result[1] += m[i] + "|";
+                }
+                System.out.println(result[1]);
+                
+                
+            } else {
+                result[0] = "";
+                result[1] ="";
+            }
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return result;
+        }
+    }
+    
     public static String[] CheckMessageExists(String id, String id2) {
         String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
         String idChat1 = id + "|" + id2;
@@ -494,7 +578,7 @@ public class ServerThread implements Runnable {
             return result;
         }
     }
-
+  //DirectMessage
     public static boolean UpdateExistsMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
@@ -547,7 +631,7 @@ public class ServerThread implements Runnable {
             return false;
         }
     }
-
+   
     //AddFriend
     public static boolean AddFriend(String userId, String FriendId) {
         String ADD_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_append(friends,?)"
