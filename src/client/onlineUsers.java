@@ -295,7 +295,29 @@ public class onlineUsers extends JPanel {
         this.add(usersAndgroupsPanel, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.AFTER_LAST_LINE);
     }
+    public void SetOffline(String id) {
+    	for (int i = 0;i < sideList.size();++i) {
+    		User user=(User)sideList.get(i);
+    		if(user.id.equals(id)) {
+    			sideList.remove(i);
+    			user.setOnline(false);
+    			sideList.add(i, user);
+    			break;
+    		}
+    	}
+    }
     
+    public void SetOnline(String id) {
+    	for (int i = 0;i < sideList.size();++i) {
+    		User user=(User)sideList.get(i);
+    		if(user.id.equals(id)) {
+    			sideList.remove(i);
+    			user.setOnline(true);
+    			sideList.add(i, user);
+    			break;
+    		}
+    	}
+    }
     public void UpdateList(User user) {
         //we can dynamically add users/groups here
         int i = 0;
