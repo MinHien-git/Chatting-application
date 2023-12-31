@@ -16,6 +16,7 @@ import java.awt.Dimension;
 import java.awt.Window.Type;
 import java.awt.Dialog.ModalExclusionType;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class register extends JPanel {
 	private JTextField email;
@@ -90,7 +91,8 @@ public class register extends JPanel {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(name.getText() != "" && password.getText() != "" && email.getText() != "") {
-					int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
+					String id = UUID.randomUUID().toString();
+//					int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
 					String hashedPW = User.hashPassword(password.getText());
 
 					if (hashedPW == null) hashedPW = password.getText();

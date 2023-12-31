@@ -418,8 +418,7 @@ public class ServerThread implements Runnable {
 		return password.toString();
 	}
     
-    public static String hashPassword(String pw)
-	{
+    public static String hashPassword(String pw) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hashedBytes = digest.digest(pw.getBytes());
@@ -901,9 +900,9 @@ public class ServerThread implements Runnable {
 
             if (messageSplit[4].isEmpty()) {
                 if (Objects.equals(messageSplit[5], "Both")) {
-                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\"";
+                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\"";
                 } else {
-                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE \"isOnline\" = ?";
+                    ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE \"isOnline\" = ?";
                 }
 
                 if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
@@ -916,9 +915,9 @@ public class ServerThread implements Runnable {
             } else {
                 if (messageSplit[1].equals("1")) {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE username LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
@@ -930,9 +929,9 @@ public class ServerThread implements Runnable {
                     }
                 } else {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"test_users\" WHERE fullname LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname LIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
@@ -951,7 +950,7 @@ public class ServerThread implements Runnable {
 
                 if (messageSplit[4].isEmpty()) {
                     if (!Objects.equals(messageSplit[5], "Both")) {
-                        preparedStatement.setString(1, messageSplit[5]);
+                        preparedStatement.setBoolean(1, messageSplit[5].equals("Online") ? true : false);
                     }
                 } else {
                     if (messageSplit[1].equals("1")) {
@@ -959,14 +958,14 @@ public class ServerThread implements Runnable {
                             preparedStatement.setString(1, "%" + messageSplit[4] + "%");
                         } else {
                             preparedStatement.setString(1, "%" + messageSplit[4] + "%");
-                            preparedStatement.setString(2, messageSplit[5]);
+                            preparedStatement.setBoolean(2, messageSplit[5].equals("Online") ? true : false);
                         }
                     } else {
                         if (Objects.equals(messageSplit[5], "Both")) {
                             preparedStatement.setString(1, "%" + messageSplit[4] + "%");
                         } else {
                             preparedStatement.setString(1, "%" + messageSplit[4] + "%");
-                            preparedStatement.setString(2, messageSplit[5]);
+                            preparedStatement.setBoolean(2, messageSplit[5].equals("Online") ? true : false);
                         }
                     }
                 }
@@ -1001,7 +1000,6 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminAddNewAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1009,9 +1007,9 @@ public class ServerThread implements Runnable {
             String ADMIN_CHECK_USERNAME;
             String ADMIN_CHECK_EMAIL;
 
-            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"test_users\" (username, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"test_users\" WHERE username = ?";
-            ADMIN_CHECK_EMAIL = "SELECT * FROM public.\"test_users\" WHERE email = ?";
+            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"users\" (username, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password, id, \"isAdmin\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
+            ADMIN_CHECK_EMAIL = "SELECT * FROM public.\"users\" WHERE email = ?";
 
             String dateString = messageSplit[4];
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -1040,13 +1038,15 @@ public class ServerThread implements Runnable {
                         preparedStatement.setDate(4, sqlDate);
                         preparedStatement.setString(5, messageSplit[5]);
                         preparedStatement.setString(6, messageSplit[6]);
-                        preparedStatement.setString(7, "Offline");
+                        preparedStatement.setBoolean(7, false);
                         preparedStatement.setBoolean(8, false);
                         preparedStatement.setDate(9, sqlDateCreate);
-                        preparedStatement.setString(10, "1");
+                        String pw = hashPassword("1");
+                        preparedStatement.setString(10, pw);
+                        preparedStatement.setString(11, UUID.randomUUID().toString());
+                        preparedStatement.setBoolean(12, false);
 
                         int rowsAffected = preparedStatement.executeUpdate();
-                        System.out.println(rowsAffected);
                     }
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
@@ -1058,15 +1058,14 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminUpdateAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_UPDATE_ACCOUNT_SQL;
             String ADMIN_CHECK_USERNAME;
 
-            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"test_users\" WHERE username = ?";
+            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL);
@@ -1089,13 +1088,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminDeleteAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_DELETE_ACCOUNT_SQL;
 
-            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"test_users\" WHERE username = ?";
+            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_DELETE_ACCOUNT_SQL)) {
@@ -1109,13 +1107,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminLockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_LOCK_ACCOUNT_SQL;
 
-            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET lock = ? WHERE username = ?";
+            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_LOCK_ACCOUNT_SQL)) {
@@ -1130,13 +1127,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminUnlockAccount(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_UNLOCK_ACCOUNT_SQL;
 
-            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"test_users\" SET lock = ? WHERE username = ?";
+            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UNLOCK_ACCOUNT_SQL)) {
@@ -1151,13 +1147,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminRenewPassword(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_RENEW_PASSWORD_SQL;
 
-            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"test_users\" SET password = ? WHERE username = ?";
+            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"users\" SET password = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_RENEW_PASSWORD_SQL)) {
@@ -1172,13 +1167,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListLoginHistory(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_LOGIN_HISTORY_SQL;
 
-            ADMIN_GET_LIST_LOGIN_HISTORY_SQL = "SELECT * FROM public.\"test_logs\" WHERE username = ?";
+            ADMIN_GET_LIST_LOGIN_HISTORY_SQL = "SELECT * FROM public.\"logs\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_LOGIN_HISTORY_SQL)) {
@@ -1210,13 +1204,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListFriend(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_FRIEND_SQL;
 
-            ADMIN_GET_LIST_FRIEND_SQL = "SELECT * FROM public.\"test_users\" as Fr WHERE Fr.username IN (SELECT unnest(array_agg(friends)) FROM public.\"test_users\" WHERE username = ? AND (SELECT COALESCE(ARRAY_LENGTH(friends, 1), 0) AS num_elements FROM public.\"test_users\" as Ch WHERE Ch.username = ?) > 0);";
+            ADMIN_GET_LIST_FRIEND_SQL = "SELECT * FROM public.\"users\" as Fr WHERE Fr.username IN (SELECT unnest(array_agg(friends)) FROM public.\"users\" WHERE username = ? AND (SELECT COALESCE(ARRAY_LENGTH(friends, 1), 0) AS num_elements FROM public.\"users\" as Ch WHERE Ch.username = ?) > 0);";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_SQL)) {
@@ -1232,9 +1225,9 @@ public class ServerThread implements Runnable {
                         StringBuilder result = new StringBuilder();
                         result.append(rs.getString("username")).append(", ");
                         if (rs.isLast()) {
-                            result.append(rs.getString("isOnline")).append("|END");
+                            result.append(rs.getBoolean("isOnline") ? "Trực tuyến" : "Ngoại tuyến").append("|END");
                         } else {
-                            result.append(rs.getString("isOnline")).append(", ");
+                            result.append(rs.getBoolean("isOnline") ? "Trực tuyến" : "Ngoại tuyến").append(", ");
                         }
 
                         String fullReturn = "AdminGetListFriend|" + result;
@@ -1249,13 +1242,12 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListLogin() {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_LOGIN_SQL;
 
-            ADMIN_GET_LIST_LOGIN_SQL = "SELECT u.username, u.fullname, l.logdate FROM public.\"test_users\" as u JOIN public.\"test_logs\" as l ON u.username = l.username;";
+            ADMIN_GET_LIST_LOGIN_SQL = "SELECT u.username, u.fullname, l.logdate FROM public.\"users\" as u JOIN public.\"logs\" as l ON u.username = l.username;";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_LOGIN_SQL)) {
@@ -1286,7 +1278,6 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1339,7 +1330,6 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListMemGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1394,7 +1384,6 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListAdmin(String[] messageSplit) {
         try {
             System.out.println(Arrays.toString(messageSplit));
@@ -1489,7 +1478,7 @@ public class ServerThread implements Runnable {
     public static void AdminGetListNew(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_NEW_SQL = "SELECT * FROM public.\"test_users\"";
+            String ADMIN_GET_LIST_NEW_SQL = "SELECT * FROM public.\"users\"";
 
             if (messageSplit.length == 4) {
                 ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE";
@@ -1549,10 +1538,10 @@ public class ServerThread implements Runnable {
                     "                SELECT generate_series(1, 12) AS month\n" +
                     "            )\n" +
                     "            SELECT months.month,\n" +
-                    "                   COUNT(public.test_users.\"createAt\") AS row_count\n" +
+                    "                   COUNT(public.users.\"createAt\") AS row_count\n" +
                     "            FROM months\n" +
-                    "            LEFT JOIN public.test_users ON EXTRACT(MONTH FROM public.test_users.\"createAt\") = months.month\n" +
-                    "                               AND EXTRACT(YEAR FROM public.test_users.\"createAt\") = ?\n" +
+                    "            LEFT JOIN public.users ON EXTRACT(MONTH FROM public.users.\"createAt\") = months.month\n" +
+                    "                               AND EXTRACT(YEAR FROM public.users.\"createAt\") = ?\n" +
                     "            GROUP BY months.month\n" +
                     "            ORDER BY months.month;";
 
@@ -1585,11 +1574,10 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListFriendPlus(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM (SELECT tu1.username, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM test_users tu1 LEFT JOIN test_users tu2 ON tu2.username = ANY(tu1.friends) GROUP BY tu1.username, tu1.friends) AS fr JOIN test_users tu3 ON tu3.username = fr.username";
+            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM (SELECT tu1.username, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM users tu1 LEFT JOIN users tu2 ON tu2.username = ANY(tu1.friends) GROUP BY tu1.username, tu1.friends) AS fr JOIN users tu3 ON tu3.username = fr.username";
 
             if (messageSplit.length >= 3) {
                 ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE fr.username LIKE ?";
@@ -1645,7 +1633,7 @@ public class ServerThread implements Runnable {
             //        username,
             //        COUNT(*) AS appearance_count
             //    FROM
-            //        test_logs
+            //        logs
             //    WHERE
             //        logdate BETWEEN '2020-10-01' AND '2023-10-01'
             //    GROUP BY
