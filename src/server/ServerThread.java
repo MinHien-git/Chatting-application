@@ -170,7 +170,11 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("AddFriend")) {
                     String id1 = messageSplit[1];//From
                     String id2 = messageSplit[2];//To
-                    AddFriend(id1, id2);
+                    String actual_idString = AddFriend(id1, id2);
+                    if(!actual_idString.equals("")) {
+                    	Server.serverThreadBus.boardCastUser(actual_idString, "AddFriendSuccess");
+                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "AddFriendSuccess");
+                    }
                     System.out.println("AddFriend");
                 } else if (commandString.equals("DeleteFriend")) {
                     String id1 = messageSplit[1];//Người gửi
@@ -182,10 +186,12 @@ public class ServerThread implements Runnable {
                     String id2 = messageSplit[2];// người xoá
                     RemoveMessage(id1 + "|" + id2);
                 } else if (commandString.equals("CreateGroup")) {
-                    System.out.println("CreateGroup");
-                    String name = messageSplit[1];//Người gửi
-                    String id = messageSplit[2];//Từ user
-                    InsertGroup(name, id);
+                    System.out.println("CreateGroup "+ message);
+                    String[] newDataString = message.split("\\|\\|");
+                    String name = newDataString[1];//Người gửi
+                    String id = newDataString[2];//Từ user
+                    String members = newDataString[3];
+                    InsertGroup(name, id,members);
                 } else if (commandString.equals("GetOnline")) {
                     System.out.println("GetOnline");
                     ArrayList<String> result = GetFriendListOnline(messageSplit[1]);
@@ -484,7 +490,7 @@ public class ServerThread implements Runnable {
     
     public static String GetOnlineFriends(String id) {
     	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
-    			+ "ON u2.id = ANY (u.friends) where u.id = ? and not(u2.id = ANY(u.blocks))  ";
+    			+ "ON u2.id = ANY (u.friends) where u.id = ? and ( not(u2.id = ANY(u.blocks)) OR u.blocks is null)";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
 			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
 			online.setString(1,id);
@@ -503,8 +509,9 @@ public class ServerThread implements Runnable {
 //				}
 				//if (isLocked || blocks.contains(id)) continue;
 				String _name = friendList.getString("name");
-
+				
 				friendString += "||"+"user"+"|"+_id +"|"+ _name + "|"+isOnline;
+				System.out.print(friendString);
 			}
 			return friendString;
 
@@ -633,26 +640,36 @@ public class ServerThread implements Runnable {
     }
    
     //AddFriend
-    public static boolean AddFriend(String userId, String FriendId) {
+    public static String AddFriend(String userId, String FriendName) {
         String ADD_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_append(friends,?)"
                 + "WHERE id =? and exists (select * from public.\"users\" where id = ?)";
+        String FIND_USER = "SELECT id FROM public.\"users\" WHERE id = ? or name = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(ADD_FRIEND_SQL);
-             PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_FRIEND_SQL)) {
-            preparedStatement.setString(1, userId);
-            preparedStatement.setString(2, FriendId);
-            preparedStatement.setString(3, userId);
-            preparedStatement1.setString(1, FriendId);
-            preparedStatement1.setString(2, userId);
-            preparedStatement1.setString(3, userId);
-
-            int count = preparedStatement.executeUpdate();
-            int count1 = preparedStatement1.executeUpdate();
-            return count > 0 && count1 > 0;
+             PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_FRIEND_SQL);
+        		PreparedStatement preparedStatement2 = connection.prepareStatement(FIND_USER)) {
+        	String FriendId;
+        	preparedStatement2.setString(1, FriendName);
+        	preparedStatement2.setString(2, FriendName);
+        	ResultSet rSet = preparedStatement2.executeQuery();
+        	if(rSet.next()) {
+        		FriendId = rSet.getString("id");
+	            preparedStatement.setString(1, userId);
+	            preparedStatement.setString(2, FriendId);
+	            preparedStatement.setString(3, userId);
+	            preparedStatement1.setString(1, FriendId);
+	            preparedStatement1.setString(2, userId);
+	            preparedStatement1.setString(3, userId);
+	            
+	            int count = preparedStatement.executeUpdate();
+	            int count1 = preparedStatement1.executeUpdate();
+	            return FriendId;
+        	}
+           return "";
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
-            return false;
+            return "";
         }
     }
 
@@ -694,19 +711,33 @@ public class ServerThread implements Runnable {
     }
 
     //CREATE GROUP
-    public static boolean InsertGroup(String group_name, String creator) {
+    public static boolean InsertGroup(String group_name, String creator,String users) {
         String CREATE_GROUP_SQL = "INSERT INTO public.groups "
                 + "	(groupid, admin, groupname, users, content)\r\n"
                 + "	VALUES (?, ?, ?, ?, '{}');";
+        String GET_USER_ID = "SELECT id FROM public.users where name = ? or id = ?";
         long id = (long) (Math.random() * (10000000000l - 1)) + 1;
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GROUP_SQL)) {
             preparedStatement.setString(1, id + "");
             String[] user = new String[1];
+            String[] memberNames = users.split("\\|");
+            ArrayList<String> members = new ArrayList<String>();
+            for(int i = 0;i < memberNames.length;++i) {
+            	PreparedStatement ps = connection.prepareStatement(GET_USER_ID);
+            	ps.setString(1, memberNames[i]);
+            	ps.setString(2, memberNames[i]);
+            	
+            	ResultSet rs =ps.executeQuery();
+            	if(rs.next()) {
+            		String idString = rs.getString("id");
+            		members.add(idString);
+            	}
+            }
             user[0] = creator;
             preparedStatement.setArray(2, connection.createArrayOf("TEXT", user));
             preparedStatement.setString(3, group_name);
-            preparedStatement.setArray(4, connection.createArrayOf("TEXT", user));
+            preparedStatement.setArray(4, connection.createArrayOf("TEXT", members.toArray()));
 
             int count = preparedStatement.executeUpdate();
 
@@ -744,12 +775,25 @@ public class ServerThread implements Runnable {
     //SET ONLINE
     public static boolean SetOnline(String id) {
         String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = true where id = ?";
+        String GET_FRIEND_SQL = "SELECT friends from public.\"users\" where id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL);
+        		PreparedStatement preparedStatement1 = connection.prepareStatement(GET_FRIEND_SQL)) {
             preparedStatement.setString(1, id);
-
+            preparedStatement1.setString(1, id);	
+            
             int count = preparedStatement.executeUpdate();
+            
+            ResultSet resultSet = preparedStatement1.executeQuery();
+            
+            if(resultSet.next()) {
+           	 Array  arr =  resultSet.getArray("friends");
 
+                String[] m = (String[]) arr.getArray();
+                for(int i = 0;i<m.length;++i) {
+                	Server.serverThreadBus.boardCastUser(m[i],"IsOnline|"+id);
+                }
+           }
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -762,12 +806,23 @@ public class ServerThread implements Runnable {
     public static boolean SetOffline(String id) {
     	System.out.println("Offline");
         String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = false where id = ?";
+        String GET_FRIEND_SQL = "SELECT friends from public.\"users\" where id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SET_ONLINE_SQL);
+        	PreparedStatement preparedStatement1 = connection.prepareStatement(GET_FRIEND_SQL)) {
             preparedStatement.setString(1, id);
-
+            preparedStatement1.setString(1, id);	
+            
             int count = preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement1.executeQuery();
+            if(resultSet.next()) {
+            	 Array  arr =  resultSet.getArray("friends");
 
+                 String[] m = (String[]) arr.getArray();
+                 for(int i = 0;i<m.length;++i) {
+                 	Server.serverThreadBus.boardCastUser(m[i],"IsOffline|"+id);
+                 }
+            }
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();

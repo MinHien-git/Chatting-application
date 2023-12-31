@@ -135,16 +135,15 @@ public class friends extends JPanel {
         //add event for enter key -> query user -> add...
         searchBar.addActionListener(e -> {
             if (e.getSource() == searchBar) {
-                String fromUser = user.getId();
-                String toUser = UserAuthentication.usernameToID(searchBar.getText());
-                User newFriend = UserAuthentication.idToUser(toUser);
+                String fromUser = app.currentUser.getId();
+                String toUser = searchBar.getText();
+//                User newFriend = UserAuthentication.idToUser(toUser);
 
-                if (toUser != null && newFriend != null) {
+                if (!searchBar.getText().equals("") && app.currentUser != null) {
                     try {
                     	parent.write("AddFriend|" + fromUser + "|" + toUser);
-                        JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
-                        UserAuthentication.updateFriendsList(user);
-                        allFriends.addElement(newFriend);
+                        //JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
+                        //UserAuthentication.updateFriendsList(user);
                         searchBar.setText("");
                     } catch (IOException ex) {
                         ex.getStackTrace();
