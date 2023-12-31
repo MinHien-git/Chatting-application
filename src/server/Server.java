@@ -1,5 +1,8 @@
 package server;
 
+import com.sun.tools.jconsole.JConsoleContext;
+import com.sun.tools.jconsole.JConsolePlugin;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,14 +21,15 @@ public class Server {
         String jdbcUrl = "jdbc:postgresql://localhost:5432/";
         String username = "postgres";
         String password = "123456";
-        String databaseName = "\"chatting-application\"";
-        String dbName = "chatting-application";
+        String databaseName = "chatting-application";
 
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
             if (!databaseExists(connection, databaseName)) {
+
+                System.out.println(databaseExists(connection, databaseName));
                 createDatabase(connection, databaseName);
 
-                jdbcUrl += dbName;
+                jdbcUrl += databaseName;
                 try(Connection connectionNew = DriverManager.getConnection(jdbcUrl, username, password)) {
                     createTables(connectionNew);
 
@@ -86,14 +90,14 @@ public class Server {
 
     public static boolean databaseExists(Connection connection, String databaseName) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT 1 FROM pg_database WHERE datname = '" + databaseName + "'");
+            ResultSet resultSet = statement.executeQuery("SELECT FROM pg_database WHERE datname = '" + databaseName + "'");
             return ((ResultSet) resultSet).next();
         }
     }
 
     public static void createDatabase(Connection connection, String databaseName) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            String createDatabaseQuery = "CREATE DATABASE " + databaseName;
+            String createDatabaseQuery = "CREATE DATABASE \"" + databaseName + "\"";
             statement.executeUpdate(createDatabaseQuery);
         }
     }
