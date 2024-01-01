@@ -1,6 +1,9 @@
 package client;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -18,11 +21,10 @@ public class chatting extends JPanel {
     private JTextField chatInput;
     private JButton sendButton;
     private String id;
-    private DefaultListModel<Object> sideList;
+    private DefaultListModel<String> sideList;
     private JList jList;
     private JScrollPane jScrollPane;
-    
-    private ArrayList<String> chatContent;
+    private ArrayList<String> chatContent = new ArrayList<String>();
     public Application parent;
     /**
      * Create the application.
@@ -30,7 +32,6 @@ public class chatting extends JPanel {
     public chatting(Application application) {
     	parent = application;
         id = "";
-        chatContent = new ArrayList<>();
         initialize("usr1", "usr2");
         //setUpSocket();
     }
@@ -68,7 +69,7 @@ public class chatting extends JPanel {
     }
     
     public void AddChat(String newString) {
-    	
+    	chatContent.add(newString);
     	sideList.addElement(newString);
     }
 
@@ -86,7 +87,7 @@ public class chatting extends JPanel {
         
         this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
         this.setBounds(100, 100, 360, 800);
-        sideList = new DefaultListModel<Object>();
+        sideList = new DefaultListModel<String>();
 
         chatArea = new JPanel();
         jList= new JList(sideList);
@@ -96,29 +97,31 @@ public class chatting extends JPanel {
         jScrollPane.setSize(new Dimension(360, 500));
         jScrollPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         
+        JTextField searchBar = new JTextField();
         jList.setSize(new Dimension(360, 500));
         this.add(chatArea, BorderLayout.CENTER);
+        this.add(searchBar, BorderLayout.NORTH);
         chatArea.add(jScrollPane,BorderLayout.CENTER);
         chatArea.setLayout(new BorderLayout());
         Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
         chatArea.setFont(font);
-        chatContent = UserAuthentication.getMessageContent(id1, id2);
-//        if (chatContent == null) {
-//            chatArea.setText("");
-//        } else {
-//            for (String text : chatContent) {
-//                String id = extractID(text);
-//                String msg = extractText(text);
-//                String name = UserAuthentication.idToUser(id).getName();
-//
-//                chatArea.append(name + " - " + msg + "\n");
-//            }
-//        }
-      
+        
+        searchBar.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+            public void removeUpdate(DocumentEvent e) {filter();}
+            public void insertUpdate(DocumentEvent e) {filter();}
+            private void filter() {
+                String filter = searchBar.getText();
+                filterModel(sideList, filter);
+            }
+       });
+        
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
         inputPanel.setSize(360, 200);
-
+        
         chatInput = new JTextField();
         chatInput.setSize(new Dimension(360, 100));
         inputPanel.add(chatInput, BorderLayout.NORTH);
@@ -145,7 +148,30 @@ public class chatting extends JPanel {
         inputPanel.add(sendButton, BorderLayout.CENTER);
         this.add(inputPanel, BorderLayout.SOUTH);
     }
-
+    
+    public void filterModel(DefaultListModel<String> model, String filter) {
+    	if(!filter.trim().equals("")) {
+    	for (int i = 0;i< chatContent.size();++i){ {
+        	String s = chatContent.get(i);
+            if (!s.contains(filter)) {
+                if (model.contains(s)) {
+                    model.removeElement(s);
+                }
+            } else {
+                if (!model.contains(s)) {
+                    model.addElement(s);
+                }
+            }
+        }}
+       }else {
+    	   model.clear();
+    	   
+    	   for (String s : chatContent) {
+               model.addElement(s);
+           }
+       }
+    }
+    
     private void initialize(String groupID) {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
@@ -153,7 +179,7 @@ public class chatting extends JPanel {
         this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
         this.setBounds(100, 100, 360, 800);
         
-        sideList = new DefaultListModel<Object>();
+        sideList = new DefaultListModel<String>();
 
         chatArea = new JPanel();
         jList= new JList(sideList);
@@ -161,7 +187,6 @@ public class chatting extends JPanel {
         chatArea.add(jScrollPane);
         Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
         chatArea.setFont(font);
-        chatContent = UserAuthentication.getGroupContent(groupID);
 
         chatArea.setSize(new Dimension(360, 500));
         JScrollPane scrollPane = new JScrollPane(chatArea);

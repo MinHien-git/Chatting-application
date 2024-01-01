@@ -326,6 +326,7 @@ public class onlineUsers extends JPanel {
     }
     
     public void filterModel(DefaultListModel<Object> model, String filter) {
+    	if(!filter.trim().equals("") && !filter.equals("Chat With A Friend")) {
         for (int i = 0;i< parent.currentUser.friends.size();++i){ {
         	if(parent.currentUser.friends.get(i) instanceof User) {
 	        	User s =(User) parent.currentUser.friends.get(i);
@@ -340,6 +341,12 @@ public class onlineUsers extends JPanel {
 	            	}
 	        	}
     	}
+       }
+       }else {
+    	   model.clear();
+    	   for (int i = 0;i< parent.currentUser.friends.size();++i){ 
+    		   model.addElement(parent.currentUser.friends.get(i));
+       	}
        }
     }
     
