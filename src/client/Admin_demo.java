@@ -111,6 +111,8 @@ public class Admin_demo {
     private JTextField inputFromDatet8;
     private JTextField inputToDatet8;
     private ChartPanel chartPanel;
+    private ChartPanel chartPanel1;
+    private JTextField inputYearT9;
     private GridBagConstraints gbcMain;
 
     /**
@@ -635,21 +637,56 @@ public class Admin_demo {
             gbcListFriendPlus.gridy = 0;
         }
     }
+    private void updateListOpen(ArrayList<String> listOpenInString, int checkEnd) {
+        if (gbcListOpen.gridy == 0) {
+            int compCount = listOpen.getComponentCount();
+            if (compCount > 4) {
+                for (int i = compCount - 1; i >= 4; i--) {
+                    listOpen.remove(i);
+                }
+            }
 
-    private void updateListOpen(ArrayList<ArrayList<String>> listOpenInString) {
-        // list of user open will be here
-        for (ArrayList<String> strings : listOpenInString) {
             gbcListOpen.gridy += 1;
             gbcListOpen.gridx = 0;
-            for (String string : strings) {
+            for (String string : listOpenInString) {
+                if (string.equals("no data")) {
+                    break;
+                }
                 JLabel label = new JLabel(string);
 
                 listOpen.add(label, gbcListOpen);
 
                 gbcListOpen.gridx += 1;
             }
+
+            listOpen.revalidate();
+            listOpen.repaint();
+        } else {
+            gbcListOpen.gridy += 1;
+            gbcListOpen.gridx = 0;
+            for (String string : listOpenInString) {
+                JLabel label = new JLabel(string);
+
+                listOpen.add(label, gbcListOpen);
+
+                gbcListOpen.gridx += 1;
+            }
+            listOpen.revalidate();
         }
-        listOpen.revalidate();
+
+        if (checkEnd == 1) {
+            gbcListOpen.gridy = 0;
+        }
+    }
+    private void updateChartOpen(ArrayList<String> ChartValue, String year) {
+        JFreeChart chart = this.createChart1(this.createDataset1(ChartValue), year);
+        CategoryPlot plot = chart.getCategoryPlot();
+        CategoryAxis xAxis = plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        yAxis.setRange(0, 100);
+        chartPanel1.setChart(null);
+        chartPanel1.revalidate();
+        chartPanel1.setChart(chart);
     }
 
     private JScrollPane trang1() {
@@ -2164,7 +2201,7 @@ public class Admin_demo {
         listOpen.setSize(800, 800);
         listOpen.setLayout(new GridBagLayout());
         gbcListOpen = new GridBagConstraints();
-        gbcListOpen.insets = new Insets(0, 2, 5, 2);
+        gbcListOpen.insets = new Insets(0, 5, 5, 5);
 
         JLabel uname = new JLabel("Tên đăng nhập");
         JLabel open = new JLabel("Số lần mở ứng dụng");
@@ -2330,23 +2367,45 @@ public class Admin_demo {
 
         return outerScrollPane;
     }
-
     private JPanel trang9() {
-        JFreeChart chart = this.createChart1(this.createDataset1());
+        String[] month = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+        ArrayList<String> temp = new ArrayList<>();
+        for (int i = 0; i < 24; i+= 2) {
+            int k = i / 2;
+            temp.add(i, month[k]);
+            temp.add(i + 1, "0");
+        }
+
+        JFreeChart chart = this.createChart1(this.createDataset1(temp), "...");
         CategoryPlot plot = chart.getCategoryPlot();
         CategoryAxis xAxis = plot.getDomainAxis();
         NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-        // Customize axis as needed
+        yAxis.setRange(0, 100);
 
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(900, 370));
+        chartPanel1 = new ChartPanel(chart);
+        chartPanel1.setPreferredSize(new java.awt.Dimension(900, 370));
 
         JLabel year = new JLabel("Năm");
-        JTextField inputYear = new JTextField();
+        inputYearT9 = new JTextField();
         JButton btn = new JButton("Xem biểu đồ");
 
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tempInputYear = inputYearT9.getText();
+                if (!tempInputYear.isEmpty()) {
+                    try {
+                        int number = Integer.parseInt(tempInputYear);
+                        write("AdminGetChartOpen|%d".formatted(number));
+                    } catch (NumberFormatException | IOException ne) {
+                        throw new RuntimeException(ne);
+                    }
+                }
+            }
+        });
+
         setLabel(year);
-        setTextfield(inputYear);
+        setTextfield(inputYearT9);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
@@ -2355,19 +2414,19 @@ public class Admin_demo {
 
         gbcMain.gridx = 0;
         gbcMain.gridy = 0;
-        mainPanel.add(chartPanel, gbcMain);
+        mainPanel.add(chartPanel1, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(year, gbcMain);
 
         gbcMain.gridy += 1;
-        mainPanel.add(inputYear, gbcMain);
+        mainPanel.add(inputYearT9, gbcMain);
 
         gbcMain.gridy += 1;
         mainPanel.add(btn, gbcMain);
 
         return mainPanel;
-    } // not yet
+    }
 
     private CategoryDataset createDataset(ArrayList<String> ChartValue) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -2389,27 +2448,16 @@ public class Admin_demo {
         );
     }
 
-    private CategoryDataset createDataset1() {
+    private CategoryDataset createDataset1(ArrayList<String> ChartValue) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(10, "Người mở ứng dụng", "1");
-        dataset.addValue(15, "Người mở ứng dụng", "2");
-        dataset.addValue(20, "Người mở ứng dụng", "3");
-        dataset.addValue(35, "Người mở ứng dụng", "4");
-        dataset.addValue(46, "Người mở ứng dụng", "5");
-        dataset.addValue(25, "Người mở ứng dụng", "6");
-        dataset.addValue(76, "Người mở ứng dụng", "7");
-        dataset.addValue(88, "Người mở ứng dụng", "8");
-        dataset.addValue(109, "Người mở ứng dụng", "9");
-        dataset.addValue(51, "Người mở ứng dụng", "10");
-        dataset.addValue(10, "Người mở ứng dụng", "11");
-        dataset.addValue(25, "Người mở ứng dụng", "12");
-
+        for (int i = 0; i < ChartValue.size(); i+= 2) {
+            dataset.addValue(Integer.parseInt(ChartValue.get(i + 1)), "Người mở ứng dụng", ChartValue.get(i));
+        }
         return dataset;
     }
-
-    private JFreeChart createChart1(CategoryDataset dataset) {
+    private JFreeChart createChart1(CategoryDataset dataset, String year) {
         return ChartFactory.createBarChart(
-                "Biểu đồ số lượng người mở ứng dụng năm 2023",
+                "Biểu đồ số lượng người mở ứng dụng năm " + year,
                 "Tháng",
                 "Số lượng",
                 dataset,
@@ -2777,7 +2825,6 @@ public class Admin_demo {
 
         return outerPanel8;
     }
-
     private JPanel getFunction9() {
         JPanel outerPanel9 = new JPanel();
         JPanel panel9 = new JPanel(new GridBagLayout());
@@ -2895,11 +2942,19 @@ public class Admin_demo {
                                 }
                             } else if (message.startsWith("AdminGetChartNew|")) {
                                 updateChartNew(result, message.split("\\|")[2]);
-                            } else if (message.startsWith("AdminGetListFriendPlus")) {
+                            } else if (message.startsWith("AdminGetListFriendPlus|")) {
                                 if (message.split("\\|").length > 2) {
                                     updateListFriendPlus(result, 1);
                                 } else {
                                     updateListFriendPlus(result, 0);
+                                }
+                            } else if (message.startsWith("AdminGetChartOpen|")) {
+                                updateChartOpen(result, message.split("\\|")[2]);
+                            } else if (message.startsWith("AdminGetListOpen|")) {
+                                if (message.split("\\|").length > 2) {
+                                    updateListOpen(result, 1);
+                                } else {
+                                    updateListOpen(result, 0);
                                 }
                             }
                         }

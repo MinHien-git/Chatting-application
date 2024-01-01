@@ -273,6 +273,8 @@ public class ServerThread implements Runnable {
                     AdminGetListFriendPlus(messageSplit);
                 } else if (commandString.equals("AdminGetListOpen")) {
                     AdminGetListOpen(messageSplit);
+                } else if (commandString.equals("AdminGetChartOpen")) {
+                    AdminGetChartOpen(messageSplit);
                 }
                 //------------------------------------------------------------------------------------------------------------------------------
                 else if (commandString.equals("AdminGetLoginActivities")) {
@@ -334,7 +336,7 @@ public class ServerThread implements Runnable {
         os.newLine();
         os.flush();
     }
-    //Register
+    //Register -- add to db (done)
     public static boolean Register(String id,String name,String email,String password) {
     	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id, name, email, password, \"createAt\") values (?, ?, ?, ?, ?)";
     	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
@@ -373,7 +375,7 @@ public class ServerThread implements Runnable {
    			return false;
    		}
 	}
-   //Login 
+   //Login -- add to db (done)
     public static String Login(String email,String password) {
     	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where email = ? and password = ?";
         String ADD_TO_LOGS_SQL = "INSERT INTO logs (username, logdate) VALUES (?, ?)";
@@ -622,6 +624,7 @@ public class ServerThread implements Runnable {
         }
     }
 
+    // -- add to db (done)
     public static boolean InsertMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
@@ -670,12 +673,12 @@ public class ServerThread implements Runnable {
             LocalDateTime localDateTime = curDate.toLocalDateTime();
             Timestamp timestamp = Timestamp.valueOf(localDateTime);
 
-            preparedStatement3.setString(1, username);
-            preparedStatement3.setInt(2, 1);
-            preparedStatement3.setString(3, idChat);
-            preparedStatement3.setTimestamp(4, timestamp);
+            preparedStatement4.setString(1, username);
+            preparedStatement4.setInt(2, 1);
+            preparedStatement4.setString(3, idChat);
+            preparedStatement4.setTimestamp(4, timestamp);
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            int rowsAffected = preparedStatement4.executeUpdate();
 
             int count = preparedStatement.executeUpdate();
             int count2 = preparedStatement1.executeUpdate();
@@ -960,9 +963,10 @@ public class ServerThread implements Runnable {
         }
     }
 
-    //Send message to group chat
+    //Send message to group chat -- add to db
     public static boolean UpdateGroupChatMessage(String id, String content) {
-        String UPDATE_MESSAGE_SQL = "Update public.\"groups\" SET content =array_append(content,?) WHERE groupid = ?";
+        String UPDATE_MESSAGE_SQL = "Update public.\"groups\" SET content = array_append(content,?) WHERE groupid = ?";
+        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
             preparedStatement.setString(1, content);
@@ -978,7 +982,7 @@ public class ServerThread implements Runnable {
         }
     }
 
-    //Report Spam
+    //Report Spam -- add to db (done)
     public static boolean ReportSpam(String username, String byUser) {
         String UPDATE_MESSAGE_SQL = "Insert into public.\"spams\" (username, \"ByUser\", date) Values (?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
@@ -1739,57 +1743,123 @@ public class ServerThread implements Runnable {
     public static void AdminGetListOpen(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            //WITH LogAppearance AS (
-            //    SELECT
-            //        username,
-            //        COUNT(*) AS appearance_count
-            //    FROM
-            //        logs
-            //    WHERE
-            //        logdate BETWEEN '2020-10-01' AND '2023-10-01'
-            //    GROUP BY
-            //        username
-            //)
-            //
-            //SELECT
-            //    LogAppearance.username,
-            //    LogAppearance.appearance_count,
-            //    COUNT(*) FILTER (WHERE LogAppearance.username = ANY(public.groups.users)) AS numgroup,
-            //    COUNT(*) FILTER (WHERE LogAppearance.username = ANY(messages.users)) AS numchat
-            //FROM
-            //    LogAppearance
-            //LEFT JOIN
-            //    public.groups ON LogAppearance.username = ANY(users)
-            //LEFT JOIN
-            //    public.messages AS messages ON LogAppearance.username = ANY(messages.users)
-            //GROUP BY
-            //    LogAppearance.username, LogAppearance.appearance_count;
-            String ADMIN_GET_LIST_OPEN_SQL = "";
+            String ADMIN_GET_LIST_OPEN_SQL = "SELECT username, \"openApp\", \"singleChat\", \"groupChat\", \"createAt\"\n" +
+                    "FROM (\n" +
+                    "    SELECT username, COUNT(*) AS \"openApp\"\n" +
+                    "    FROM logs\n" +
+                    "    WHERE username ILIKE ? AND logs.logdate::DATE BETWEEN ?::DATE AND ?::DATE\n" +
+                    "    GROUP BY username\n" +
+                    ") AS openapp\n" +
+                    "NATURAL JOIN (\n" +
+                    "    SELECT username, COUNT(DISTINCT \"idChat\") AS \"singleChat\"\n" +
+                    "    FROM systems\n" +
+                    "    WHERE username ILIKE ? AND systems.time::DATE BETWEEN ?::DATE AND ?::DATE AND type = 1\n" +
+                    "    GROUP BY username\n" +
+                    ") AS singlechat\n" +
+                    "NATURAL JOIN (\n" +
+                    "    SELECT username, COUNT(DISTINCT \"idChat\") AS \"groupChat\"\n" +
+                    "    FROM systems\n" +
+                    "    WHERE username ILIKE ? AND systems.time::DATE BETWEEN ?::DATE AND ?::DATE AND type = 2\n" +
+                    "    GROUP BY username\n" +
+                    ") AS groupchat\n" +
+                    "NATURAL JOIN (\n" +
+                    "    SELECT name as username, \"createAt\"\n" +
+                    "    FROM users\n" +
+                    "    WHERE name ILIKE ?\n" +
+                    ") AS createat\n";
+            if (messageSplit.length == 5 || messageSplit.length == 7) {
+                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[messageSplit.length - 1] + "\n";
+            }
+
+            if (messageSplit[1].equals("1")) {
+                ADMIN_GET_LIST_OPEN_SQL += "ORDER BY username";
+            } else if (messageSplit[1].equals("-1")) {
+                ADMIN_GET_LIST_OPEN_SQL += "ORDER BY \"createAt\"";
+            }
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_OPEN_SQL)) {
-                if (messageSplit.length >= 3) {
-                    preparedStatement.setString(1, messageSplit[2] + "%");
+                if (messageSplit.length == 4 || messageSplit.length == 5) {
+                    preparedStatement.setString(1, "%");
+                    preparedStatement.setString(4, "%");
+                    preparedStatement.setString(7, "%");
+                    preparedStatement.setString(10, "%");
+                } else if (messageSplit.length == 6 || messageSplit.length == 7) {
+                    preparedStatement.setString(1, "%" + messageSplit[4] + "%");
+                    preparedStatement.setString(4, "%" + messageSplit[4] + "%");
+                    preparedStatement.setString(7, "%" + messageSplit[4] + "%");
+                    preparedStatement.setString(10, "%" + messageSplit[4] + "%");
                 }
+
+                preparedStatement.setString(2, messageSplit[2]);
+                preparedStatement.setString(3, messageSplit[3]);
+                preparedStatement.setString(5, messageSplit[2]);
+                preparedStatement.setString(6, messageSplit[3]);
+                preparedStatement.setString(8, messageSplit[2]);
+                preparedStatement.setString(9, messageSplit[3]);
 
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListFriendPlus|no data|END");
+                    Server.serverThreadBus.boardCast("1", "AdminGetListOpen|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
                         result.append(rs.getString("username")).append(", ");
-                        result.append(rs.getInt("dirfr")).append(", ");
+                        result.append(rs.getInt("openApp")).append(", ");
+                        result.append(rs.getInt("singleChat")).append(", ");
                         if (rs.isLast()) {
-                            result.append(rs.getInt("total") + rs.getInt("dirfr")).append("|END");
+                            result.append(rs.getInt("groupChat")).append(", ").append("|END");
                         } else {
-                            result.append(rs.getInt("total") + rs.getInt("dirfr"));
+                            result.append(rs.getInt("groupChat")).append(", ");
                         }
 
-                        String fullReturn = "AdminGetListFriendPlus|" + result;
+                        String fullReturn = "AdminGetListOpen|" + result;
                         Server.serverThreadBus.boardCast("1", fullReturn);
                     } while (rs.next());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void AdminGetChartOpen(String[] messageSplit) {
+        try {
+            Class.forName(JDBC_DRIVER);
+            String ADMIN_GET_CHART_NEW_SQL = " WITH months AS (\n" +
+                    "                SELECT generate_series(1, 12) AS month\n" +
+                    "            )\n" +
+                    "            SELECT months.month,\n" +
+                    "                   COUNT(logs.logdate) AS row_count\n" +
+                    "            FROM months\n" +
+                    "            LEFT JOIN logs ON EXTRACT(MONTH FROM logs.logdate) = months.month\n" +
+                    "                               AND EXTRACT(YEAR FROM logs.logdate) = ?\n" +
+                    "            GROUP BY months.month\n" +
+                    "            ORDER BY months.month;";
+
+            try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+                 PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_CHART_NEW_SQL)) {
+                preparedStatement.setInt(1, Integer.parseInt(messageSplit[1]));
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                if (!rs.next()) {
+                    Server.serverThreadBus.boardCast("1", "AdminGetChartOpen|no data|END");
+                } else {
+                    StringBuilder result = new StringBuilder();
+                    do {
+                        result.append(rs.getInt("month")).append(", ");
+                        if (rs.isLast()) {
+                            result.append(rs.getBigDecimal("row_count"));
+                        } else {
+                            result.append(rs.getBigDecimal("row_count")).append(", ");
+                        }
+                    } while (rs.next());
+                    String fullReturn = "AdminGetChartOpen|" + result + "|" + messageSplit[1];
+                    Server.serverThreadBus.boardCast("1", fullReturn);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
