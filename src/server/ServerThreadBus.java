@@ -32,24 +32,24 @@ public class ServerThreadBus {
     }
     
     public void boardCast(String id, String message){
-    	System.out.println(id+"|"+message);
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if (!serverThread.getuserID().equals(id)) {
                 continue;
             } else {
+            	System.out.println(id+"|"+message);
                 try {
-                	System.out.println("add");
                     serverThread.write(message);
                 } catch (IOException ex) {
                     ex.printStackTrace();
+                    System.out.print(ex.getMessage());
                 }
             }
         }
     }
     
     public void boardCastUser(String user_id, String message){
-    	System.out.println(user_id+"|"+message);
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
+        	if(serverThread.getActualUserID() != null) {
             if (!serverThread.getActualUserID().equals(user_id)) {
                 continue;
             } else {
@@ -60,6 +60,7 @@ public class ServerThreadBus {
                     ex.printStackTrace();
                 }
             }
+        }
         }
     }
     

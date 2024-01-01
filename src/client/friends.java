@@ -24,7 +24,15 @@ public class friends extends JPanel {
             return renderer;
         }
     }
-
+    
+    public void UpdateList(User user) {
+        //we can dynamically add users/groups here
+        int i = 0;
+        for (int j = 0; j < user.friends.size(); ++i, ++j) {
+        	allFriends.addElement(user.friends.get(j));
+        }
+    }
+    
     private void SetPlaceholder(JTextField textField) {
         textField.setForeground(Color.GRAY);
         textField.setText("Add A New Friend");

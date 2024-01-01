@@ -147,7 +147,6 @@ public class ServerThread implements Runnable {
                     String id2 = messageSplit[3];//Từ user
                     String[] mess = GetMessage(id1+"|"+ id2);
                     if(!mess[0].equals("")) {
-                    	
                     	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "MessageData|"+mess[0]+"||"+mess[1]);
                     }
                 }
@@ -164,9 +163,8 @@ public class ServerThread implements Runnable {
                         System.out.println("Insert");
                         ServerThread.InsertMessage(id1, id2, content);
                     }
-                  
-                    Server.serverThreadBus.boardCast(id1, "send-to-user|" + String.join(", ", mess[1]));
-                    Server.serverThreadBus.boardCast(id2, "send-to-user|" + String.join(", ", mess[1]));
+
+                    Server.serverThreadBus.boardCastUser(id2, "SendToUser|" + id1 + "|" + content);
                 } else if (commandString.equals("AddFriend")) {
                     String id1 = messageSplit[1];//From
                     String id2 = messageSplit[2];//To
@@ -194,7 +192,7 @@ public class ServerThread implements Runnable {
                     InsertGroup(name, id,members);
                 } else if (commandString.equals("GetOnline")) {
                     System.out.println("GetOnline");
-                    ArrayList<String> result = GetFriendListOnline(messageSplit[1]);
+                    ArrayList<String> result = GetFriendList(messageSplit[1]);
                     Server.serverThreadBus.boardCast(messageSplit[1], "get-online-friend|" + String.join(", ", result));
                 } else if (commandString.equals("Online")) {
                     System.out.println("Online");
@@ -750,7 +748,7 @@ public class ServerThread implements Runnable {
     }
 
     //Get FRIEND Online
-    public static ArrayList<String> GetFriendListOnline(String id) {
+    public static ArrayList<String> GetFriendList(String id) {
         String GET_FRIEND_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
                 + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
 

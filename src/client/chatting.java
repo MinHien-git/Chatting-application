@@ -62,11 +62,13 @@ public class chatting extends JPanel {
         return "";
     }
     
+    
     public void ClearChat() {
     	sideList.clear();
     }
     
     public void AddChat(String newString) {
+    	
     	sideList.addElement(newString);
     }
 
@@ -130,6 +132,7 @@ public class chatting extends JPanel {
                 try {
                     String send = parent.currentUser.getId() + " - " + msg; //identify send format here
                     parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
+                	sideList.addElement("(" +parent.currentUser.name + ") "+ chatInput.getText());
                     chatInput.setText("");
                 } catch (IOException ioe) {
                     System.out.println("IO Exception found");
@@ -151,9 +154,7 @@ public class chatting extends JPanel {
         this.setBounds(100, 100, 360, 800);
         
         sideList = new DefaultListModel<Object>();
-        sideList.addElement("Hello");
-        sideList.addElement("Hello World");
-        sideList.addElement("Java test");
+
         chatArea = new JPanel();
         jList= new JList(sideList);
         jScrollPane = new JScrollPane(jList);

@@ -38,7 +38,6 @@ public class Application {
     public String focusNameString;
     
     public void write(String message) throws IOException{
-    	System.out.println(message + "|" + id);
         os.write(message + "|" + id);
         os.newLine();
         os.flush();
@@ -60,8 +59,9 @@ public class Application {
                         String message;
                         while (true) {
                             message = is.readLine();
+                            System.out.println("cmd:"+" "+message);
                             String[] dataSplit = message.split("\\|");
-                            System.out.println("clear"+" "+message);
+                            
                             if (message == null) {
                                 break;
                             }
@@ -99,7 +99,10 @@ public class Application {
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
                             		onlineUsers olUsers  = (onlineUsers)home.userPanel;
+                            		friends flist  = (friends)home.friendsList;
+                            		
                             		currentUser.friends.clear();
+
                             		String[] current = message.split("\\|\\|");
                             		for(int i= 1;i < current.length;++i) {
                             			String[] m = current[i].split("\\|");
@@ -111,22 +114,40 @@ public class Application {
                             			System.out.println(current[i] +"| "+m[0]);
                             		}
                             		
+                            		flist.UpdateList(currentUser);
                             		olUsers.UpdateList(currentUser);
                             	}
-                            }else if(dataSplit[0].equals("MessageData")) {
+                            }if(dataSplit[0].equals("MessageData")) {
+                            	
+                            	System.out.println("call in MessageData");
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
                             		chatting chatting  = (chatting)home.chatPanel;
-                            		
+                            		//chatting.ClearChat();
                             		String[] chatSplit = message.split("\\|\\|");
                             		String[] messageStrings = chatSplit[1].split("\\|");
                             		for(int i =0;i < messageStrings.length;++i) {
                             			String msg = messageStrings[i].replace(app.focusIDString +" -","("+app.focusNameString+")")
                             					.replace(app.currentUser.getId() +" -","("+app.currentUser.getName()+")");
+                            			
                             			chatting.AddChat(msg);
                             		}
                             	}
-                            }else if(dataSplit[0].equals("IsOffline")) {
+                            }else if(dataSplit[0].equals("SendToUser")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+                            		
+                            		onlineUsers olOnlineUsers  = (onlineUsers)home.userPanel;
+                            		olOnlineUsers.ClearChat();
+                            		
+                            		currentUser.updateFriend(dataSplit[1]);
+                            		olOnlineUsers.UpdateList(currentUser);
+                            		System.out.println(dataSplit[1] + " " + app.focusIDString);
+
+                            	}
+                            }
+                            else if(dataSplit[0].equals("IsOffline")) {
                             	System.out.print(dataSplit[1]);
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;

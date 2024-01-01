@@ -14,6 +14,7 @@ public class User {
 	private boolean isLocked;
 	private String history;
 	private boolean isOnline;
+	public boolean chatWithU;
 	private ArrayList<String> blockList = new ArrayList<>();
 	private ArrayList<User> onlList = new ArrayList<>();
 	private ArrayList<groupChat> groupList = new ArrayList<>();
@@ -153,6 +154,14 @@ public class User {
 
 	public boolean isOnline() {
 		return isOnline;
+	}
+	
+	public void updateFriend(String _id) {
+		for(int i =0;i < friends.size();++i) {
+			if(friends.get(i).id.equals(_id)) {
+				friends.get(i).chatWithU = true;
+			}
+		}
 	}
 
 //	public boolean SignUp() {
