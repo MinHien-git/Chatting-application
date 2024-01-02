@@ -68,7 +68,7 @@ public class Application {
                             	onlineUsers onlList = new onlineUsers(app, currentUser);
                             	friends flist = new friends(app,currentUser);
     							chatting c = new chatting(app);
-    							globalChatHistory gbc = new globalChatHistory();
+    							globalChatHistory gbc = new globalChatHistory(app);
     							ClearTab();
     							try {
     								write("Online|"+ currentUser.getId());
@@ -138,6 +138,17 @@ public class Application {
                             		olOnlineUsers.UpdateList(currentUser);
                             		System.out.println(dataSplit[1] + " " + app.focusIDString);
 
+                            	}
+                            }else if(dataSplit[0].equals("GlobalSearch")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		globalChatHistory gbc  = (globalChatHistory) home.chatHistory;
+                            		
+                            		String[] msgStrings = message.split("\\|\\|");
+                            		gbc.ClearResult();
+                            		for(int i = 0;i < msgStrings.length;++i) {
+                            			gbc.AddResult(msgStrings[i]);
+                            		}
                             	}
                             }
                             else if(dataSplit[0].equals("IsOffline")) {

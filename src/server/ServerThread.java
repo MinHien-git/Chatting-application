@@ -32,6 +32,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import client.groupChat;
+
 public class ServerThread implements Runnable {
     static final String URL = "jdbc:postgresql://localhost:5432/chatting-application";
     static final String JDBC_DRIVER = "org.postgresql.Driver";
@@ -203,7 +205,13 @@ public class ServerThread implements Runnable {
                     System.out.println("Offline");
                     String id = messageSplit[1];//Từ user
                     SetOffline(id);
-                } else if (commandString.equals("BlockAccount")) {
+                }else if(commandString.equals("GlobalSearch")) {
+                	String id = messageSplit[1];//người muốn chặn
+                    String content = messageSplit[2];// người chặn
+                	String msg = SearchMessageGlobal(id,content);
+                	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GlobalSearch" + msg);
+                
+                }else if (commandString.equals("BlockAccount")) {
                     System.out.println("BlockAccount");
                     String id1 = messageSplit[1];//người muốn chặn
                     String id2 = messageSplit[2];// người chặn
@@ -490,6 +498,8 @@ public class ServerThread implements Runnable {
     public static String GetOnlineFriends(String id) {
     	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
     			+ "ON u2.id = ANY (u.friends) where u.id = ? and ( not(u2.id = ANY(u.blocks)) OR u.blocks is null)";
+    	
+    	String FIND_GROUPS = "SELECT groupid,groupname FROM public.\"groups\" where ? = any(users)";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
 			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
 			online.setString(1,id);
@@ -559,7 +569,7 @@ public class ServerThread implements Runnable {
         }
     }
     
-    public static String SearchMessageGlobal(String content,String idUser) {
+    public static String SearchMessageGlobal(String idUser,String content) {
     	String like_content = "%" + content+ "%";
         String FIND_MESSAGE_SQL = "SELECT * FROM (\r\n"
         		+ "SELECT u.name,u.id,unnest(content) as ct"
@@ -783,7 +793,8 @@ public class ServerThread implements Runnable {
     public static ArrayList<String> GetFriendList(String id) {
         String GET_FRIEND_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
                 + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
-
+        String GET_GROUP_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
+                + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(GET_FRIEND_LIST_SQL)) {
             preparedStatement.setString(1, id);

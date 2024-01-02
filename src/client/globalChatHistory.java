@@ -7,6 +7,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -19,7 +20,7 @@ public class globalChatHistory extends JPanel {
     DefaultListModel<String> chatResults;
     private JList<String> chatDisplay;
     private JTextField searchBar;
-
+    Application parent;
     private void SetPlaceholder(JTextField textField, String placeholder)
     {
         textField.setForeground(Color.GRAY);
@@ -44,7 +45,8 @@ public class globalChatHistory extends JPanel {
         });
     }
 
-    public globalChatHistory() {
+    public globalChatHistory(Application app) {
+    	this.parent = app;
         this.setLayout(new BorderLayout());
         searchBar = new JTextField();
         chatResults = new DefaultListModel<>();
@@ -54,7 +56,25 @@ public class globalChatHistory extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Type A Sentence You Want To Search For");
+        searchBar.addActionListener(e -> {
+            if (e.getSource() == searchBar) {
+                String id = parent.currentUser.getId();
+                String content = searchBar.getText();
+//                User newFriend = UserAuthentication.idToUser(toUser);
 
+                if (!searchBar.getText().equals("") && parent.currentUser != null) {
+                    try {
+                    	parent.write("GlobalSearch|" + id + "|" + content);
+                        //JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
+                        //UserAuthentication.updateFriendsList(user);
+                        searchBar.setText("");
+                    } catch (IOException ex) {
+                        ex.getStackTrace();
+                        System.out.println("Unable to carry out action");
+                    }
+                }
+            }
+        });
         //add event for enter key -> query user -> add...
         searchBar.addKeyListener(new KeyListener() {
             @Override
@@ -81,5 +101,11 @@ public class globalChatHistory extends JPanel {
         displayPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(searchBar, BorderLayout.NORTH);
         this.add(displayPanel, BorderLayout.CENTER);
+    }
+    public void ClearResult() {
+    	chatResults.clear();
+    }
+    public void AddResult(String msg) {
+    	chatResults.addElement(msg);
     }
 }
