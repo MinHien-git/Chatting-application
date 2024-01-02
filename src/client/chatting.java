@@ -1,20 +1,24 @@
 package client;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 public class chatting extends JPanel {
     private JPanel chatArea;
@@ -24,7 +28,7 @@ public class chatting extends JPanel {
     private DefaultListModel<String> sideList;
     private JList jList;
     private JScrollPane jScrollPane;
-    private ArrayList<String> chatContent = new ArrayList<String>();
+    private ArrayList<String> chatContent = new ArrayList<>();
     public Application parent;
     /**
      * Create the application.
@@ -62,12 +66,12 @@ public class chatting extends JPanel {
         }
         return "";
     }
-    
-    
+
+
     public void ClearChat() {
     	sideList.clear();
     }
-    
+
     public void AddChat(String newString) {
     	chatContent.add(newString);
     	sideList.addElement(newString);
@@ -84,10 +88,10 @@ public class chatting extends JPanel {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setForeground(Color.WHITE);
-        
+
         this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
         this.setBounds(100, 100, 360, 800);
-        sideList = new DefaultListModel<String>();
+        sideList = new DefaultListModel<>();
 
         chatArea = new JPanel();
         jList= new JList(sideList);
@@ -96,7 +100,7 @@ public class chatting extends JPanel {
         chatArea.setSize(new Dimension(360, 500));
         jScrollPane.setSize(new Dimension(360, 500));
         jScrollPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
-        
+
         JTextField searchBar = new JTextField();
         jList.setSize(new Dimension(360, 500));
         this.add(chatArea, BorderLayout.CENTER);
@@ -105,23 +109,26 @@ public class chatting extends JPanel {
         chatArea.setLayout(new BorderLayout());
         Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
         chatArea.setFont(font);
-        
+
         searchBar.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e)
+            @Override
+			public void changedUpdate(DocumentEvent e)
             {
             }
-            public void removeUpdate(DocumentEvent e) {filter();}
-            public void insertUpdate(DocumentEvent e) {filter();}
+            @Override
+			public void removeUpdate(DocumentEvent e) {filter();}
+            @Override
+			public void insertUpdate(DocumentEvent e) {filter();}
             private void filter() {
                 String filter = searchBar.getText();
                 filterModel(sideList, filter);
             }
        });
-        
+
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
         inputPanel.setSize(360, 200);
-        
+
         chatInput = new JTextField();
         chatInput.setSize(new Dimension(360, 100));
         inputPanel.add(chatInput, BorderLayout.NORTH);
@@ -129,7 +136,8 @@ public class chatting extends JPanel {
         sendButton = new JButton("Send");
         sendButton.setAlignmentX(360);
         sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String msg = chatInput.getText();
                 if(!parent.focusIDString.equals("") && !msg.equals("")) {
                 try {
@@ -148,12 +156,11 @@ public class chatting extends JPanel {
         inputPanel.add(sendButton, BorderLayout.CENTER);
         this.add(inputPanel, BorderLayout.SOUTH);
     }
-    
+
     public void filterModel(DefaultListModel<String> model, String filter) {
     	if(!filter.trim().equals("")) {
-    	for (int i = 0;i< chatContent.size();++i){ {
-        	String s = chatContent.get(i);
-            if (!s.contains(filter)) {
+    	for (String s : chatContent) { {
+        	if (!s.contains(filter)) {
                 if (model.contains(s)) {
                     model.removeElement(s);
                 }
@@ -165,21 +172,21 @@ public class chatting extends JPanel {
         }}
        }else {
     	   model.clear();
-    	   
+
     	   for (String s : chatContent) {
                model.addElement(s);
            }
        }
     }
-    
+
     private void initialize(String groupID) {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setForeground(Color.WHITE);
         this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
         this.setBounds(100, 100, 360, 800);
-        
-        sideList = new DefaultListModel<String>();
+
+        sideList = new DefaultListModel<>();
 
         chatArea = new JPanel();
         jList= new JList(sideList);
@@ -197,7 +204,7 @@ public class chatting extends JPanel {
         inputPanel.setSize(360, 200);
         jScrollPane.setSize(new Dimension(360, 500));
         jList.setSize(new Dimension(360, 500));
-        
+
         chatInput = new JTextField();
         chatInput.setSize(new Dimension(360, 100));
         inputPanel.add(chatInput, BorderLayout.NORTH);
@@ -205,7 +212,8 @@ public class chatting extends JPanel {
         sendButton = new JButton("Send");
         sendButton.setAlignmentX(360);
         sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String msg = chatInput.getText();
                 try {
                     String send = id + " - " + msg; //identify send format here

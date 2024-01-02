@@ -65,7 +65,7 @@ public class User {
 		this.email = e;
 		this.password = p;
 	}
-	
+
 	public User(String id,String n,boolean isOnline) {
 		this.id = id;
 		this.name = n;
@@ -155,11 +155,11 @@ public class User {
 	public boolean isOnline() {
 		return isOnline;
 	}
-	
+
 	public void updateFriend(String _id) {
-		for(int i =0;i < friends.size();++i) {
-			if(friends.get(i).id.equals(_id)) {
-				friends.get(i).chatWithU = true;
+		for (User friend : friends) {
+			if(friend.id.equals(_id)) {
+				friend.chatWithU = true;
 			}
 		}
 	}

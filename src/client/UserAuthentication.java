@@ -1,10 +1,12 @@
 package client;
 
-import java.util.*;
-
-import java.sql.*;
-import java.sql.Date;
-import java.text.DateFormat;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UserAuthentication {
 	private static final int maxUserID = 1000000;

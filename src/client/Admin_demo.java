@@ -1,5 +1,39 @@
 package client;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,25 +43,6 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-
-import java.awt.*;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Array;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import javax.swing.border.BevelBorder;
 
 public class Admin_demo {
     private Thread thread;
@@ -2546,8 +2561,8 @@ public class Admin_demo {
         list.add(label1e);
         list.add(label1f);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel1.add(list.get(i), gbcPanel1);
+        for (JLabel element : list) {
+            panel1.add(element, gbcPanel1);
             gbcPanel1.gridy += 1;
         }
 
@@ -2573,8 +2588,8 @@ public class Admin_demo {
         ArrayList<JLabel> list = new ArrayList<>();
         list.add(label2);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel2.add(list.get(i), gbcPanel2);
+        for (JLabel element : list) {
+            panel2.add(element, gbcPanel2);
             gbcPanel2.gridy += 1;
         }
 
@@ -2608,8 +2623,8 @@ public class Admin_demo {
         list.add(label3c);
         list.add(label3d);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel3.add(list.get(i), gbcPanel3);
+        for (JLabel element : list) {
+            panel3.add(element, gbcPanel3);
             gbcPanel3.gridy += 1;
         }
 
@@ -2643,8 +2658,8 @@ public class Admin_demo {
         list.add(label4c);
         list.add(label4d);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel4.add(list.get(i), gbcPanel4);
+        for (JLabel element : list) {
+            panel4.add(element, gbcPanel4);
             gbcPanel4.gridy += 1;
         }
 
@@ -2674,8 +2689,8 @@ public class Admin_demo {
         list.add(label5a);
         list.add(label5b);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel5.add(list.get(i), gbcPanel5);
+        for (JLabel element : list) {
+            panel5.add(element, gbcPanel5);
             gbcPanel5.gridy += 1;
         }
 
@@ -2701,8 +2716,8 @@ public class Admin_demo {
         ArrayList<JLabel> list = new ArrayList<>();
         list.add(label6);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel6.add(list.get(i), gbcPanel6);
+        for (JLabel element : list) {
+            panel6.add(element, gbcPanel6);
             gbcPanel6.gridy += 1;
         }
 
@@ -2734,8 +2749,8 @@ public class Admin_demo {
         list.add(label7b);
         list.add(label7c);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel7.add(list.get(i), gbcPanel7);
+        for (JLabel element : list) {
+            panel7.add(element, gbcPanel7);
             gbcPanel7.gridy += 1;
         }
 
@@ -2767,8 +2782,8 @@ public class Admin_demo {
         list.add(label8b);
         list.add(label8c);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel8.add(list.get(i), gbcPanel8);
+        for (JLabel element : list) {
+            panel8.add(element, gbcPanel8);
             gbcPanel8.gridy += 1;
         }
 
@@ -2795,8 +2810,8 @@ public class Admin_demo {
         ArrayList<JLabel> list = new ArrayList<>();
         list.add(label9);
 
-        for (int i = 0; i < list.size(); i++) {
-            panel9.add(list.get(i), gbcPanel9);
+        for (JLabel element : list) {
+            panel9.add(element, gbcPanel9);
             gbcPanel9.gridy += 1;
         }
 
@@ -2915,7 +2930,7 @@ public class Admin_demo {
                     }
                 }
             };
-            thread.sleep(1000);
+            Thread.sleep(1000);
             thread.run();
         } catch (Exception e) {
         }

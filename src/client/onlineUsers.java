@@ -1,13 +1,38 @@
 package client;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.IOException;
 
 public class onlineUsers extends JPanel {
     private DefaultListModel<Object> sideList;
@@ -203,14 +228,17 @@ public class onlineUsers extends JPanel {
             }
         });
         searchBar.getDocument().addDocumentListener(new DocumentListener() {
-             public void changedUpdate(DocumentEvent e)
+             @Override
+			public void changedUpdate(DocumentEvent e)
              {
              }
-             public void removeUpdate(DocumentEvent e) {filter();}
-             public void insertUpdate(DocumentEvent e) {filter();}
+             @Override
+			public void removeUpdate(DocumentEvent e) {filter();}
+             @Override
+			public void insertUpdate(DocumentEvent e) {filter();}
              private void filter() {
                  String filter = searchBar.getText();
-                 filterModel((DefaultListModel<Object>)sideList, filter);
+                 filterModel(sideList, filter);
              }
         });
 
@@ -251,17 +279,17 @@ public class onlineUsers extends JPanel {
                        }
                        try {
                        	parent.write("MessageData"+"|"+"user"+"|"+user.getId()+"|"+id);
-                     
+
                        } catch (IOException ex) {
                            System.out.println("Unable to write");
                            ex.printStackTrace();
                        }
-                       
+
                    } else if (selected.getClass().getSimpleName().equals("groupChat")) {
                        groupChat selectedGroup = (groupChat) selected;
                        String id = selectedGroup.getGroupID();
                        chatting userChat = new chatting(id);
-                       Component tmp = parent.getApplicationFrame().getContentPane().getComponent(1);
+                       Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
 
                        if (tmp.getClass().getSimpleName().equals("home")) {
                            home b = (home) tmp;
@@ -269,7 +297,7 @@ public class onlineUsers extends JPanel {
                        }
                    }
 	                  }
-                    
+
                 }
             }
         });
@@ -324,12 +352,12 @@ public class onlineUsers extends JPanel {
     		}
     	}}
     }
-    
+
     public void filterModel(DefaultListModel<Object> model, String filter) {
     	if(!filter.trim().equals("") && !filter.equals("Chat With A Friend")) {
-        for (int i = 0;i< parent.currentUser.friends.size();++i){ {
-        	if(parent.currentUser.friends.get(i) instanceof User) {
-	        	User s =(User) parent.currentUser.friends.get(i);
+        for (User element : parent.currentUser.friends) { {
+        	if(element instanceof User) {
+	        	User s =element;
 	            if (!s.name.contains(filter)) {
 	                if (model.contains(s)) {
 	                    model.removeElement(s);
@@ -344,12 +372,12 @@ public class onlineUsers extends JPanel {
        }
        }else {
     	   model.clear();
-    	   for (int i = 0;i< parent.currentUser.friends.size();++i){ 
-    		   model.addElement(parent.currentUser.friends.get(i));
+    	   for (User element : parent.currentUser.friends) {
+    		   model.addElement(element);
        	}
        }
     }
-    
+
     public void SetOnline(String id) {
     	for (int i = 0;i < sideList.size();++i) {
     		User user=(User)sideList.get(i);
@@ -361,13 +389,13 @@ public class onlineUsers extends JPanel {
     		}
     	}
     }
-    
+
     public void ClearChat() {
     	sideList.clear();
     }
-    
+
     public void UpdateList(User user) {
-    	
+
         //we can dynamically add users/groups here
         int i = 0;
         for (int j = 0; j < user.friends.size(); ++i, ++j) {
@@ -381,15 +409,15 @@ public class onlineUsers extends JPanel {
 
         System.out.println("end user list");
     }
-    
+
     public void UpdateNewMessageList(String id) {
-    	
+
     		for (int i =0;i < sideList.size();++i) {
     			if(sideList.get(i) instanceof User) {
     				if(((User) sideList.get(i)).id.equals(id))
     					((User) sideList.get(i)).chatWithU = true;
     			}
     		}
-        
+
     }
 }

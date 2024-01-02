@@ -1,11 +1,22 @@
 package presentation.view;
 
-import presentation.presenter.login_registerPresenter;
-
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.util.Objects;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
+import presentation.presenter.login_registerPresenter;
 
 public class login {
     public JPanel loginAccount() {

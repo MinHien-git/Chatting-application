@@ -3,8 +3,6 @@ package server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ServerThreadBus {
     private List<ServerThread> listServerThreads;
@@ -20,7 +18,7 @@ public class ServerThreadBus {
     public void add(ServerThread serverThread){
         listServerThreads.add(serverThread);
     }
-    
+
     public void mutilCastSend(String message){ //like sockets.emit in socket.io
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             try {
@@ -30,7 +28,7 @@ public class ServerThreadBus {
             }
         }
     }
-    
+
     public void boardCast(String id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if (!serverThread.getuserID().equals(id)) {
@@ -46,7 +44,7 @@ public class ServerThreadBus {
             }
         }
     }
-    
+
     public void boardCastUser(String user_id, String message){
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
         	if(serverThread.getActualUserID() != null) {
@@ -63,11 +61,11 @@ public class ServerThreadBus {
         }
         }
     }
-    
+
     public int getLength(){
         return listServerThreads.size();
     }
-    
+
     public void remove(String id){
         for(int i=0; i<Server.serverThreadBus.getLength(); i++){
             if(Server.serverThreadBus.getListServerThreads().get(i).getuserID()==id){

@@ -1,8 +1,8 @@
 package data.model;
 
-import data.repository.userRepo;
-
 import java.util.Date;
+
+import data.repository.userRepo;
 
 public class userModel {
     private String username;

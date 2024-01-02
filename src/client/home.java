@@ -1,11 +1,19 @@
 package client;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class home extends JPanel implements ActionListener{
     final static String CHAT_PANEL = "Chat Panel";
@@ -19,7 +27,8 @@ public class home extends JPanel implements ActionListener{
     public JPanel chatHistory;
     JPanel mainContainer;
     public Application parent;
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         CardLayout cardLayout = (CardLayout) (mainContainer.getLayout());
         cardLayout.show(mainContainer, e.getActionCommand());
     }
@@ -41,7 +50,7 @@ public class home extends JPanel implements ActionListener{
         mainContainer = new JPanel(new CardLayout());
         mainPanel = new JPanel(new BorderLayout());
         this.parent = app;
-        
+
         int totalWidth = 600;
 
         int userWidth = (int) (totalWidth * 0.4);
@@ -69,9 +78,10 @@ public class home extends JPanel implements ActionListener{
         JButton toChatHistory = new JButton("Search In Chat");
         toChatHistory.setActionCommand(GLOBAL_CHAT_HISTORY);
         toChatHistory.addActionListener(this);
-        
+
         JButton toCreateGroup = new JButton("Create Group");
         toCreateGroup.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTextField name = new JTextField();
 				JLabel guide = new JLabel("Please type your friend name seperate by (|)");
@@ -91,15 +101,15 @@ public class home extends JPanel implements ActionListener{
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-				    } 
-				} 
+				    }
+				}
 //				try {
 //					parent.write("ResetPassword|"+toEmail);
 //				}catch (IOException ex) {
 //					System.out.println("An error occurred");
 //					ex.printStackTrace();
 //				}
-			 }  
+			 }
 		});
         JPanel controlPanel = new JPanel();
         controlPanel.add(toChat);
@@ -107,7 +117,7 @@ public class home extends JPanel implements ActionListener{
         controlPanel.add(toChatHistory);
         controlPanel.add(toCreateGroup);
         controlPanel.setLayout(new GridLayout());
-        
+
         mainContainer.add(mainPanel, CHAT_PANEL);
         mainContainer.add(friendsList, FRIENDS_PANEL);
         mainContainer.add(chatHistory, GLOBAL_CHAT_HISTORY);

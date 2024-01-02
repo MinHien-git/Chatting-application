@@ -1,22 +1,20 @@
 package client;
-import java.awt.EventQueue;
-
-import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
-import javax.xml.crypto.dsig.SignedInfo;
-
-import java.awt.Dimension;
-import java.awt.Window.Type;
-import java.awt.Dialog.ModalExclusionType;
-import java.util.ArrayList;
 import java.util.UUID;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 public class register extends JPanel {
 	private JTextField email;
@@ -89,6 +87,7 @@ public class register extends JPanel {
 		JButton btnNewButton = new JButton("Register");
 		btnNewButton.setBorder(null);
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(name.getText() != "" && password.getText() != "" && email.getText() != "") {
 					String id = UUID.randomUUID().toString();
@@ -102,7 +101,7 @@ public class register extends JPanel {
 						System.out.println("An error occurred");
 						ex.printStackTrace();
 					}
-					
+
 				}
 			}
 		});
@@ -115,6 +114,7 @@ public class register extends JPanel {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setBorder(UIManager.getBorder("Button.border"));
 		btnLogin.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				parent.ClearTab();
 				//parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));

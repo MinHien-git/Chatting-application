@@ -1,13 +1,13 @@
 package server;
 
-import com.sun.tools.jconsole.JConsoleContext;
-import com.sun.tools.jconsole.JConsolePlugin;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +92,7 @@ public class Server {
     public static boolean databaseExists(Connection connection, String databaseName) throws SQLException {
         try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT FROM pg_database WHERE datname = '" + databaseName + "'");
-            return ((ResultSet) resultSet).next();
+            return resultSet.next();
         }
     }
 
