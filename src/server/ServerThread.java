@@ -157,7 +157,7 @@ public class ServerThread implements Runnable {
                     	String id = messageSplit[2];//Người gửi
 	                    String[] mess = GetGroup(id);
 	                    if(!mess[0].equals("")) {
-	                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GroupData|"+mess[0]+"||"+mess[1]);
+	                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GroupData|"+mess[0]+"|||"+mess[1] +"|" + mess[2]);
 	                    }
                     }
                 }
@@ -584,15 +584,20 @@ public class ServerThread implements Runnable {
     
     public static String[] GetGroup(String id) {
         String FIND_MESSAGE_SQL = "SELECT groupid,content FROM public.\"groups\" where groupid = ?";
-
-        String[] result = new String[2];
+        String FIND_MEMBER_SQL = "SELECT u.id,u.name,CASE WHEN u.id = ANY(mbs.admin) "
+        		+ "THEN CAST(TRUE AS BOOL) ELSE CAST(FALSE AS BOOL) END as isAdmin FROM (SELECT unnest(users) as id, admin FROM public.\"groups\" where groupid = ?) as mbs "
+        		+ " JOIN public.\"users\" u on mbs.id = u.id";
+        String[] result = new String[3];
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-
+        		PreparedStatement smt1 = connection.prepareStatement(FIND_MEMBER_SQL);
              PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
-            preparedStatement.setString(1, id);
-
+           
+        	preparedStatement.setString(1, id);
+            smt1.setString(1, id);
+            
             ResultSet rs = preparedStatement.executeQuery();
-
+            ResultSet rs1 = smt1.executeQuery();
+            
             if (rs.next()) {
             	Array  arr =  rs.getArray("content");
                 result[0] = rs.getString("groupid");
@@ -606,11 +611,17 @@ public class ServerThread implements Runnable {
                 		result[1] += m[i] + "|";
                 }
                 System.out.println(result[1]);
-
-
+                
             } else {
                 result[0] = "";
                 result[1] ="";
+            }
+            result[2] = "";
+            while(rs1.next()) {
+            	String _id =  rs1.getString("id");
+            	String name =  rs1.getString("name");
+            	String isAdmin =  rs1.getBoolean("isAdmin") ? "true" : "false";
+            	result[2] += "||"+  _id+ "|" + name + "|" + isAdmin;
             }
             return result;
         } catch (SQLException e) {
@@ -864,7 +875,7 @@ public class ServerThread implements Runnable {
             return null;
         }
     }
-
+    
     //SET ONLINE
     public static boolean SetOnline(String id) {
         String SET_ONLINE_SQL = "UPDATE public.\"users\" SET \"isOnline\" = true where id = ?";
@@ -966,18 +977,27 @@ public class ServerThread implements Runnable {
     }
 
     //Add Member To Group
-    public static boolean AddMemberToGroup(String groupID, String memeberid) {
+    public static boolean AddMemberToGroup(String groupID, String name) {
         String ADD_MEMBER_SQL = "UPDATE public.\"groups\" SET users = array_append(users,?)"
                 + "WHERE groupid =?";
-
+        String GET_USER = "SELECT id FROM public.\"users\" WHERE id = ? or name = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(ADD_MEMBER_SQL)) {
-            preparedStatement.setString(1, memeberid);
-            preparedStatement.setString(2, groupID);
-
-            int count = preparedStatement.executeUpdate();
-
-            return count > 0;
+             PreparedStatement preparedStatement = connection.prepareStatement(ADD_MEMBER_SQL);
+        		PreparedStatement smt = connection.prepareStatement(GET_USER)) {
+        	smt.setString(1, name);
+        	smt.setString(2, name);
+        	
+        	ResultSet rSet = smt.executeQuery();
+        	if(rSet.next()) {
+        		String memeberid = rSet.getString("id");
+	            preparedStatement.setString(1, memeberid);
+	            preparedStatement.setString(2, groupID);
+	
+	            int count = preparedStatement.executeUpdate();
+	
+	            return count > 0;
+        	}
+        	return false;
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);

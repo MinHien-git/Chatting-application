@@ -71,6 +71,13 @@ public class User {
 		this.name = n;
 		this.isOnline = isOnline;
 	}
+	
+	public User(String id,String n,boolean isOnline,boolean isAdmin) {
+		this.id = id;
+		this.name = n;
+		this.isAdmin = isAdmin;
+		this.isOnline = isOnline;
+	}
 
 	public void setId(String id) {
 		this.id = id;

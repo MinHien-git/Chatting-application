@@ -120,6 +120,8 @@ public class Application {
                             		//chatting.ClearChat();
                             		String[] chatSplit = message.split("\\|\\|");
                             		String[] messageStrings = chatSplit[1].split("\\|");
+                            		chatting.isGroup = false;
+                            		chatting.information.setVisible(false);
                             		for (String messageString : messageStrings) {
                             			String msg = messageString.replace(app.focusIDString +" -","("+app.focusNameString+")")
                             					.replace(app.currentUser.getId() +" -","("+app.currentUser.getName()+")");
@@ -132,10 +134,25 @@ public class Application {
                             		home home = (home) mainPanel;
                             		chatting chatting  = (chatting)home.chatPanel;
                             		//chatting.ClearChat();
-                            		String[] chatSplit = message.split("\\|\\|");
+                            		String[] chatSplit = message.split("\\|\\|\\|");
                             		String[] messageStrings = chatSplit[1].split("\\|");
+                            		String[] members = chatSplit[2].split("\\|\\|");
+                            		chatting.isGroup = true;
+                            		chatting.Lmembers.clear();
+                            		
+                            		chatting.information.setVisible(true);
                             		for (String messageString : messageStrings) {
                             			chatting.AddChat(messageString);
+                            		}
+                            		
+
+                            		System.out.print(chatSplit[2] + " " + members.length);
+                            		for (String member : members) {
+                            			String[] memberDataStrings = member.split("\\|");
+                            			User mUser = new User(memberDataStrings[0],memberDataStrings[1],true,memberDataStrings[2].equals("true") ? true : false);
+
+                            			chatting.Lmembers.addElement(mUser);
+                            			System.out.println(memberDataStrings[0] + " " + memberDataStrings[1]);
                             		}
                             	}
                             }
