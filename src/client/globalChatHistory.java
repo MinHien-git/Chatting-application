@@ -48,6 +48,7 @@ public class globalChatHistory extends JPanel {
     public globalChatHistory(Application app) {
     	this.parent = app;
         this.setLayout(new BorderLayout());
+        
         searchBar = new JTextField();
         chatResults = new DefaultListModel<>();
         searchBar.setMargin(new Insets(15,10,15,10));
@@ -56,6 +57,7 @@ public class globalChatHistory extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Type A Sentence You Want To Search For");
+        chatDisplay = new JList<String>(chatResults);
         searchBar.addActionListener(e -> {
             if (e.getSource() == searchBar) {
                 String id = parent.currentUser.getId();

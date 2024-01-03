@@ -146,11 +146,19 @@ public class ServerThread implements Runnable {
                 	}
                 }
                 else if (commandString.equals("MessageData")) {
-                    String id1 = messageSplit[2];//Người gửi
-                    String id2 = messageSplit[3];//Từ user
-                    String[] mess = GetMessage(id1+"|"+ id2);
-                    if(!mess[0].equals("")) {
-                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "MessageData|"+mess[0]+"||"+mess[1]);
+                	if(messageSplit[1].equals("user")) {
+	                    String id1 = messageSplit[2];//Người gửi
+	                    String id2 = messageSplit[3];//Từ user
+	                    String[] mess = GetMessage(id1+"|"+ id2);
+	                    if(!mess[0].equals("")) {
+	                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "MessageData|"+mess[0]+"||"+mess[1]);
+	                    }
+                    }else if(messageSplit[1].equals("group")) {
+                    	String id = messageSplit[2];//Người gửi
+	                    String[] mess = GetGroup(id);
+	                    if(!mess[0].equals("")) {
+	                    	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GroupData|"+mess[0]+"||"+mess[1]);
+	                    }
                     }
                 }
                 else if (commandString.equals("DirectMessage")) {
@@ -500,27 +508,32 @@ public class ServerThread implements Runnable {
     			+ "ON u2.id = ANY (u.friends) where u.id = ? and ( not(u2.id = ANY(u.blocks)) OR u.blocks is null)";
     	
     	String FIND_GROUPS = "SELECT groupid,groupname FROM public.\"groups\" where ? = any(users)";
+    	
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW)) {
 			PreparedStatement online = connection.prepareStatement(FIND_ONLINE_FRIENDS);
+			PreparedStatement group = connection.prepareStatement(FIND_GROUPS);
+			
 			online.setString(1,id);
+			group.setString(1,id);
+			
 			ResultSet friendList = online.executeQuery();
+			ResultSet groupList = group.executeQuery();
+			
 			String friendString = new String("");
 			while (friendList.next())
 			{
 				String _id = friendList.getString("id");
-				boolean isLocked = friendList.getBoolean("lock");
 				boolean isOnline = friendList.getBoolean("isOnline");
-//				java.sql.Array bl;
-//				ArrayList<String> blocks;
-//				if(friendList.getArray("blocks") != null) {
-//					bl = friendList.getArray("blocks");
-//					blocks = new ArrayList<>(Arrays.asList((String []) bl.getArray()));
-//				}
-				//if (isLocked || blocks.contains(id)) continue;
 				String _name = friendList.getString("name");
 
 				friendString += "||"+"user"+"|"+_id +"|"+ _name + "|"+isOnline;
 				System.out.print(friendString);
+			}
+			while (groupList.next()) {
+				String groupid = groupList.getString("groupid");
+				String groupname = groupList.getString("groupname");
+				
+				friendString += "||"+"group"+"|"+groupid +"|"+ groupname;
 			}
 			return friendString;
 
@@ -569,28 +582,67 @@ public class ServerThread implements Runnable {
         }
     }
     
+    public static String[] GetGroup(String id) {
+        String FIND_MESSAGE_SQL = "SELECT groupid,content FROM public.\"groups\" where groupid = ?";
+
+        String[] result = new String[2];
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
+            preparedStatement.setString(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+            	Array  arr =  rs.getArray("content");
+                result[0] = rs.getString("groupid");
+
+                result[1] = "";
+                String[] m = (String[]) arr.getArray();
+                for(int i = 0;i<m.length;++i) {
+                	if(i == m.length-1)
+                		result[1] += m[i];
+                	else
+                		result[1] += m[i] + "|";
+                }
+                System.out.println(result[1]);
+
+
+            } else {
+                result[0] = "";
+                result[1] ="";
+            }
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return result;
+        }
+    }
+    
     public static String SearchMessageGlobal(String idUser,String content) {
     	String like_content = "%" + content+ "%";
-        String FIND_MESSAGE_SQL = "SELECT * FROM (\r\n"
+        String FIND_MESSAGE_SQL = "SELECT * FROM ("
         		+ "SELECT u.name,u.id,unnest(content) as ct"
         		+ "	FROM public.messages join public.users u on u.id = any(users)"
-        		+ "	where idChat like '?|%' and id <> '?' "
+        		+ "	where idChat like ? and id <> ?"
         		+ "	) as DT"
-        		+ "WHERE DT.ct like '?'";
+        		+ " WHERE DT.ct like ?";
         String result = new String("");
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
 
             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
-            preparedStatement.setString(1, idUser);
-            preparedStatement.setString(1, idUser);
-            preparedStatement.setString(2, like_content);
+            preparedStatement.setString(1, idUser + "|%");
+            preparedStatement.setString(2, idUser);
+            preparedStatement.setString(3, like_content);
+            System.out.println(preparedStatement);
             ResultSet rs = preparedStatement.executeQuery();
            
             while (rs.next()) {
             	String  name =  rs.getString("name");
                 String msgData = rs.getString("ct");
                 String id = rs.getString("id");
-                result += "||" + name +"|" + id +"|" + msgData;
+                result += "||" +"user"+ "|" + name +"|" + msgData;
             } 
             return result;
         } catch (SQLException e) {

@@ -102,9 +102,10 @@ public class Application {
 
                             			if(m[0].equals("user")) {
                             				currentUser.friends.add(new User(m[1],m[2],m[3].equals("true") ? true : false));
-                            				System.out.println(current[i] +"| "+ current.length);
                             			}
-                            			System.out.println(current[i] +"| "+m[0]);
+                            			if(m[0].equals("group")) {
+                            				currentUser.groupList.add(new groupChat(m[1], m[2]));
+                            			}
                             		}
 
                             		flist.UpdateList(currentUser);
@@ -126,7 +127,19 @@ public class Application {
                             			chatting.AddChat(msg);
                             		}
                             	}
-                            }else if(dataSplit[0].equals("SendToUser")) {
+                            }else if(dataSplit[0].equals("GroupData")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+                            		//chatting.ClearChat();
+                            		String[] chatSplit = message.split("\\|\\|");
+                            		String[] messageStrings = chatSplit[1].split("\\|");
+                            		for (String messageString : messageStrings) {
+                            			chatting.AddChat(messageString);
+                            		}
+                            	}
+                            }
+                            else if(dataSplit[0].equals("SendToUser")) {
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
                             		chatting chatting  = (chatting)home.chatPanel;
@@ -146,8 +159,12 @@ public class Application {
                             		
                             		String[] msgStrings = message.split("\\|\\|");
                             		gbc.ClearResult();
-                            		for(int i = 0;i < msgStrings.length;++i) {
-                            			gbc.AddResult(msgStrings[i]);
+                            		for(int i = 1;i < msgStrings.length;++i) {
+                            			System.out.println(msgStrings[i]);
+                            			String[] msg = msgStrings[i].split("\\|");
+                            			if(msg[0].equals("user")) {
+                            				gbc.AddResult("with (" + msg[1] +") " + msg[2].split("-")[1]);
+                            			}
                             		}
                             	}
                             }

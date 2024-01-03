@@ -55,8 +55,8 @@ public class onlineUsers extends JPanel {
                 }
             }
             if (value instanceof groupChat) {
-                setText("Group chat - " + ((groupChat) value).getGroupName());
-                setForeground(Color.BLACK);
+                setText("(group) - " + ((groupChat) value).getGroupName());
+                setForeground(Color.PINK);
             }
 
             return renderer;
@@ -286,14 +286,21 @@ public class onlineUsers extends JPanel {
                        }
 
                    } else if (selected.getClass().getSimpleName().equals("groupChat")) {
-                       groupChat selectedGroup = (groupChat) selected;
-                       String id = selectedGroup.getGroupID();
-                       chatting userChat = new chatting(id);
-                       Component tmp = Application.getApplicationFrame().getContentPane().getComponent(1);
+                	   groupChat group = (groupChat) selected;
+                       String id = group.getGroupID();
+                       parent.focusIDString = id;
+                       parent.focusNameString = group.getGroupName();
+                       if(parent.mainPanel instanceof home) {
+                    	   	home h =(home) parent.mainPanel;
+                    	   	chatting userChat =(chatting)h.chatPanel;
+                       		userChat.ClearChat();
+                       }
+                       try {
+                       	parent.write("MessageData"+"|"+"group"+"|"+id);
 
-                       if (tmp.getClass().getSimpleName().equals("home")) {
-                           home b = (home) tmp;
-                           b.setChatPanel(userChat);
+                       } catch (IOException ex) {
+                           System.out.println("Unable to write");
+                           ex.printStackTrace();
                        }
                    }
 	                  }

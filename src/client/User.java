@@ -17,7 +17,7 @@ public class User {
 	public boolean chatWithU;
 	private ArrayList<String> blockList = new ArrayList<>();
 	private ArrayList<User> onlList = new ArrayList<>();
-	private ArrayList<groupChat> groupList = new ArrayList<>();
+	public ArrayList<groupChat> groupList = new ArrayList<>();
 	public static String hashPassword(String pw)
 	{
 		try {
