@@ -134,10 +134,8 @@ public class ServerThread implements Runnable {
                 		String onlineList = GetOnlineFriends(actual_userID);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                 	}
-                	System.out.println(result);
                 }else if(commandString.equals("Register")) {
                 	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4])) {
-                		System.out.println("Dang ki thanh cong"+messageSplit[messageSplit.length -1]);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Register_Success|");
                 	}
                 }else if(commandString.equals("ResetPassword")) {
@@ -162,16 +160,13 @@ public class ServerThread implements Runnable {
                     }
                 }
                 else if (commandString.equals("DirectMessage")) {
-                    System.out.println("DirectMessage");
                     String id1 = messageSplit[1];//Người gửi
                     String id2 = messageSplit[2];//Từ user
                     String content = messageSplit[3];
                     String[] mess = CheckMessageExists(id1, id2);
                     if (!mess[0].equals("")) {
-                        System.out.println("Update");
                         ServerThread.UpdateExistsMessage(id1, id2, content);
                     } else {
-                        System.out.println("Insert");
                         ServerThread.InsertMessage(id1, id2, content);
                     }
 
@@ -184,7 +179,6 @@ public class ServerThread implements Runnable {
                     	Server.serverThreadBus.boardCastUser(actual_idString, "AddFriendSuccess");
                     	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "AddFriendSuccess");
                     }
-                    System.out.println("AddFriend");
                 } else if (commandString.equals("DeleteFriend")) {
                     String id1 = messageSplit[1];//Người gửi
                     String id2 = messageSplit[2];//Từ user
@@ -218,7 +212,6 @@ public class ServerThread implements Runnable {
                     String content = messageSplit[2];// người chặn
                 	String msg = SearchMessageGlobal(id,content);
                 	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GlobalSearch" + msg);
-                
                 }else if (commandString.equals("BlockAccount")) {
                     System.out.println("BlockAccount");
                     String id1 = messageSplit[1];//người muốn chặn
@@ -233,8 +226,15 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("AddMemberToGroup")) {
                     String groupid = messageSplit[1];
                     String id = messageSplit[2];
-                    System.out.println("AddMemberToGroup");
                     AddMemberToGroup(groupid, id);
+                }else if (commandString.equals("SetAdminGroup")) {
+                    String groupid = messageSplit[1];
+                    String id = messageSplit[2];
+                    SetAdmin(groupid, id);
+                }else if (commandString.equals("RemoveAdminGroup")) {
+                    String groupid = messageSplit[1];
+                    String id = messageSplit[2];
+                    RemoveAdmin(groupid, id);
                 } else if (commandString.equals("RemoveMemberGroup")) {
                     System.out.println("RemoveMemberGroup");
                     String groupid = messageSplit[1];
@@ -243,8 +243,7 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("GroupChat")) {
                     System.out.println("GroupChat");
                     String groupid = messageSplit[1];
-                    String id = messageSplit[2];
-                    String content = messageSplit[3];
+                    String content = messageSplit[2];
                     UpdateGroupChatMessage(groupid, content);
                 } else if (commandString.equals("ReportSpam")) {
                     System.out.println("ReportSpam");
@@ -351,7 +350,7 @@ public class ServerThread implements Runnable {
     }
     //Register
     public static boolean Register(String id,String name,String email,String password) {
-    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id,name, email,password) values (?,?,?,?)";
+    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id,name, email,password,\"createdAt\") values (?,?,?,?,CURRENT_DATE)";
     	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
@@ -991,6 +990,64 @@ public class ServerThread implements Runnable {
         	if(rSet.next()) {
         		String memeberid = rSet.getString("id");
 	            preparedStatement.setString(1, memeberid);
+	            preparedStatement.setString(2, groupID);
+	
+	            int count = preparedStatement.executeUpdate();
+	
+	            return count > 0;
+        	}
+        	return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return true;
+        }
+    }
+    
+    //Set admin Group
+    public static boolean SetAdmin(String groupID, String id) {
+        String checkValid = "SELECT * FROM public.\"groups\" where "
+        		+ "? <> any(admin) and groupid = ? and ? = any(users)";
+        String AddAdmin = "UPDATE public.\"groups\" SET admin = array_append(admin,?) "
+        		+ "WHERE groupid =?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement preparedStatement = connection.prepareStatement(AddAdmin);
+        		PreparedStatement smt = connection.prepareStatement(checkValid)) {
+        	smt.setString(1, id);
+        	smt.setString(2, groupID);
+        	smt.setString(3, id);
+        	
+        	ResultSet rSet = smt.executeQuery();
+        	if(rSet.next()) {
+	            preparedStatement.setString(1, id);
+	            preparedStatement.setString(2, groupID);
+	
+	            int count = preparedStatement.executeUpdate();
+	
+	            return count > 0;
+        	}
+        	return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return true;
+        }
+    }
+    //Remove admin
+    public static boolean RemoveAdmin(String groupID, String id) {
+        String checkValid = "SELECT * FROM public.\"groups\" where "
+        		+ "? = any(admin) and groupid = ?";
+        String AddAdmin = "UPDATE public.\"groups\" SET admin = array_remove(admin,?) "
+        		+ "WHERE groupid =?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement preparedStatement = connection.prepareStatement(AddAdmin);
+        		PreparedStatement smt = connection.prepareStatement(checkValid)) {
+        	smt.setString(1, id);
+        	smt.setString(2, groupID);
+        	
+        	ResultSet rSet = smt.executeQuery();
+        	if(rSet.next()) {
+	            preparedStatement.setString(1, id);
 	            preparedStatement.setString(2, groupID);
 	
 	            int count = preparedStatement.executeUpdate();

@@ -153,8 +153,8 @@ public class onlineUsers extends JPanel {
         refresh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UserAuthentication.updateOnlList(user);
-                UserAuthentication.updateGroups(user);
+//                UserAuthentication.updateOnlList(user);
+//                UserAuthentication.updateGroups(user);
                 sideList.clear();
                 int i = 0;
                 for (int j = 0; j < user.getOnlineList().size(); ++i, ++j) {

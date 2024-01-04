@@ -179,5 +179,5 @@ public class User {
 //		return UserAuthentication.SignIn(this);
 //	}
 
-	public boolean update() { return UserAuthentication.updateUser(this); }
+	//public boolean update() { return UserAuthentication.updateUser(this); }
 }

@@ -92,7 +92,7 @@ public class friends extends JPanel {
                     try {
                     	parent.write("DeleteFriend|"+fromUser+"|"+deletedUser);
                         JOptionPane.showMessageDialog(this, "Successfully removed " + deletedFriend.getName() + " from the friends list");
-                        UserAuthentication.updateFriendsList(user);
+                        //UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(deletedFriend);
                     } catch (IOException ex) {
@@ -115,8 +115,8 @@ public class friends extends JPanel {
                     try {
                     	parent.write("BlockAccount|"+fromUser+"|"+blockedUser);
                         JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + "blocked from the friends list");
-                        UserAuthentication.updateBlockList(user);
-                        UserAuthentication.updateFriendsList(user);
+//                        UserAuthentication.updateBlockList(user);
+//                        UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(blockedFriend);
                     } catch (IOException ex) {
@@ -137,8 +137,8 @@ public class friends extends JPanel {
         JMenuItem refresh = new JMenuItem("Refresh");
 
         refresh.addActionListener(e -> {
-            UserAuthentication.updateBlockList(user);
-            UserAuthentication.updateFriendsList(user);
+//            UserAuthentication.updateBlockList(user);
+//            UserAuthentication.updateFriendsList(user);
             allFriends.clear();
             for (User friend : user.getFriends()) {
                 allFriends.addElement(friend);

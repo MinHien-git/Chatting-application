@@ -20,7 +20,6 @@ public class register extends JPanel {
 	private JTextField email;
 	private JPasswordField password;
 	private JTextField name;
-	private UserAuthentication auth = new UserAuthentication();
 	private static int maxUserID = 1000000;
 	private static int minUserID = 1;
 	private Application parent;

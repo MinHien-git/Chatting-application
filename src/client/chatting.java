@@ -89,12 +89,7 @@ public class chatting extends JPanel {
     public chatting(String _id1, String _id2) {
         initialize(_id1, _id2);
     }
-
-    public chatting(String gID) {
-        id = gID;
-        initialize(gID);
-    }
-
+    
     private static String extractID(String input) {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\((\\d+)\\)");
         java.util.regex.Matcher matcher = pattern.matcher(input);
@@ -208,9 +203,15 @@ public class chatting extends JPanel {
                 String msg = chatInput.getText();
                 if(!parent.focusIDString.equals("") && !msg.equals("")) {
                 try {
-                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
-                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
-                	sideList.addElement("(" +parent.currentUser.name + ") "+ chatInput.getText());
+                	if(!isGroup) {
+	                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
+	                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
+	                	sideList.addElement("(" +parent.currentUser.name + ") "+ chatInput.getText());
+                	}else {
+                		String send = parent.currentUser.getName() + " - " + msg;
+                		parent.write("GroupChat|"+parent.focusIDString + "|" + send);
+                		sideList.addElement(send);
+                	}
                     chatInput.setText("");
                 } catch (IOException ioe) {
                     System.out.println("IO Exception found");
@@ -264,7 +265,7 @@ public class chatting extends JPanel {
                  if (SwingUtilities.isRightMouseButton(e)) {
                      int index = users.locationToIndex(e.getPoint());
                      
-                     if (index != -1) {
+                     if (index != -1 && parent.currentUser.isAdmin()) {
                          Rectangle bounds = users.getCellBounds(index, index);
                          if (bounds != null && bounds.contains(e.getPoint())) {
                         	 users.setSelectedIndex(index); 
@@ -309,21 +310,19 @@ public class chatting extends JPanel {
     
     private void showPopupMenuDirect(int x, int y, JList<User> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem spam = new JMenuItem("Xoá người dùng");
-        JMenuItem viewChatHistory = new JMenuItem("Gán quyền admin");
-        JMenuItem clearChatHistory = new JMenuItem("Xoá quyền admin");
+        JMenuItem remove = new JMenuItem("Xoá người dùng");
+        JMenuItem addAdmin = new JMenuItem("Gán quyền admin");
+        JMenuItem deleteAdmin = new JMenuItem("Xoá quyền admin");
 
-        spam.addActionListener(e -> {
+        remove.addActionListener(e -> {
             Object selected = list.getSelectedValue();
-            if (selected != null && selected instanceof User) {
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
                 User reportedUser = (User) selected;
-                String reportedName = reportedUser.getName();
-                String byUserName = user.getName();
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
                 try {
-                	parent.write("ReportSpam|" + reportedName + "|" + byUserName);
-                    JOptionPane.showMessageDialog(this, "The user is successfully reported!");
-                    parent.write("BlockAccount|" + user.getId() + "|" + reportedUser.getId());
-                    sideList.removeElement(selected);
+                	parent.write("RemoveMemberGroup|" + groupID + "|" + uid);
+                    
                 } catch (IOException ex) {
                     System.out.println("Unable to write");
                     ex.printStackTrace();
@@ -331,24 +330,44 @@ public class chatting extends JPanel {
             }
         });
 
-        viewChatHistory.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            System.out.println("Perform action on: ");
+        addAdmin.addActionListener(e -> {
+        	Object selected = list.getSelectedValue();
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
+                User reportedUser = (User) selected;
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
+                try {
+                	parent.write("SetAdminGroup|" + groupID + "|" + uid);
+                    
+                } catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
+                }
+            }
         });
 
-        clearChatHistory.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            System.out.println("Perform action on: ");
-
-            int choice = JOptionPane.showConfirmDialog(this, "Would you like to clear all of the chat history? (You cannot undo after this)", "Clear Chat History?", JOptionPane.YES_NO_OPTION);
-            //Deal with task in accordance to choice
+        deleteAdmin.addActionListener(e -> {
+        	Object selected = list.getSelectedValue();
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
+                User reportedUser = (User) selected;
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
+                try {
+                	parent.write("RemoveAdminGroup|" + groupID + "|" + uid);
+                    
+                } catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
+                }
+            }
+           
         });
 
         
 
-        popupMenu.add(spam);
-        popupMenu.add(viewChatHistory);
-        popupMenu.add(clearChatHistory);
+        popupMenu.add(remove);
+        popupMenu.add(addAdmin);
+        popupMenu.add(deleteAdmin);
 
         popupMenu.show(list, x, y);
     }
@@ -374,55 +393,5 @@ public class chatting extends JPanel {
                model.addElement(s);
            }
        }
-    }
-
-    private void initialize(String groupID) {
-        this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
-        this.setForeground(Color.WHITE);
-        this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
-        this.setBounds(100, 100, 360, 800);
-
-        sideList = new DefaultListModel<>();
-
-        chatArea = new JPanel();
-        jList= new JList(sideList);
-        jScrollPane = new JScrollPane(jList);
-        chatArea.add(jScrollPane);
-        Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
-        chatArea.setFont(font);
-
-        chatArea.setSize(new Dimension(360, 500));
-        JScrollPane scrollPane = new JScrollPane(chatArea);
-        this.add(scrollPane, BorderLayout.CENTER);
-
-        JPanel inputPanel = new JPanel();
-        
-
-        jScrollPane.setSize(new Dimension(360, 500));
-        jList.setSize(new Dimension(360, 500));
-
-        chatInput = new JTextField();
-        inputPanel.add(chatInput);
-        chatInput.setPreferredSize(new Dimension(250,30));
-        sendButton = new JButton("Send");
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-			public void actionPerformed(ActionEvent e) {
-                String msg = chatInput.getText();
-                try {
-                    String send = id + " - " + msg; //identify send format here
-                    parent.write(send);
-                    chatInput.setText("");
-                } catch (IOException ioe) {
-                    System.out.println("IO Exception found");
-                    ioe.printStackTrace();
-                    System.exit(1);
-                }
-            }
-        });
-        inputPanel.add(sendButton);
-        inputPanel.setLayout(new FlowLayout());
-        this.add(inputPanel, BorderLayout.SOUTH);
     }
 }

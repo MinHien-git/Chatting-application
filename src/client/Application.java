@@ -150,7 +150,9 @@ public class Application {
                             		for (String member : members) {
                             			String[] memberDataStrings = member.split("\\|");
                             			User mUser = new User(memberDataStrings[0],memberDataStrings[1],true,memberDataStrings[2].equals("true") ? true : false);
-
+                            			if(mUser.id.equals(currentUser.id)) {
+                            				currentUser.setAdmin(mUser.isAdmin());
+                            			}
                             			chatting.Lmembers.addElement(mUser);
                             			System.out.println(memberDataStrings[0] + " " + memberDataStrings[1]);
                             		}
