@@ -1,27 +1,20 @@
 package client;
 
-import javax.swing.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.awt.Font;
-import java.awt.Color;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Dimension;
-import java.io.IOException;
-import java.security.SecureRandom;
-import java.sql.Array;
-import java.util.HashSet;
-import java.util.Properties;
-import server.Server;
-import server.ServerThread;
-import server.ServerThreadBus;
-import javax.mail.*;  
-import javax.mail.internet.*;  
-import javax.activation.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class Application {
     public static JFrame applicationFrame;
@@ -36,9 +29,8 @@ public class Application {
     public JPanel mainPanel;
     public String focusIDString;
     public String focusNameString;
-    
+
     public void write(String message) throws IOException{
-    	System.out.println(message + "|" + id);
         os.write(message + "|" + id);
         os.newLine();
         os.flush();
@@ -49,7 +41,7 @@ public class Application {
             thread = new Thread() {
                 @Override
                 public void run() {
-                		
+
                     try {
                         socketOfClient = new Socket("127.0.0.1", 7777);
                         System.out.println("Successfully Connected!");
@@ -60,8 +52,9 @@ public class Application {
                         String message;
                         while (true) {
                             message = is.readLine();
+                            System.out.println("cmd:"+" "+message);
                             String[] dataSplit = message.split("\\|");
-                            System.out.println("clear"+" "+message);
+
                             if (message == null) {
                                 break;
                             }
@@ -75,7 +68,7 @@ public class Application {
                             	onlineUsers onlList = new onlineUsers(app, currentUser);
                             	friends flist = new friends(app,currentUser);
     							chatting c = new chatting(app);
-    							globalChatHistory gbc = new globalChatHistory();
+    							globalChatHistory gbc = new globalChatHistory(app);
     							ClearTab();
     							try {
     								write("Online|"+ currentUser.getId());
@@ -99,34 +92,102 @@ public class Application {
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
                             		onlineUsers olUsers  = (onlineUsers)home.userPanel;
+                            		friends flist  = (friends)home.friendsList;
+
                             		currentUser.friends.clear();
+
                             		String[] current = message.split("\\|\\|");
                             		for(int i= 1;i < current.length;++i) {
                             			String[] m = current[i].split("\\|");
-                            			
+
                             			if(m[0].equals("user")) {
                             				currentUser.friends.add(new User(m[1],m[2],m[3].equals("true") ? true : false));
-                            				System.out.println(current[i] +"| "+ current.length);
                             			}
-                            			System.out.println(current[i] +"| "+m[0]);
+                            			if(m[0].equals("group")) {
+                            				currentUser.groupList.add(new groupChat(m[1], m[2]));
+                            			}
                             		}
-                            		
+
+                            		flist.UpdateList(currentUser);
                             		olUsers.UpdateList(currentUser);
                             	}
-                            }else if(dataSplit[0].equals("MessageData")) {
+                            }if(dataSplit[0].equals("MessageData")) {
+
+                            	System.out.println("call in MessageData");
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
                             		chatting chatting  = (chatting)home.chatPanel;
-                            		
+                            		//chatting.ClearChat();
                             		String[] chatSplit = message.split("\\|\\|");
                             		String[] messageStrings = chatSplit[1].split("\\|");
-                            		for(int i =0;i < messageStrings.length;++i) {
-                            			String msg = messageStrings[i].replace(app.focusIDString +" -","("+app.focusNameString+")")
+                            		chatting.isGroup = false;
+                            		chatting.information.setVisible(false);
+                            		for (String messageString : messageStrings) {
+                            			String msg = messageString.replace(app.focusIDString +" -","("+app.focusNameString+")")
                             					.replace(app.currentUser.getId() +" -","("+app.currentUser.getName()+")");
+
                             			chatting.AddChat(msg);
                             		}
                             	}
-                            }else if(dataSplit[0].equals("IsOffline")) {
+                            }else if(dataSplit[0].equals("GroupData")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+                            		//chatting.ClearChat();
+                            		String[] chatSplit = message.split("\\|\\|\\|");
+                            		String[] messageStrings = chatSplit[1].split("\\|");
+                            		String[] members = chatSplit[2].split("\\|\\|");
+                            		chatting.isGroup = true;
+                            		chatting.Lmembers.clear();
+                            		
+                            		chatting.information.setVisible(true);
+                            		for (String messageString : messageStrings) {
+                            			chatting.AddChat(messageString);
+                            		}
+                            		
+
+                            		System.out.print(chatSplit[2] + " " + members.length);
+                            		for (String member : members) {
+                            			String[] memberDataStrings = member.split("\\|");
+                            			User mUser = new User(memberDataStrings[0],memberDataStrings[1],true,memberDataStrings[2].equals("true") ? true : false);
+                            			if(mUser.id.equals(currentUser.id)) {
+                            				currentUser.setAdmin(mUser.isAdmin());
+                            			}
+                            			chatting.Lmembers.addElement(mUser);
+                            			System.out.println(memberDataStrings[0] + " " + memberDataStrings[1]);
+                            		}
+                            	}
+                            }
+                            else if(dataSplit[0].equals("SendToUser")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+
+                            		onlineUsers olOnlineUsers  = (onlineUsers)home.userPanel;
+                            		olOnlineUsers.ClearChat();
+
+                            		currentUser.updateFriend(dataSplit[1]);
+                            		olOnlineUsers.UpdateList(currentUser);
+                            		System.out.println(dataSplit[1] + " " + app.focusIDString);
+
+                            	}
+                            }else if(dataSplit[0].equals("GlobalSearch")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		globalChatHistory gbc  = (globalChatHistory) home.chatHistory;
+                            		
+                            		String[] msgStrings = message.split("\\|\\|");
+                            		gbc.ClearResult();
+                            		for(int i = 1;i < msgStrings.length;++i) {
+                            			System.out.println(msgStrings[i]);
+                            			String[] msg = msgStrings[i].split("\\|");
+                            			if(msg[0].equals("user")) {
+                            				gbc.AddResult("with (" + msg[1] +") " + msg[2].split("-")[1]);
+                            			}
+                            		}
+                            	}
+                            }
+                            else if(dataSplit[0].equals("IsOffline")) {
                             	System.out.print(dataSplit[1]);
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;
@@ -154,7 +215,7 @@ public class Application {
                     }
                 }
             };
-            
+
             thread.run();
         } catch (Exception e) {
         }
@@ -164,7 +225,7 @@ public class Application {
         try {
         	applicationFrame = new JFrame();
         	applicationFrame.add(new login(this));
-        	this.app = this;
+        	Application.app = this;
             applicationFrame.setForeground(Color.BLACK);
             applicationFrame.setTitle("Login");
             applicationFrame.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
@@ -182,18 +243,18 @@ public class Application {
     public static JFrame getApplicationFrame() {
         return applicationFrame;
     }
-    
+
     public void ClearTab() {
     	applicationFrame.getContentPane().removeAll();
     }
-    
+
     public void ChangeTab(String name) {
     	applicationFrame.setTitle(name);
     }
-    
+
     public void ChangeTab(JPanel newPanel,int h,int w) {
     	applicationFrame.add(newPanel);
-    	
+
     	applicationFrame.setForeground(Color.BLACK);
         applicationFrame.setTitle("Login");
         applicationFrame.setFont(new Font("Source Code Pro Light", Font.PLAIN, 12));
@@ -208,7 +269,7 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        
+
         app = new Application();
         app.setUpSocket();
     }

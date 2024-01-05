@@ -1,28 +1,22 @@
 package client;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.BoxLayout;
-import javax.swing.JTextField;
-import java.awt.Font;
 import java.awt.Color;
-import javax.swing.*;
-import javax.swing.SwingConstants;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.UIManager;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.HashSet;
-import java.util.Properties;
-import server.Server;
-import server.ServerThread;
-import server.ServerThreadBus;
-import javax.mail.*;  
-import javax.mail.internet.*;  
-import javax.activation.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 public class login extends JPanel {
 	private JTextField email;
@@ -99,6 +93,7 @@ public class login extends JPanel {
 		JButton btnNewButton = new JButton("Login");
 		btnNewButton.setBorder(UIManager.getBorder("Button.border"));
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(password.getText() != "" && email.getText() != "") {
 					String hashedPW = User.hashPassword(password.getText());
@@ -144,6 +139,7 @@ public class login extends JPanel {
 
 		JButton btnlogin = new JButton("Register");
 		btnlogin.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				parent.ClearTab();
 				//parent.applicationFrame.setLayout(new BoxLayout(parent.applicationFrame, BoxLayout.X_AXIS));
@@ -159,6 +155,7 @@ public class login extends JPanel {
 		JButton resetPW = new JButton("Reset Password");
 		resetPW.setBorder(UIManager.getBorder("Button.border"));
 		resetPW.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				String toEmail = JOptionPane.showInputDialog("Please specify your email for password recovery");
 				try {
@@ -167,14 +164,14 @@ public class login extends JPanel {
 					System.out.println("An error occurred");
 					ex.printStackTrace();
 				}
-			 }  
+			 }
 		});
 		resetPW.setForeground(Color.WHITE);
 		resetPW.setBackground(Color.RED);
 		resetPW.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
 		resetPW.setBounds(46, 342, 203, 38);
 		panel_1.add(resetPW);
-		
+
 		setBounds(100, 100, 605, 476);
 //		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

@@ -7,7 +7,12 @@ public class groupChat {
     private String groupName;
     private ArrayList<User> users;
     private String content;
-
+    
+    public groupChat(String id,String n) {
+		this.groupID = id;
+		this.groupName = n;
+	}
+    
     public ArrayList<User> getAdmins() {
         return admins;
     }

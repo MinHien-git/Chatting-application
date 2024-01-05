@@ -1,16 +1,36 @@
 package client;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 public class friends extends JPanel {
     DefaultListModel<User> allFriends;
     private JList<User> userList;
     private JTextField searchBar;
     private Application parent;
-    
+
     static class CustomCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -22,6 +42,14 @@ public class friends extends JPanel {
             }
 
             return renderer;
+        }
+    }
+
+    public void UpdateList(User user) {
+        //we can dynamically add users/groups here
+        int i = 0;
+        for (int j = 0; j < user.friends.size(); ++i, ++j) {
+        	allFriends.addElement(user.friends.get(j));
         }
     }
 
@@ -64,7 +92,7 @@ public class friends extends JPanel {
                     try {
                     	parent.write("DeleteFriend|"+fromUser+"|"+deletedUser);
                         JOptionPane.showMessageDialog(this, "Successfully removed " + deletedFriend.getName() + " from the friends list");
-                        UserAuthentication.updateFriendsList(user);
+                        //UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(deletedFriend);
                     } catch (IOException ex) {
@@ -87,8 +115,8 @@ public class friends extends JPanel {
                     try {
                     	parent.write("BlockAccount|"+fromUser+"|"+blockedUser);
                         JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + "blocked from the friends list");
-                        UserAuthentication.updateBlockList(user);
-                        UserAuthentication.updateFriendsList(user);
+//                        UserAuthentication.updateBlockList(user);
+//                        UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(blockedFriend);
                     } catch (IOException ex) {
@@ -109,8 +137,8 @@ public class friends extends JPanel {
         JMenuItem refresh = new JMenuItem("Refresh");
 
         refresh.addActionListener(e -> {
-            UserAuthentication.updateBlockList(user);
-            UserAuthentication.updateFriendsList(user);
+//            UserAuthentication.updateBlockList(user);
+//            UserAuthentication.updateFriendsList(user);
             allFriends.clear();
             for (User friend : user.getFriends()) {
                 allFriends.addElement(friend);

@@ -1,11 +1,19 @@
 package presentation.view;
-import presentation.presenter.chatPresenter;
-import ui.activity.Application;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
-import java.awt.*;
+
+import presentation.presenter.chatPresenter;
 
 public class chat extends JPanel {
     JTextArea textArea;
@@ -26,7 +34,7 @@ public class chat extends JPanel {
         mainFrame.setResizable(false);
         mainFrame.setTitle("Chatting " + id);
         mainFrame.setBounds(100, 100, 440, 545);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.getContentPane().setLayout(null);
     }
 
@@ -100,7 +108,7 @@ public class chat extends JPanel {
         panel_3.add(btnSpam);
 
         JPanel panel = new JPanel();
-        panel.setBorder(new MatteBorder(0, 0, 0, 2, (Color) new Color(192, 192, 192)));
+        panel.setBorder(new MatteBorder(0, 0, 0, 2, new Color(192, 192, 192)));
         panel.setBackground(Color.WHITE);
         panel.setBounds(0, 0, 206, 506);
         this.add(panel);

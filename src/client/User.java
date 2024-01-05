@@ -14,9 +14,10 @@ public class User {
 	private boolean isLocked;
 	private String history;
 	private boolean isOnline;
+	public boolean chatWithU;
 	private ArrayList<String> blockList = new ArrayList<>();
 	private ArrayList<User> onlList = new ArrayList<>();
-	private ArrayList<groupChat> groupList = new ArrayList<>();
+	public ArrayList<groupChat> groupList = new ArrayList<>();
 	public static String hashPassword(String pw)
 	{
 		try {
@@ -64,10 +65,17 @@ public class User {
 		this.email = e;
 		this.password = p;
 	}
-	
+
 	public User(String id,String n,boolean isOnline) {
 		this.id = id;
 		this.name = n;
+		this.isOnline = isOnline;
+	}
+	
+	public User(String id,String n,boolean isOnline,boolean isAdmin) {
+		this.id = id;
+		this.name = n;
+		this.isAdmin = isAdmin;
 		this.isOnline = isOnline;
 	}
 
@@ -155,6 +163,14 @@ public class User {
 		return isOnline;
 	}
 
+	public void updateFriend(String _id) {
+		for (User friend : friends) {
+			if(friend.id.equals(_id)) {
+				friend.chatWithU = true;
+			}
+		}
+	}
+
 //	public boolean SignUp() {
 //		return UserAuthentication.SignUp(this);
 //	}
@@ -163,5 +179,5 @@ public class User {
 //		return UserAuthentication.SignIn(this);
 //	}
 
-	public boolean update() { return UserAuthentication.updateUser(this); }
+	//public boolean update() { return UserAuthentication.updateUser(this); }
 }

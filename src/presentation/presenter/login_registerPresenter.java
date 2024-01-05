@@ -1,11 +1,12 @@
 package presentation.presenter;
 
-import presentation.view.login;
-import presentation.view.register;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
+
+import presentation.view.login;
+import presentation.view.register;
 
 public class login_registerPresenter {
     private JPanel renderPanel;

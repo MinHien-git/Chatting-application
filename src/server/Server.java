@@ -1,22 +1,43 @@
 package server;
 
-import com.sun.tools.jconsole.JConsoleContext;
-import com.sun.tools.jconsole.JConsolePlugin;
-
+import java.awt.Color;
+import java.awt.Component;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+
+import client.User;
+import client.groupChat;
 
 public class Server {
 
     public static volatile ServerThreadBus serverThreadBus;
     public static Socket socketOfServer;
+    static class CustomRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
+            if (value instanceof User) {
+                String status = ((User) value).getId()  + " " + ((User) value).getName();
+                setText(((User) value).getName() + " - Status: " + status);
+             
+            }
+            
+            return renderer;
+        }
+    }
     public static void main(String[] args) {
         String jdbcUrl = "jdbc:postgresql://localhost:5432/";
         String username = "postgres";
@@ -92,7 +113,7 @@ public class Server {
     public static boolean databaseExists(Connection connection, String databaseName) throws SQLException {
         try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT FROM pg_database WHERE datname = '" + databaseName + "'");
-            return ((ResultSet) resultSet).next();
+            return resultSet.next();
         }
     }
 

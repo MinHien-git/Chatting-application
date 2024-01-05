@@ -1,36 +1,87 @@
 package client;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Panel;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import javax.swing.BorderFactory;import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 
 public class chatting extends JPanel {
     private JPanel chatArea;
     private JTextField chatInput;
     private JButton sendButton;
     private String id;
-    private DefaultListModel<Object> sideList;
+    private DefaultListModel<String> sideList;
     private JList jList;
     private JScrollPane jScrollPane;
-    
-    private ArrayList<String> chatContent;
+    private ArrayList<String> chatContent = new ArrayList<>();
+    ArrayList<User> members;
+    DefaultListModel<User> Lmembers;
     public Application parent;
+    public boolean isGroup;
+    JButton information;
+    User lastChoice = null;
+    public User currentUser = null;
+    
+    static class CustomRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+            if (value instanceof User) {
+                String status = ((User) value).isAdmin() ? "(admin)" : "(member)";
+                setText(status + " " + " " +  ((User) value).getId() +" " + ((User) value).getName());
+                if(((User) value).chatWithU) {
+                	setForeground(Color.RED);
+                }else {
+                	setForeground(Color.BLUE);
+                }
+            }
+            if (value instanceof groupChat) {
+                setText("(group) - " + ((groupChat) value).getGroupName());
+                setForeground(Color.PINK);
+            }
+
+            return renderer;
+        }
+    }
     /**
      * Create the application.
      */
     public chatting(Application application) {
     	parent = application;
         id = "";
-        chatContent = new ArrayList<>();
         initialize("usr1", "usr2");
         //setUpSocket();
     }
@@ -38,12 +89,7 @@ public class chatting extends JPanel {
     public chatting(String _id1, String _id2) {
         initialize(_id1, _id2);
     }
-
-    public chatting(String gID) {
-        id = gID;
-        initialize(gID);
-    }
-
+    
     private static String extractID(String input) {
         java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\((\\d+)\\)");
         java.util.regex.Matcher matcher = pattern.matcher(input);
@@ -61,12 +107,15 @@ public class chatting extends JPanel {
         }
         return "";
     }
-    
+
+
     public void ClearChat() {
     	sideList.clear();
+    	chatContent.clear();
     }
-    
+
     public void AddChat(String newString) {
+    	chatContent.add(newString);
     	sideList.addElement(newString);
     }
 
@@ -81,11 +130,13 @@ public class chatting extends JPanel {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setForeground(Color.WHITE);
-        
+
         this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
         this.setBounds(100, 100, 360, 800);
-        sideList = new DefaultListModel<Object>();
-
+        
+        sideList = new DefaultListModel<>();
+        Lmembers = new DefaultListModel<User>();
+        
         chatArea = new JPanel();
         jList= new JList(sideList);
         jScrollPane = new JScrollPane(jList);
@@ -93,43 +144,74 @@ public class chatting extends JPanel {
         chatArea.setSize(new Dimension(360, 500));
         jScrollPane.setSize(new Dimension(360, 500));
         jScrollPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
-        
+        JPanel container = new JPanel(); 
+        JTextField searchBar = new JTextField();
+        searchBar.setPreferredSize(new Dimension(200,28));
+        container.add(searchBar);
         jList.setSize(new Dimension(360, 500));
         this.add(chatArea, BorderLayout.CENTER);
+        container.setLayout(new FlowLayout());
+        information = new JButton("Thông tin");
+       
+        container.add(information);
+//        if(isGroup) {
+//        	addMemberButton.setVisible(true);
+//        }else {
+//        	addMemberButton.setVisible(false);
+//        }
+        information.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	openMemberList();
+            }
+        });
+        
+        this.add(container, BorderLayout.NORTH);
         chatArea.add(jScrollPane,BorderLayout.CENTER);
         chatArea.setLayout(new BorderLayout());
         Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
         chatArea.setFont(font);
-        chatContent = UserAuthentication.getMessageContent(id1, id2);
-//        if (chatContent == null) {
-//            chatArea.setText("");
-//        } else {
-//            for (String text : chatContent) {
-//                String id = extractID(text);
-//                String msg = extractText(text);
-//                String name = UserAuthentication.idToUser(id).getName();
-//
-//                chatArea.append(name + " - " + msg + "\n");
-//            }
-//        }
-      
+
+        searchBar.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+			public void changedUpdate(DocumentEvent e)
+            {
+            }
+            @Override
+			public void removeUpdate(DocumentEvent e) {filter();}
+            @Override
+			public void insertUpdate(DocumentEvent e) {filter();}
+            private void filter() {
+                String filter = searchBar.getText();
+                filterModel(sideList, filter);
+            }
+       });
+
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+        inputPanel.setLayout(new FlowLayout());
         inputPanel.setSize(360, 200);
 
         chatInput = new JTextField();
-        chatInput.setSize(new Dimension(360, 100));
-        inputPanel.add(chatInput, BorderLayout.NORTH);
+        chatInput.setPreferredSize(new Dimension(250,30));
+        inputPanel.add(chatInput);
 
         sendButton = new JButton("Send");
         sendButton.setAlignmentX(360);
         sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String msg = chatInput.getText();
                 if(!parent.focusIDString.equals("") && !msg.equals("")) {
                 try {
-                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
-                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
+                	if(!isGroup) {
+	                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
+	                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
+	                	sideList.addElement("(" +parent.currentUser.name + ") "+ chatInput.getText());
+                	}else {
+                		String send = parent.currentUser.getName() + " - " + msg;
+                		parent.write("GroupChat|"+parent.focusIDString + "|" + send);
+                		sideList.addElement(send);
+                	}
                     chatInput.setText("");
                 } catch (IOException ioe) {
                     System.out.println("IO Exception found");
@@ -139,60 +221,177 @@ public class chatting extends JPanel {
                 }
             }
         });
+        inputPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
         inputPanel.add(sendButton, BorderLayout.CENTER);
         this.add(inputPanel, BorderLayout.SOUTH);
     }
+    public void openMemberList() {
+    	JFrame frame = new JFrame("Thông tin nhóm");
 
-    private void initialize(String groupID) {
-        this.setLayout(new BorderLayout());
-        this.setBackground(Color.WHITE);
-        this.setForeground(Color.WHITE);
-        this.setFont(new Font("Source Code Pro", Font.PLAIN, 14));
-        this.setBounds(100, 100, 360, 800);
-        
-        sideList = new DefaultListModel<Object>();
-        sideList.addElement("Hello");
-        sideList.addElement("Hello World");
-        sideList.addElement("Java test");
-        chatArea = new JPanel();
-        jList= new JList(sideList);
-        jScrollPane = new JScrollPane(jList);
-        chatArea.add(jScrollPane);
-        Font font = new Font("Arial", Font.BOLD, 14); // Font(name, style, size)
-        chatArea.setFont(font);
-        chatContent = UserAuthentication.getGroupContent(groupID);
+    	JList<User> users = new JList<User>(Lmembers);
+    	users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    	users.setCellRenderer(new CustomRenderer());
+    	JScrollPane scrollPane = new JScrollPane(users);
+    	scrollPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+    	JButton changeNameButton = new JButton("Đổi tên");
+    	JButton addMemberButton = new JButton("Thêm thành viên");
+    	JPanel controllerJPanel = new JPanel();
+    	controllerJPanel.setLayout(new FlowLayout());
+    	
+    	controllerJPanel.add(changeNameButton);
+    	controllerJPanel.add(addMemberButton);
+    	    	
+    	frame.add(controllerJPanel,BorderLayout.NORTH);
+    	frame.add(scrollPane,BorderLayout.CENTER);
+    	
+    	 users.addListSelectionListener(new ListSelectionListener() {
+             @Override
+             public void valueChanged(ListSelectionEvent e) {
+                 if (!e.getValueIsAdjusting()) {
+                     User selected = users.getSelectedValue();
+ 	                  if(selected==null) {
+ 	                	  
+ 	                  }else {
+	                        currentUser = selected;
+ 	                }
 
-        chatArea.setSize(new Dimension(360, 500));
-        JScrollPane scrollPane = new JScrollPane(chatArea);
-        this.add(scrollPane, BorderLayout.CENTER);
+                 }
+             }
+         });
+    	 
+    	users.addMouseListener(new MouseAdapter() {
+             @Override
+             public void mouseClicked(MouseEvent e) {
+                 if (SwingUtilities.isRightMouseButton(e)) {
+                     int index = users.locationToIndex(e.getPoint());
+                     
+                     if (index != -1 && parent.currentUser.isAdmin()) {
+                         Rectangle bounds = users.getCellBounds(index, index);
+                         if (bounds != null && bounds.contains(e.getPoint())) {
+                        	 users.setSelectedIndex(index); 
+                             showPopupMenuDirect(e.getX(), e.getY(), users, currentUser);
+                         } 
+                     }
+                 }
+             }
+         });
 
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-        inputPanel.setSize(360, 200);
-        jScrollPane.setSize(new Dimension(360, 500));
-        jList.setSize(new Dimension(360, 500));
-        
-        chatInput = new JTextField();
-        chatInput.setSize(new Dimension(360, 100));
-        inputPanel.add(chatInput, BorderLayout.NORTH);
+    	
+    	changeNameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newName = JOptionPane.showInputDialog("Update new name to group");
+				try {
+					parent.write("ChangeGroupName|"+parent.focusIDString+"|"+parent.currentUser.getId()+"|"+newName);
+				}catch (IOException ex) {
+					System.out.println("An error occurred");
+					ex.printStackTrace();
+				}
+			 }
+		});
+    	
+    	addMemberButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String newMemeber = JOptionPane.showInputDialog("Enter User name to add member");
+				try {
+					parent.write("AddMemberToGroup|"+parent.focusIDString+"|"+newMemeber);
+				}catch (IOException ex) {
+					System.out.println("An error occurred");
+					ex.printStackTrace();
+				}
+			 }
+		});
+    	
+    	frame.setSize(250, 500);
+    	frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    	frame.setVisible(true);
+    }
+    
+    private void showPopupMenuDirect(int x, int y, JList<User> list, User user) {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem remove = new JMenuItem("Xoá người dùng");
+        JMenuItem addAdmin = new JMenuItem("Gán quyền admin");
+        JMenuItem deleteAdmin = new JMenuItem("Xoá quyền admin");
 
-        sendButton = new JButton("Send");
-        sendButton.setAlignmentX(360);
-        sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String msg = chatInput.getText();
+        remove.addActionListener(e -> {
+            Object selected = list.getSelectedValue();
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
+                User reportedUser = (User) selected;
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
                 try {
-                    String send = id + " - " + msg; //identify send format here
-                    parent.write(send);
-                    chatInput.setText("");
-                } catch (IOException ioe) {
-                    System.out.println("IO Exception found");
-                    ioe.printStackTrace();
-                    System.exit(1);
+                	parent.write("RemoveMemberGroup|" + groupID + "|" + uid);
+                    
+                } catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
                 }
             }
         });
-        inputPanel.add(sendButton, BorderLayout.CENTER);
-        this.add(inputPanel, BorderLayout.SOUTH);
+
+        addAdmin.addActionListener(e -> {
+        	Object selected = list.getSelectedValue();
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
+                User reportedUser = (User) selected;
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
+                try {
+                	parent.write("SetAdminGroup|" + groupID + "|" + uid);
+                    
+                } catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        deleteAdmin.addActionListener(e -> {
+        	Object selected = list.getSelectedValue();
+            if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
+                User reportedUser = (User) selected;
+                String uid = reportedUser.getId();
+                String groupID = parent.focusIDString;
+                try {
+                	parent.write("RemoveAdminGroup|" + groupID + "|" + uid);
+                    
+                } catch (IOException ex) {
+                    System.out.println("Unable to write");
+                    ex.printStackTrace();
+                }
+            }
+           
+        });
+
+        
+
+        popupMenu.add(remove);
+        popupMenu.add(addAdmin);
+        popupMenu.add(deleteAdmin);
+
+        popupMenu.show(list, x, y);
+    }
+
+
+    public void filterModel(DefaultListModel<String> model, String filter) {
+    	if(!filter.trim().equals("")) {
+    	for (String s : chatContent) { {
+        	if (!s.contains(filter)) {
+                if (model.contains(s)) {
+                    model.removeElement(s);
+                }
+            } else {
+                if (!model.contains(s)) {
+                    model.addElement(s);
+                }
+            }
+        }}
+       }else {
+    	   model.clear();
+
+    	   for (String s : chatContent) {
+               model.addElement(s);
+           }
+       }
     }
 }
