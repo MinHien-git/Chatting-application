@@ -127,6 +127,7 @@ public class Admin_demo {
     private JTextField inputToDatet8;
     private ChartPanel chartPanel;
     private GridBagConstraints gbcMain;
+    private JPanel OuterMainPanel;
 
     /**
      * Launch the application.
@@ -149,6 +150,7 @@ public class Admin_demo {
      */
     private void initialize() {
         frame = new JFrame();
+        OuterMainPanel = new JPanel();
 
         JPanel defaultPanel = new JPanel();
         JPanel panel1 = new JPanel();
@@ -185,8 +187,9 @@ public class Admin_demo {
         panel8.add(this.trang8());
         panel9.add(this.trang9());
 
-        frame.add(allTab);
-        frame.setSize(1200, 1000);
+        OuterMainPanel.add(allTab);
+        frame.add(OuterMainPanel);
+        frame.setSize(1300, 1000);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         allTab.setSelectedIndex(0);
     }

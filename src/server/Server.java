@@ -139,6 +139,7 @@ public class Server {
                     "\"createAt\" DATE," +
                     "address TEXT," +
                     "dob DATE," +
+                    "blocks TEXT[]," +
                     "gender TEXT)";
 
             String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +
