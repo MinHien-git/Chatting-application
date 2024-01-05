@@ -127,7 +127,6 @@ public class Admin_demo extends JPanel{
     private ChartPanel chartPanel;
     private ChartPanel chartPanel1;
     private JTextField inputYearT9;
-    private GridBagConstraints gbcMain;
     public Application parent;
     /**
      * Launch the application.
