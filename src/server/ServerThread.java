@@ -43,32 +43,8 @@ public class ServerThread implements Runnable {
     private BufferedWriter os;
     private boolean isClosed;
 
-    private static final String ACCOUNT_HISTORY_SQL = "UPDATE public.\"users\" SET history = ? WHERE id = ?";
-
     private static final String GET_ADMIN_INGROUP_SQL = "select p.id,p.name from public.\"groups\" u join public.\"users\" "
             + "p on p.id = any(u.admin) where u.id = '?' group by p.id,p.name";
-
-    private static final String GET_USER_SQL = "select * from public.\"users\" ";
-    private static final String INSERT_USER_SQL = "INSERT INTO public.\"users\" (id,name,email,password,friends,isAdmin,lock,history)"
-            + "values (?,?,?,?,{},?,false,'')";
-    private static final String DELETE_USER_SQL = "DELETE FROM public.\"users\" WHERE id = ?";
-
-    private static final String GET_ALL_GROUPCHAT_SQL = "select * from public.\"groups\" ";
-    private static final String GET_SPAMLIST_SQL = "select * from public.\"spams\" ";
-    private static final String GET_ONLINE_FRIEND_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
-            + "p on p.id = any(u.friends) where u.id = ? and p.isOnline = true group by p.id,u.name,u.id";
-    private static final String REPORT_SPAM_SQL = "insert into public.\"spams\" (id,time) values (?,?)";
-
-
-    private static final String UPDATE_GROUP_NAME_SQL = "UPDATE public.groups"
-            + "SET groupname=?"
-            + "WHERE groupid = ? and ? = any(admin)";
-    private static final String ADD_ADMIN_SQL = "UPDATE public.groups"
-            + "SET admin =  array_append(admin,?)"
-            + "WHERE groupid = ? and ? = any(admin)"; // dấu hỏi đầu là tên user muốn add 2 là id group 3 là người add có phải admin hay không
-    private static final String REMOVE_ADMIN_SQL = "UPDATE public.groups"
-            + "SET admin =  array_remove(admin,?)"
-            + "WHERE groupid = ? and ? = any(admin)"; // dấu hỏi đầu là tên user muốn add 2 là id group 3 là người add có phải admin hay không
 
     public BufferedReader getIs() {
         return is;
@@ -523,7 +499,7 @@ public class ServerThread implements Runnable {
     }
 
     public static String GetOnlineFriends(String id) {
-    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.name, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
+    	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.fullname, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
     			+ "ON u2.id = ANY (u.friends) where u.id = ? and ( not(u2.id = ANY(u.blocks)) OR u.blocks is null)";
     	
     	String FIND_GROUPS = "SELECT groupid,groupname FROM public.\"groups\" where ? = any(users)";
@@ -543,7 +519,7 @@ public class ServerThread implements Runnable {
 			{
 				String _id = friendList.getString("id");
 				boolean isOnline = friendList.getBoolean("isOnline");
-				String _name = friendList.getString("name");
+				String _name = friendList.getString("fullname");
 
 				friendString += "||"+"user"+"|"+_id +"|"+ _name + "|"+isOnline;
 				System.out.print(friendString);

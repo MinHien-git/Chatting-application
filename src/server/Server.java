@@ -91,10 +91,10 @@ public class Server {
                 socketOfServer = listener.accept();
                 //ID là client Number nhớ thay đổi tham số 2 của serverThread
 //                id += newKey++;
-                id = "1";
+                id += newKey++;
                 ServerThread serverThread = new ServerThread(socketOfServer, id);
                 serverThreadBus.add(serverThread);
-                System.out.println("Thread ID: " + id);
+                System.out.println("Thread ID: " + newKey);
                 System.out.println("Number of users active: " + serverThreadBus.getLength());
                 executor.execute(serverThread);
 
