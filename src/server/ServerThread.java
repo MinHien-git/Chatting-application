@@ -1132,24 +1132,24 @@ public class ServerThread implements Runnable {
                 }
 
                 if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
-                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC, \"createAt\" DESC";
                 } else if (messageSplit[2].equals("1")) {
-                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC";
                 } else if (messageSplit[3].equals("1")) {
                     ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                 }
             } else {
                 if (messageSplit[1].equals("1")) {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE name LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE name LIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
-                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC, \"createAt\" DESC";
                     } else if (messageSplit[2].equals("1")) {
-                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC";
                     } else if (messageSplit[3].equals("1")) {
                         ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                     }
@@ -1203,7 +1203,7 @@ public class ServerThread implements Runnable {
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
-                        result.append(rs.getString("username")).append(", ");
+                        result.append(rs.getString("name")).append(", ");
                         result.append(rs.getString("fullname")).append(", ");
                         result.append(rs.getString("address")).append(", ");
                         result.append(rs.getString("dob")).append(", ");
@@ -1233,8 +1233,8 @@ public class ServerThread implements Runnable {
             String ADMIN_CHECK_USERNAME;
             String ADMIN_CHECK_EMAIL;
 
-            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"users\" (username, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password, id, \"isAdmin\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
+            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"users\" (name, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password, id, \"isAdmin\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE name = ?";
             ADMIN_CHECK_EMAIL = "SELECT * FROM public.\"users\" WHERE email = ?";
 
             String dateString = messageSplit[4];
@@ -1290,8 +1290,8 @@ public class ServerThread implements Runnable {
             String ADMIN_UPDATE_ACCOUNT_SQL;
             String ADMIN_CHECK_USERNAME;
 
-            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
+            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET name = ?, fullname = ?, address = ? WHERE email = ?";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE name = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL);
@@ -1319,7 +1319,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_DELETE_ACCOUNT_SQL;
 
-            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"users\" WHERE username = ?";
+            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"users\" WHERE name = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_DELETE_ACCOUNT_SQL)) {
@@ -1338,7 +1338,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_LOCK_ACCOUNT_SQL;
 
-            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
+            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE name = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_LOCK_ACCOUNT_SQL)) {
@@ -1358,7 +1358,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_UNLOCK_ACCOUNT_SQL;
 
-            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
+            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE name = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UNLOCK_ACCOUNT_SQL)) {
@@ -1378,7 +1378,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_RENEW_PASSWORD_SQL;
 
-            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"users\" SET password = ? WHERE username = ?";
+            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"users\" SET password = ? WHERE name = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_RENEW_PASSWORD_SQL)) {
