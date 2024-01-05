@@ -64,7 +64,7 @@ public class Application {
                             	System.out.println(id);
                             }
                             if(dataSplit[0].equals("Login_Success")) {
-                            	currentUser = new User(dataSplit[1],dataSplit[2],dataSplit[3],dataSplit[4]);
+                            	currentUser = new User(dataSplit[1],dataSplit[2],dataSplit[3],dataSplit[4],dataSplit[5].equals("true") ? true:false);
                             	onlineUsers onlList = new onlineUsers(app, currentUser);
                             	friends flist = new friends(app,currentUser);
     							chatting c = new chatting(app);
@@ -269,7 +269,6 @@ public class Application {
     }
 
     public static void main(String[] args) {
-
         app = new Application();
         app.setUpSocket();
     }

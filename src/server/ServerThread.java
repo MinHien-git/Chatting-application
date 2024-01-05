@@ -125,13 +125,12 @@ public class ServerThread implements Runnable {
                 	String result = Login(messageSplit[1],messageSplit[2]);
                 	if(!result.equals("")) {
                 		actual_userID = result.split("\\|")[0];
-                		System.out.println("Dang nhap thanh cong"+messageSplit[messageSplit.length -1]);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
                 		String onlineList = GetOnlineFriends(actual_userID);
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                 	}
                 }else if(commandString.equals("Register")) {
-                	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4])) {
+                	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4],messageSplit[5])) {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Register_Success|");
                 	}
                 }else if(commandString.equals("ResetPassword")) {
@@ -348,9 +347,9 @@ public class ServerThread implements Runnable {
         os.flush();
     }
     //Register -- add to db (done)
-    public static boolean Register(String id,String name,String email,String password) {
-    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id, name, email, password, \"createAt\") values (?, ?, ?, ?, ?)";
-    	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? ";
+    public static boolean Register(String id,String name,String fullname,String email,String password) {
+    	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id, username,fullname, email, password, \"createAt\") values (?,?,?,?,?,?)";
+    	String USER_EXIST = "SELECT * FROM public.\"users\" where email = ? or username = ?";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 PreparedStatement stmt = connection.prepareStatement(USER_EXIST);
    			 // Step 2:Create a statement using connection object
@@ -363,11 +362,13 @@ public class ServerThread implements Runnable {
 
    			preparedStatement.setString(1, id);
    			preparedStatement.setString(2, name);
-   			preparedStatement.setString(3, email);
-   			preparedStatement.setString(4, password);
-               preparedStatement.setDate(5, sqlDate);
-
+   			preparedStatement.setString(3, fullname);
+   			preparedStatement.setString(4, email);
+   			preparedStatement.setString(5, password);
+            preparedStatement.setDate(6, sqlDate);
+            System.out.println(preparedStatement);
    			stmt.setString(1, email);
+   			stmt.setString(2, name );
    			ResultSet rs = stmt.executeQuery();
    			if (rs.next()) {
    				System.out.print(rs.getString("id"));
@@ -386,16 +387,18 @@ public class ServerThread implements Runnable {
    			return false;
    		}
 	}
+    
    //Login -- add to db (done)
     public static String Login(String email,String password) {
-    	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where email = ? and password = ?";
+    	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where (email = ? or username = ?) and password = ?";
         String ADD_TO_LOGS_SQL = "INSERT INTO logs (username, logdate) VALUES (?, ?)";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 // Step 2:Create a statement using connection object
    			 PreparedStatement preparedStatement = connection.prepareStatement(FIND_USERS_SQL);
                 PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_TO_LOGS_SQL)) {
    			preparedStatement.setString(1, email);
-   			preparedStatement.setString(2, password);
+   			preparedStatement.setString(2, email);
+   			preparedStatement.setString(3, password);
 
    			// Step 3: Execute the query or update query
    			ResultSet rs = preparedStatement.executeQuery();
@@ -405,10 +408,11 @@ public class ServerThread implements Runnable {
                 LocalDateTime localDateTime = curDate.toLocalDateTime();
                 Timestamp timestamp = Timestamp.valueOf(localDateTime);
 
-                   preparedStatement1.setString(1, rs.getString("name"));
-                   preparedStatement1.setTimestamp(2, timestamp);
-                   int rowsAffected = preparedStatement1.executeUpdate();
-   				return rs.getString("id") + "|" +  rs.getString("name") + "|" +  rs.getString("email")+ "|" +  rs.getString("password");   				
+               preparedStatement1.setString(1, rs.getString("username"));
+               preparedStatement1.setTimestamp(2, timestamp);
+               int rowsAffected = preparedStatement1.executeUpdate();
+               String isAdmin = rs.getBoolean("isAdmin") ? "true" : "false";
+   			   return rs.getString("id") + "|" +  rs.getString("username")+"|"+rs.getString("fullname") + "|" +  rs.getString("email")+ "|" + isAdmin;   				
    			}
    			return "";
    		} catch (SQLException e) {

@@ -141,7 +141,8 @@ public class Server {
                     "dob DATE," +
                     "blocks TEXT[] DEFAULT {}," +
                     "gender TEXT)";
-
+            String alterFriendsTable = "ALTER TABLE public.users ALTER COLUMN friends SET DEFAULT '{}'";
+            String alterBlockTable = "ALTER TABLE public.users ALTER COLUMN blocks SET DEFAULT '{}'";
             String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +
                     "username TEXT," +
                     "logdate TIMESTAMP WITH TIME ZONE, " +
@@ -165,7 +166,11 @@ public class Server {
                     "users TEXT[] DEFAULT {}," +
                     "content TEXT[] DEFAULT {}," +
                     "\"createAt\" DATE)";
-
+            
+            String alterGroupsTable = ""
+            		+ "ALTER TABLE public.groups "
+            		+ "ALTER COLUMN content SET DEFAULT '{}'";
+            
             String createSystems = "CREATE TABLE IF NOT EXISTS systems (" +
                     "username TEXT," +
                     "type INTEGER," +
@@ -175,8 +180,11 @@ public class Server {
 
             statement.executeUpdate(createUsers);
             statement.executeUpdate(createLogs);
+            statement.executeUpdate(alterFriendsTable);
+            statement.executeUpdate(alterBlockTable);
             statement.executeUpdate(createSpams);
             statement.executeUpdate(createGroups);
+            statement.executeUpdate(alterGroupsTable);
             statement.executeUpdate(createMessages);
             statement.executeUpdate(createSystems);
         }

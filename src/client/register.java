@@ -20,11 +20,12 @@ public class register extends JPanel {
 	private JTextField email;
 	private JPasswordField password;
 	private JTextField name;
-	private JTextField fullname;
+
 	private static int maxUserID = 1000000;
 	private static int minUserID = 1;
 	private Application parent;
-	private JTextField textField;
+	private JTextField fullname;
+
 	/**
 	 * Create the application.
 	 */
@@ -145,12 +146,13 @@ public class register extends JPanel {
 		lblNewLabel_1_2_1.setBounds(45, 80, 202, 14);
 		panel_1.add(lblNewLabel_1_2_1);
 		
-		textField = new JTextField();
-		textField.setPreferredSize(new Dimension(7, 22));
-		textField.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
-		textField.setColumns(10);
-		textField.setBounds(45, 101, 202, 28);
-		panel_1.add(textField);
+		fullname = new JTextField();
+		fullname.setPreferredSize(new Dimension(7, 22));
+		fullname.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
+		fullname.setColumns(10);
+		fullname.setBounds(45, 101, 202, 28);
+		panel_1.add(fullname);
+
 		setBounds(100, 100, 605, 492);
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
