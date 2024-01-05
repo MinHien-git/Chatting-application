@@ -36,7 +36,7 @@ import javax.swing.event.ListSelectionListener;
 
 public class onlineUsers extends JPanel {
     private DefaultListModel<Object> sideList;
-    private JList<Object> usersAndgroups;
+    public JList<Object> usersAndgroups;
     private JTextField searchBar;
     private JLabel navigation;
     private Application parent;
@@ -281,7 +281,7 @@ public class onlineUsers extends JPanel {
                        String id = selectedUser.getId();
                        selectedUser.chatWithU = false;
                        parent.focusIDString = selectedUser.getId();
-                       parent.focusNameString = selectedUser.getName();
+                       parent.focusNameString = selectedUser.fullname;
                        if(parent.mainPanel instanceof home) {
                     	   	home h =(home) parent.mainPanel;
                     	   	chatting userChat =(chatting)h.chatPanel;
@@ -372,9 +372,9 @@ public class onlineUsers extends JPanel {
 
     public void filterModel(DefaultListModel<Object> model, String filter) {
     	if(!filter.trim().equals("") && !filter.equals("Chat With A Friend")) {
-        for (User element : parent.currentUser.friends) { {
+        for (Object element : parent.currentUser.friends) { {
         	if(element instanceof User) {
-	        	User s =element;
+	        	User s =(User) element;
 	            if (!s.name.contains(filter)) {
 	                if (model.contains(s)) {
 	                    model.removeElement(s);
@@ -386,12 +386,30 @@ public class onlineUsers extends JPanel {
 	            	}
 	        	}
     	}
+        
        }
+        for (Object element : parent.currentUser.getGroupList()) { {
+            if(element instanceof groupChat) {
+        		groupChat g =(groupChat) element;
+                if (!g.getGroupName().contains(filter)) {
+                    if (model.contains(g)) {
+                        model.removeElement(g);
+                    }
+                } else {
+                    if (!model.contains(g)) {
+                        model.addElement(g);
+                    }
+                }
+            }}}
        }else {
     	   model.clear();
     	   for (User element : parent.currentUser.friends) {
     		   model.addElement(element);
-       	}
+    		   
+       		}
+    	   for (groupChat element : parent.currentUser.getGroupList()) {
+    		   model.addElement(element);
+    	   }
        }
     }
 

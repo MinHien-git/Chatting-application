@@ -52,7 +52,6 @@ public class ServerThreadBus {
                 continue;
             } else {
                 try {
-                	System.out.println("add");
                     serverThread.write(message);
                 } catch (IOException ex) {
                     ex.printStackTrace();

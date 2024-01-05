@@ -103,7 +103,7 @@ public class ServerThread implements Runnable {
                 		actual_userID = result.split("\\|")[0];
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
                 		if (result.split("\\|")[4].equals("false")) {
-                            String onlineList = GetOnlineFriends(actual_userID);
+                            String onlineList = GetListFriendsAndGroups(actual_userID);
                             Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                         }
                 	}
@@ -111,7 +111,10 @@ public class ServerThread implements Runnable {
                 	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4],messageSplit[5])) {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Register_Success|");
                 	}
-                }else if(commandString.equals("ResetPassword")) {
+                }else if(commandString.equals("OnlineList")) {
+                	String onlineList = GetListFriendsAndGroups(messageSplit[1]);
+                	Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
+                } else if(commandString.equals("ResetPassword")) {
                 	if(ForgotPassword(messageSplit[1])) {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Reset_password|");
                 	}
@@ -168,12 +171,10 @@ public class ServerThread implements Runnable {
                     String id = newDataString[2];//Từ user
                     String members = newDataString[3];
                     InsertGroup(name, id,members);
-                } else if (commandString.equals("GetOnline")) {
-                    System.out.println("GetOnline");
-                    ArrayList<String> result = GetFriendList(messageSplit[1]);
-                    Server.serverThreadBus.boardCast(messageSplit[1], "get-online-friend|" + String.join(", ", result));
+                } else if (commandString.equals("GetFriend")) {
+                    String result = GetFriendList(messageSplit[1]);
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "GetFriend" +result);
                 } else if (commandString.equals("Online")) {
-                    System.out.println("Online");
                     String id = messageSplit[1];//Từ user
                     SetOnline(id);
                 } else if (commandString.equals("Offline")) {
@@ -500,7 +501,7 @@ public class ServerThread implements Runnable {
 	    return false;
     }
 
-    public static String GetOnlineFriends(String id) {
+    public static String GetListFriendsAndGroups(String id) {
     	String FIND_ONLINE_FRIENDS = "SELECT u2.id, u2.fullname, u2.lock, u2.\"isOnline\" ,u2.blocks FROM public.\"users\" u JOIN public.\"users\" u2 "
     			+ "ON u2.id = ANY (u.friends) where u.id = ? and ( not(u2.id = ANY(u.blocks)) OR u.blocks is null)";
     	
@@ -542,7 +543,7 @@ public class ServerThread implements Runnable {
     }
   //Get Message Data
     public static String[] GetMessage(String id) {
-        String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ?";
+        String FIND_MESSAGE_SQL = "SELECT \"idChat\",content FROM public.\"messages\" where \"idChat\" = ?";
 
         String[] result = new String[2];
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
@@ -581,7 +582,7 @@ public class ServerThread implements Runnable {
     
     public static String[] GetGroup(String id) {
         String FIND_MESSAGE_SQL = "SELECT groupid,content FROM public.\"groups\" where groupid = ?";
-        String FIND_MEMBER_SQL = "SELECT u.id,u.name,CASE WHEN u.id = ANY(mbs.admin) "
+        String FIND_MEMBER_SQL = "SELECT u.id,u.fullname,CASE WHEN u.id = ANY(mbs.admin) "
         		+ "THEN CAST(TRUE AS BOOL) ELSE CAST(FALSE AS BOOL) END as isAdmin FROM (SELECT unnest(users) as id, admin FROM public.\"groups\" where groupid = ?) as mbs "
         		+ " JOIN public.\"users\" u on mbs.id = u.id";
         String[] result = new String[3];
@@ -616,7 +617,7 @@ public class ServerThread implements Runnable {
             result[2] = "";
             while(rs1.next()) {
             	String _id =  rs1.getString("id");
-            	String name =  rs1.getString("name");
+            	String name =  rs1.getString("fullname");
             	String isAdmin =  rs1.getBoolean("isAdmin") ? "true" : "false";
             	result[2] += "||"+  _id+ "|" + name + "|" + isAdmin;
             }
@@ -631,9 +632,9 @@ public class ServerThread implements Runnable {
     public static String SearchMessageGlobal(String idUser,String content) {
     	String like_content = "%" + content+ "%";
         String FIND_MESSAGE_SQL = "SELECT * FROM ("
-        		+ "SELECT u.name,u.id,unnest(content) as ct"
+        		+ "SELECT u.fullname,u.username,u.id,unnest(content) as ct"
         		+ "	FROM public.messages join public.users u on u.id = any(users)"
-        		+ "	where idChat like ? and id <> ?"
+        		+ "	where \"idChat\" like ? and id <> ?"
         		+ "	) as DT"
         		+ " WHERE DT.ct like ?";
         String result = new String("");
@@ -647,7 +648,7 @@ public class ServerThread implements Runnable {
             ResultSet rs = preparedStatement.executeQuery();
            
             while (rs.next()) {
-            	String  name =  rs.getString("name");
+            	String  name =  rs.getString("fullname");
                 String msgData = rs.getString("ct");
                 String id = rs.getString("id");
                 result += "||" +"user"+ "|" + name +"|" + msgData;
@@ -661,7 +662,7 @@ public class ServerThread implements Runnable {
     }
 
     public static String[] CheckMessageExists(String id, String id2) {
-        String FIND_MESSAGE_SQL = "SELECT idChat,content FROM public.\"messages\" where idchat = ? or idchat = ?";
+        String FIND_MESSAGE_SQL = "SELECT \"idChat\",content FROM public.\"messages\" where \"idChat\" = ? or \"idChat\" = ?";
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
         String[] result = new String[2];
@@ -689,7 +690,7 @@ public class ServerThread implements Runnable {
     public static boolean UpdateExistsMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
-        String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content =array_append(content,?) WHERE idchat = ? or idchat = ?";
+        String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content =array_append(content,?) WHERE idChat = ? or idChat = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
             preparedStatement.setString(1, content);
@@ -710,10 +711,10 @@ public class ServerThread implements Runnable {
     public static boolean InsertMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
-        String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (idChat,users,content) values (?,?,?)";
+        String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (\"idChat\",users,content) values (?,?,?)";
         String GET_IDCHAT_SQL = "SELECT \"idChat\" FROM messages WHERE users && ?";
-        String GET_USERNAME_SQL = "SELECT name FROM users WHERE id = ?";
-        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, idChat, time) VALUES (?, ?, ?, ?)";
+        String GET_USERNAME_SQL = "SELECT fullname FROM users WHERE id = ?";
+        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_MESSAGE_SQL);
@@ -747,7 +748,7 @@ public class ServerThread implements Runnable {
                 idChat = resultSet.getString("\"idChat\"");
             }
             if (resultSet1.next()) {
-                username = resultSet1.getString("name");
+                username = resultSet1.getString("fullname");
             }
 
             ZoneId utc = ZoneId.of("UTC+7");
@@ -776,7 +777,7 @@ public class ServerThread implements Runnable {
     public static String AddFriend(String userId, String FriendName) {
         String ADD_FRIEND_SQL = "UPDATE public.\"users\" SET friends = array_append(friends,?)"
                 + "WHERE id =? and exists (select * from public.\"users\" where id = ?)";
-        String FIND_USER = "SELECT id FROM public.\"users\" WHERE id = ? or name = ?";
+        String FIND_USER = "SELECT id FROM public.\"users\" WHERE id = ? or username = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(ADD_FRIEND_SQL);
              PreparedStatement preparedStatement1 = connection.prepareStatement(ADD_FRIEND_SQL);
@@ -787,16 +788,18 @@ public class ServerThread implements Runnable {
         	ResultSet rSet = preparedStatement2.executeQuery();
         	if(rSet.next()) {
         		FriendId = rSet.getString("id");
-	            preparedStatement.setString(1, userId);
-	            preparedStatement.setString(2, FriendId);
-	            preparedStatement.setString(3, userId);
-	            preparedStatement1.setString(1, FriendId);
-	            preparedStatement1.setString(2, userId);
-	            preparedStatement1.setString(3, userId);
-
-	            int count = preparedStatement.executeUpdate();
-	            int count1 = preparedStatement1.executeUpdate();
-	            return FriendId;
+        		if(!FriendId.equals(userId)) {
+		            preparedStatement.setString(1, userId);
+		            preparedStatement.setString(2, FriendId);
+		            preparedStatement.setString(3, userId);
+		            preparedStatement1.setString(1, FriendId);
+		            preparedStatement1.setString(2, userId);
+		            preparedStatement1.setString(3, userId);
+	
+		            int count = preparedStatement.executeUpdate();
+		            int count1 = preparedStatement1.executeUpdate();
+		            return FriendId;
+        		}
         	}
            return "";
         } catch (SQLException e) {
@@ -829,7 +832,7 @@ public class ServerThread implements Runnable {
 
     //RemoveMesssage
     public static boolean RemoveMessage(String id) {
-        String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = '{}' WHERE idchat = ?";
+        String REMOVE_MESSAGE_SQL = "Update public.\"messages\" SET content = '{}' WHERE \"idChat\" = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_MESSAGE_SQL)) {
             preparedStatement.setString(1, id);
@@ -848,7 +851,7 @@ public class ServerThread implements Runnable {
         String CREATE_GROUP_SQL = "INSERT INTO public.groups "
                 + "	(groupid, admin, groupname, users, content)\r\n"
                 + "	VALUES (?, ?, ?, ?, '{}');";
-        String GET_USER_ID = "SELECT id FROM public.users where name = ? or id = ?";
+        String GET_USER_ID = "SELECT id FROM public.users where username = ? or id = ?";
         long id = (long) (Math.random() * (10000000000l - 1)) + 1;
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(CREATE_GROUP_SQL)) {
@@ -883,26 +886,24 @@ public class ServerThread implements Runnable {
     }
 
     //Get FRIEND Online
-    public static ArrayList<String> GetFriendList(String id) {
-        String GET_FRIEND_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
-                + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
-        String GET_GROUP_LIST_SQL = "select p.id,p.name from public.\"users\" u join public.\"users\" "
-                + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.name,u.id";
+    public static String GetFriendList(String id) {
+        String GET_FRIEND_LIST_SQL = "select p.id,p.fullname from public.\"users\" u join public.\"users\" "
+                + "p on p.id = any(u.friends) where u.id = ? group by p.id,u.fullname,u.id";
+
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(GET_FRIEND_LIST_SQL)) {
             preparedStatement.setString(1, id);
-            ArrayList<String> result = new ArrayList<>();
 
             ResultSet rs = preparedStatement.executeQuery();
+            String tempString ="";
             while (rs.next()) {
-                String tempString = rs.getString("id") + "&" + rs.getString("name");
-                result.add(tempString);
+                tempString += "||"+ rs.getString("id") + "|" + rs.getString("fullname");
             }
-            return result;
+            return tempString;
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
-            return null;
+            return "";
         }
     }
     
@@ -1010,7 +1011,7 @@ public class ServerThread implements Runnable {
     public static boolean AddMemberToGroup(String groupID, String name) {
         String ADD_MEMBER_SQL = "UPDATE public.\"groups\" SET users = array_append(users,?)"
                 + "WHERE groupid =?";
-        String GET_USER = "SELECT id FROM public.\"users\" WHERE id = ? or name = ?";
+        String GET_USER = "SELECT id FROM public.\"users\" WHERE id = ? or username = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(ADD_MEMBER_SQL);
         		PreparedStatement smt = connection.prepareStatement(GET_USER)) {

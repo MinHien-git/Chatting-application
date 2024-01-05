@@ -52,6 +52,10 @@ public class friends extends JPanel {
         	allFriends.addElement(user.friends.get(j));
         }
     }
+    
+    public void ClearList() {
+    	allFriends.clear();
+    }
 
     private void SetPlaceholder(JTextField textField) {
         textField.setForeground(Color.GRAY);

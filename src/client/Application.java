@@ -29,7 +29,8 @@ public class Application {
     public JPanel mainPanel;
     public String focusIDString;
     public String focusNameString;
-
+    public boolean isClosed;
+    
     public void write(String message) throws IOException{
         os.write(message + "|" + id);
         os.newLine();
@@ -50,7 +51,7 @@ public class Application {
                         // Luồng đầu vào tại Client (Nhận dữ liệu từ server).
                         is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
                         String message;
-                        while (true) {
+                        while (!isClosed) {
                             message = is.readLine();
                             System.out.println("cmd:"+" "+message);
                             String[] dataSplit = message.split("\\|");
@@ -98,9 +99,9 @@ public class Application {
                             		home home = (home) mainPanel;
                             		onlineUsers olUsers  = (onlineUsers)home.userPanel;
                             		friends flist  = (friends)home.friendsList;
-
+                            		
                             		currentUser.friends.clear();
-
+                            		currentUser.groupList.clear();
                             		String[] current = message.split("\\|\\|");
                             		for(int i= 1;i < current.length;++i) {
                             			String[] m = current[i].split("\\|");
@@ -113,10 +114,30 @@ public class Application {
                             			}
                             		}
 
-                            		flist.UpdateList(currentUser);
+                            		//flist.UpdateList(currentUser);
+                            		olUsers.ClearChat();
                             		olUsers.UpdateList(currentUser);
                             	}
-                            }if(dataSplit[0].equals("MessageData")) {
+                            }
+                            else if(dataSplit[0].equals("GetFriend")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		friends flist  = (friends)home.friendsList;
+                            		
+                            		currentUser.friends.clear();
+
+                            		String[] current = message.split("\\|\\|");
+                            		for(int i= 1;i < current.length;++i) {
+                            			String[] m = current[i].split("\\|");
+
+                            			currentUser.friends.add(new User(m[0],m[1],false));
+                            			
+                            		}
+                            		flist.ClearList();
+                            		flist.UpdateList(currentUser);
+                            	}
+                            }
+                            else if(dataSplit[0].equals("MessageData")) {
 
                             	System.out.println("call in MessageData");
                             	if(mainPanel instanceof home) {
@@ -129,7 +150,7 @@ public class Application {
                             		chatting.information.setVisible(false);
                             		for (String messageString : messageStrings) {
                             			String msg = messageString.replace(app.focusIDString +" -","("+app.focusNameString+")")
-                            					.replace(app.currentUser.getId() +" -","("+app.currentUser.getName()+")");
+                            					.replace(app.currentUser.getId() +" -","("+app.currentUser.fullname+")");
 
                             			chatting.AddChat(msg);
                             		}
@@ -187,7 +208,8 @@ public class Application {
                             			System.out.println(msgStrings[i]);
                             			String[] msg = msgStrings[i].split("\\|");
                             			if(msg[0].equals("user")) {
-                            				gbc.AddResult("with (" + msg[1] +") " + msg[2].split("-")[1]);
+                            				String[] mStrings =msg[2].split("-");
+                            				gbc.AddResult("with (" + msg[1] +") " + mStrings[mStrings.length-1]);
                             			}
                             		}
                             	}
@@ -217,6 +239,7 @@ public class Application {
                     is.close();
                     socketOfClient.close();
                     } catch (UnknownHostException e) {
+                    	isClosed = true;
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -226,6 +249,7 @@ public class Application {
 
             thread.run();
         } catch (Exception e) {
+        	isClosed = true;
         }
     }
 
@@ -243,8 +267,10 @@ public class Application {
             applicationFrame.getContentPane().setLayout(new BoxLayout(applicationFrame.getContentPane(), BoxLayout.X_AXIS));
         	applicationFrame.setBounds(100, 100, 605, 476);
             applicationFrame.setVisible(true);
+            applicationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         } catch (Exception e) {
             e.printStackTrace();
+            isClosed= true;
         }
     }
 

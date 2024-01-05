@@ -206,7 +206,7 @@ public class chatting extends JPanel {
                 	if(!isGroup) {
 	                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
 	                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
-	                	sideList.addElement("(" +parent.currentUser.name + ") "+ chatInput.getText());
+	                	sideList.addElement("(" +parent.currentUser.fullname + ") "+ chatInput.getText());
                 	}else {
                 		String send = parent.currentUser.getName() + " - " + msg;
                 		parent.write("GroupChat|"+parent.focusIDString + "|" + send);
@@ -303,7 +303,7 @@ public class chatting extends JPanel {
 			 }
 		});
     	
-    	frame.setSize(250, 500);
+    	frame.setSize(350, 500);
     	frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     	frame.setVisible(true);
     }

@@ -30,6 +30,24 @@ public class home extends JPanel implements ActionListener{
     @Override
 	public void actionPerformed(ActionEvent e) {
         CardLayout cardLayout = (CardLayout) (mainContainer.getLayout());
+        if(e.getActionCommand().equals(CHAT_PANEL)) {
+        	System.out.println(e.getActionCommand());
+        	try {
+				parent.write("OnlineList|"+ parent.currentUser.getId());
+			}catch (IOException ex) {
+				System.out.println("An error occurred");
+				ex.printStackTrace();
+			}
+        }else if(e.getActionCommand().equals(FRIENDS_PANEL)) {
+        	System.out.println(e.getActionCommand());
+        	try {
+				parent.write("GetFriend|"+ parent.currentUser.getId());
+			}catch (IOException ex) {
+				System.out.println("An error occurred");
+				ex.printStackTrace();
+			}
+        }
+        
         cardLayout.show(mainContainer, e.getActionCommand());
     }
 
