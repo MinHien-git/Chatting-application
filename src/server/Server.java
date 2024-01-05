@@ -132,14 +132,14 @@ public class Server {
                     "fullname TEXT," +
                     "email TEXT," +
                     "password TEXT," +
-                    "friends TEXT[]," +
+                    "friends TEXT[] DEFAULT {}," +
                     "\"isAdmin\" BOOLEAN," +
                     "lock BOOLEAN DEFAULT false," +
                     "\"isOnline\" BOOLEAN DEFAULT false," +
                     "\"createAt\" DATE," +
                     "address TEXT," +
                     "dob DATE," +
-                    "blocks TEXT[]," +
+                    "blocks TEXT[] DEFAULT {}," +
                     "gender TEXT)";
             String alterFriendsTable = "ALTER TABLE public.users ALTER COLUMN friends SET DEFAULT '{}'";
             String alterBlockTable = "ALTER TABLE public.users ALTER COLUMN blocks SET DEFAULT '{}'";
@@ -150,8 +150,8 @@ public class Server {
 
             String createMessages = "CREATE TABLE IF NOT EXISTS messages (" +
                     "\"idChat\" TEXT PRIMARY KEY," +
-                    "users TEXT[]," +
-                    "content TEXT[])";
+                    "users TEXT[] DEFAULT {}," +
+                    "content TEXT[] DEFAULT {})";
 
             String createSpams = "CREATE TABLE IF NOT EXISTS spams (" +
                     "username TEXT," +
@@ -161,10 +161,10 @@ public class Server {
 
             String createGroups = "CREATE TABLE IF NOT EXISTS groups (" +
                     "groupid TEXT PRIMARY KEY," +
-                    "admin TEXT[]," +
+                    "admin TEXT[] DEFAULT {}," +
                     "groupname TEXT," +
-                    "users TEXT[]," +
-                    "content TEXT[]," +
+                    "users TEXT[] DEFAULT {}," +
+                    "content TEXT[] DEFAULT {}," +
                     "\"createAt\" DATE)";
             
             String alterGroupsTable = ""
