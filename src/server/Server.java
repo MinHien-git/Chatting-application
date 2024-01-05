@@ -90,8 +90,8 @@ public class Server {
             while (true) {
                 socketOfServer = listener.accept();
                 //ID là client Number nhớ thay đổi tham số 2 của serverThread
-//                id += newKey++;
-                id = "1";
+                id += newKey++;
+//                id = "1";
                 ServerThread serverThread = new ServerThread(socketOfServer, id);
                 serverThreadBus.add(serverThread);
                 System.out.println("Thread ID: " + id);
@@ -132,14 +132,14 @@ public class Server {
                     "fullname TEXT," +
                     "email TEXT," +
                     "password TEXT," +
-                    "friends TEXT[]," +
+                    "friends TEXT[] DEFAULT {}," +
                     "\"isAdmin\" BOOLEAN," +
                     "lock BOOLEAN DEFAULT false," +
                     "\"isOnline\" BOOLEAN DEFAULT false," +
                     "\"createAt\" DATE," +
                     "address TEXT," +
                     "dob DATE," +
-                    "blocks TEXT[]," +
+                    "blocks TEXT[] DEFAULT {}," +
                     "gender TEXT)";
 
             String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +
@@ -149,8 +149,8 @@ public class Server {
 
             String createMessages = "CREATE TABLE IF NOT EXISTS messages (" +
                     "\"idChat\" TEXT PRIMARY KEY," +
-                    "users TEXT[]," +
-                    "content TEXT[])";
+                    "users TEXT[] DEFAULT {}," +
+                    "content TEXT[] DEFAULT {})";
 
             String createSpams = "CREATE TABLE IF NOT EXISTS spams (" +
                     "username TEXT," +
@@ -160,10 +160,10 @@ public class Server {
 
             String createGroups = "CREATE TABLE IF NOT EXISTS groups (" +
                     "groupid TEXT PRIMARY KEY," +
-                    "admin TEXT[]," +
+                    "admin TEXT[] DEFAULT {}," +
                     "groupname TEXT," +
-                    "users TEXT[]," +
-                    "content TEXT[]," +
+                    "users TEXT[] DEFAULT {}," +
+                    "content TEXT[] DEFAULT {}," +
                     "\"createAt\" DATE)";
 
             String createSystems = "CREATE TABLE IF NOT EXISTS systems (" +
