@@ -20,9 +20,11 @@ public class register extends JPanel {
 	private JTextField email;
 	private JPasswordField password;
 	private JTextField name;
+	private JTextField fullname;
 	private static int maxUserID = 1000000;
 	private static int minUserID = 1;
 	private Application parent;
+	private JTextField textField;
 	/**
 	 * Create the application.
 	 */
@@ -58,29 +60,29 @@ public class register extends JPanel {
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(0, 36, 290, 28);
 		panel_1.add(lblNewLabel);
-
+		
 		email = new JTextField();
 		email.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		email.setPreferredSize(new Dimension(7, 22));
-		email.setBounds(45, 150, 202, 28);
+		email.setBounds(45, 216, 202, 28);
 		panel_1.add(email);
 		email.setColumns(10);
 
 		JLabel lblNewLabel_1 = new JLabel("email:");
 		lblNewLabel_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
-		lblNewLabel_1.setBounds(45, 129, 202, 14);
+		lblNewLabel_1.setBounds(45, 195, 202, 14);
 		panel_1.add(lblNewLabel_1);
 
 		password = new JPasswordField();
 		password.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		password.setPreferredSize(new Dimension(7, 22));
 		password.setColumns(10);
-		password.setBounds(45, 210, 202, 28);
+		password.setBounds(45, 276, 202, 28);
 		panel_1.add(password);
 
 		JLabel lblNewLabel_1_1 = new JLabel("password:");
 		lblNewLabel_1_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
-		lblNewLabel_1_1.setBounds(45, 189, 202, 14);
+		lblNewLabel_1_1.setBounds(45, 255, 202, 14);
 		panel_1.add(lblNewLabel_1_1);
 
 		JButton btnNewButton = new JButton("Register");
@@ -95,7 +97,7 @@ public class register extends JPanel {
 
 					if (hashedPW == null) hashedPW = password.getText();
 					try {
-						parent.write("Register|"+id+"|"+name.getText()+"|"+email.getText()+"|"+hashedPW);
+						parent.write("Register|"+id+"|"+name.getText()+"|"+fullname.getText()+"|"+email.getText()+"|"+hashedPW);
 					}catch (IOException ex) {
 						System.out.println("An error occurred");
 						ex.printStackTrace();
@@ -107,7 +109,7 @@ public class register extends JPanel {
 		btnNewButton.setForeground(Color.WHITE);
 		btnNewButton.setBackground(new Color(30, 144, 255));
 		btnNewButton.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
-		btnNewButton.setBounds(45, 267, 203, 38);
+		btnNewButton.setBounds(44, 330, 203, 38);
 		panel_1.add(btnNewButton);
 
 		JButton btnLogin = new JButton("Login");
@@ -123,20 +125,32 @@ public class register extends JPanel {
 		btnLogin.setForeground(new Color(30, 144, 255));
 		btnLogin.setFont(new Font("Source Code Pro Black", Font.PLAIN, 11));
 		btnLogin.setBackground(Color.WHITE);
-		btnLogin.setBounds(45, 315, 203, 38);
+		btnLogin.setBounds(44, 378, 203, 38);
 		panel_1.add(btnLogin);
 
 		name = new JTextField();
 		name.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		name.setPreferredSize(new Dimension(7, 22));
 		name.setColumns(10);
-		name.setBounds(45, 95, 202, 28);
+		name.setBounds(45, 161, 202, 28);
+		
 		panel_1.add(name);
-
 		JLabel lblNewLabel_1_2 = new JLabel("name:");
 		lblNewLabel_1_2.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
-		lblNewLabel_1_2.setBounds(45, 74, 202, 14);
+		lblNewLabel_1_2.setBounds(45, 140, 202, 14);
 		panel_1.add(lblNewLabel_1_2);
+		
+		JLabel lblNewLabel_1_2_1 = new JLabel("fullname:");
+		lblNewLabel_1_2_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
+		lblNewLabel_1_2_1.setBounds(45, 80, 202, 14);
+		panel_1.add(lblNewLabel_1_2_1);
+		
+		textField = new JTextField();
+		textField.setPreferredSize(new Dimension(7, 22));
+		textField.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
+		textField.setColumns(10);
+		textField.setBounds(45, 101, 202, 28);
+		panel_1.add(textField);
 		setBounds(100, 100, 605, 492);
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

@@ -336,6 +336,7 @@ public class ServerThread implements Runnable {
             	SetOffline(actual_userID);
             }
             Server.serverThreadBus.remove(userID);
+            
             System.out.println(userID + " exited " + actual_userID);
         }
         finally {
