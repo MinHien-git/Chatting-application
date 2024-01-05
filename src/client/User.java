@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class User {
 	public String id;
 	public String name;
+	public String fullname;
 	public String password;
 	public String email;
 	public ArrayList<User> friends = new ArrayList<>();
@@ -59,11 +60,12 @@ public class User {
 	}
 
 	// For General purpose
-	public User(String id,String n,String e,String p) {
+	public User(String id,String n,String f,String e,Boolean p) {
 		this.id = id;
 		this.name = n;
 		this.email = e;
-		this.password = p;
+		this.isAdmin = p;
+		this.fullname = f;
 	}
 
 	public User(String id,String n,boolean isOnline) {

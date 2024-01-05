@@ -130,11 +130,7 @@ public class ServerThread implements Runnable {
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                 	}
                 }else if(commandString.equals("Register")) {
-<<<<<<< Updated upstream
-                	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4])) {
-=======
                 	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4],messageSplit[5])) {
->>>>>>> Stashed changes
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "Register_Success|");
                 	}
                 }else if(commandString.equals("ResetPassword")) {
