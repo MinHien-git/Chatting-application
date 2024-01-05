@@ -269,7 +269,10 @@ public class Application {
     }
 
     public static void main(String[] args) {
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
         app = new Application();
         app.setUpSocket();
     }

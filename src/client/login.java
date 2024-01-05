@@ -73,7 +73,7 @@ public class login extends JPanel {
 		panel_1.add(email);
 		email.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("email:");
+		JLabel lblNewLabel_1 = new JLabel("email or username:");
 		lblNewLabel_1.setFont(new Font("Source Code Pro", Font.PLAIN, 11));
 		lblNewLabel_1.setBounds(46, 108, 202, 14);
 		panel_1.add(lblNewLabel_1);
