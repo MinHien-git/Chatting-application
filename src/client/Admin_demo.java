@@ -45,10 +45,6 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 public class Admin_demo extends JPanel{
-    private Thread thread;
-    private BufferedWriter os;
-    private BufferedReader is;
-    private Socket socketOfClient;
     private JTabbedPane allTab;
     private JTextField inputSearch;
     private JPanel listUser;
