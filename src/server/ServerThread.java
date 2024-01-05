@@ -599,9 +599,10 @@ public class ServerThread implements Runnable {
             if (rs.next()) {
             	Array  arr =  rs.getArray("content");
                 result[0] = rs.getString("groupid");
-
-                result[1] = "";
                 String[] m = (String[]) arr.getArray();
+                
+                result[1] = "";
+                
                 for(int i = 0;i<m.length;++i) {
                 	if(i == m.length-1)
                 		result[1] += m[i];
@@ -1130,6 +1131,17 @@ public class ServerThread implements Runnable {
             preparedStatement.setString(1, content);
             preparedStatement.setString(2, id);
             
+            smt.setString(1, id);
+            
+            ResultSet rsResultSet = smt.executeQuery();
+            if(rsResultSet.next()) {
+            	Array arr =  rsResultSet.getArray("users");
+            	String[] m = (String[]) arr.getArray();
+            	
+            	for (String u:m) {
+                	Server.serverThreadBus.boardCastUser(u, "UpdateMessage|"+id+"|"+content);
+                }
+            }
             int count = preparedStatement.executeUpdate();
 
             return count > 0;

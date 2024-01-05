@@ -197,6 +197,14 @@ public class Application {
                             		System.out.println(dataSplit[1] + " " + app.focusIDString);
 
                             	}
+                            }else if(dataSplit[0].equals("UpdateMessage")) {
+                            	if(mainPanel instanceof home) {
+                            		home home = (home) mainPanel;
+                            		chatting chatting  = (chatting)home.chatPanel;
+                            		if(dataSplit[1].equals(app.focusIDString)) {
+                            			chatting.AddChat(dataSplit[2]);
+                            		}
+                            	}
                             }else if(dataSplit[0].equals("GlobalSearch")) {
                             	if(mainPanel instanceof home) {
                             		home home = (home) mainPanel;

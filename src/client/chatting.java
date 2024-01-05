@@ -319,6 +319,12 @@ public class chatting extends JPanel {
             if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
                 User reportedUser = (User) selected;
                 String uid = reportedUser.getId();
+                for(int i = 0;i<Lmembers.size();++i) {
+                	if( Lmembers.get(i).getId().equals(uid)) {
+                		Lmembers.remove(i);
+                		break;
+                	}
+                }
                 String groupID = parent.focusIDString;
                 try {
                 	parent.write("RemoveMemberGroup|" + groupID + "|" + uid);
@@ -335,6 +341,12 @@ public class chatting extends JPanel {
             if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
                 User reportedUser = (User) selected;
                 String uid = reportedUser.getId();
+                for(int i = 0;i<Lmembers.size();++i) {
+                	if( Lmembers.get(i).getId().equals(uid)) {
+                		Lmembers.get(i).setAdmin(true);
+                		break;
+                	}
+                }
                 String groupID = parent.focusIDString;
                 try {
                 	parent.write("SetAdminGroup|" + groupID + "|" + uid);
@@ -351,6 +363,12 @@ public class chatting extends JPanel {
             if (selected != null && selected instanceof User && !parent.focusIDString.equals("")) {
                 User reportedUser = (User) selected;
                 String uid = reportedUser.getId();
+                for(int i = 0;i<Lmembers.size();++i) {
+                	if( Lmembers.get(i).getId().equals(uid)) {
+                		Lmembers.get(i).setAdmin(false);
+                		break;
+                	}
+                }
                 String groupID = parent.focusIDString;
                 try {
                 	parent.write("RemoveAdminGroup|" + groupID + "|" + uid);
