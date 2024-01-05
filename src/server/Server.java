@@ -132,17 +132,16 @@ public class Server {
                     "fullname TEXT," +
                     "email TEXT," +
                     "password TEXT," +
-                    "friends TEXT[] DEFAULT {}," +
+                    "friends TEXT[] DEFAULT '{}'," +
                     "\"isAdmin\" BOOLEAN," +
                     "lock BOOLEAN DEFAULT false," +
                     "\"isOnline\" BOOLEAN DEFAULT false," +
                     "\"createAt\" DATE," +
                     "address TEXT," +
                     "dob DATE," +
-                    "blocks TEXT[] DEFAULT {}," +
+                    "blocks TEXT[] DEFAULT '{}'," +
                     "gender TEXT)";
-            String alterFriendsTable = "ALTER TABLE public.users ALTER COLUMN friends SET DEFAULT '{}'";
-            String alterBlockTable = "ALTER TABLE public.users ALTER COLUMN blocks SET DEFAULT '{}'";
+
             String createLogs = "CREATE TABLE IF NOT EXISTS logs (" +
                     "username TEXT," +
                     "logdate TIMESTAMP WITH TIME ZONE, " +
@@ -150,8 +149,8 @@ public class Server {
 
             String createMessages = "CREATE TABLE IF NOT EXISTS messages (" +
                     "\"idChat\" TEXT PRIMARY KEY," +
-                    "users TEXT[] DEFAULT {}," +
-                    "content TEXT[] DEFAULT {})";
+                    "users TEXT[] DEFAULT '{}'," +
+                    "content TEXT[] DEFAULT '{}')";
 
             String createSpams = "CREATE TABLE IF NOT EXISTS spams (" +
                     "username TEXT," +
@@ -161,15 +160,11 @@ public class Server {
 
             String createGroups = "CREATE TABLE IF NOT EXISTS groups (" +
                     "groupid TEXT PRIMARY KEY," +
-                    "admin TEXT[] DEFAULT {}," +
+                    "admin TEXT[] DEFAULT '{}'," +
                     "groupname TEXT," +
-                    "users TEXT[] DEFAULT {}," +
-                    "content TEXT[] DEFAULT {}," +
+                    "users TEXT[] DEFAULT '{}'," +
+                    "content TEXT[] DEFAULT '{}'," +
                     "\"createAt\" DATE)";
-            
-            String alterGroupsTable = ""
-            		+ "ALTER TABLE public.groups "
-            		+ "ALTER COLUMN content SET DEFAULT '{}'";
             
             String createSystems = "CREATE TABLE IF NOT EXISTS systems (" +
                     "username TEXT," +
@@ -180,11 +175,8 @@ public class Server {
 
             statement.executeUpdate(createUsers);
             statement.executeUpdate(createLogs);
-            statement.executeUpdate(alterFriendsTable);
-            statement.executeUpdate(alterBlockTable);
             statement.executeUpdate(createSpams);
             statement.executeUpdate(createGroups);
-            statement.executeUpdate(alterGroupsTable);
             statement.executeUpdate(createMessages);
             statement.executeUpdate(createSystems);
         }

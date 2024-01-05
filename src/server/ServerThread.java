@@ -126,8 +126,10 @@ public class ServerThread implements Runnable {
                 	if(!result.equals("")) {
                 		actual_userID = result.split("\\|")[0];
                 		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"Login_Success|"+result);
-                		String onlineList = GetOnlineFriends(actual_userID);
-                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
+                		if (result.split("\\|")[4].equals("false")) {
+                            String onlineList = GetOnlineFriends(actual_userID);
+                            Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
+                        }
                 	}
                 }else if(commandString.equals("Register")) {
                 	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4],messageSplit[5])) {
@@ -265,7 +267,7 @@ public class ServerThread implements Runnable {
                 } else if (commandString.equals("AdminGetListFriend")) {
                     AdminGetListFriend(messageSplit);
                 } else if (commandString.equals("AdminGetListLogin")) {
-                    AdminGetListLogin();
+                    AdminGetListLogin(messageSplit);
                 } else if (commandString.equals("AdminGetListGroup")) {
                     AdminGetListGroup(messageSplit);
                 } else if (commandString.equals("AdminGetListMemGroup")) {
@@ -1193,24 +1195,24 @@ public class ServerThread implements Runnable {
                 }
 
                 if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
-                    ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC, \"createAt\" DESC";
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
                 } else if (messageSplit[2].equals("1")) {
-                    ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC";
+                    ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
                 } else if (messageSplit[3].equals("1")) {
                     ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                 }
             } else {
                 if (messageSplit[1].equals("1")) {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE name LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE name LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
-                        ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC, \"createAt\" DESC";
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC, \"createAt\" DESC";
                     } else if (messageSplit[2].equals("1")) {
-                        ADMIN_GET_LIST_USER_SQL += " ORDER BY name DESC";
+                        ADMIN_GET_LIST_USER_SQL += " ORDER BY username DESC";
                     } else if (messageSplit[3].equals("1")) {
                         ADMIN_GET_LIST_USER_SQL += " ORDER BY \"createAt\" DESC";
                     }
@@ -1260,11 +1262,11 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListUser|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListUser|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
-                        result.append(rs.getString("name")).append(", ");
+                        result.append(rs.getString("username")).append(", ");
                         result.append(rs.getString("fullname")).append(", ");
                         result.append(rs.getString("address")).append(", ");
                         result.append(rs.getString("dob")).append(", ");
@@ -1276,7 +1278,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListUser|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1294,8 +1296,8 @@ public class ServerThread implements Runnable {
             String ADMIN_CHECK_USERNAME;
             String ADMIN_CHECK_EMAIL;
 
-            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"users\" (name, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password, id, \"isAdmin\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE name = ?";
+            ADMIN_ADD_NEW_ACCOUNT_SQL = "INSERT INTO public.\"users\" (username, fullname, address, dob, gender, email, \"isOnline\", lock, \"createAt\", password, id, \"isAdmin\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
             ADMIN_CHECK_EMAIL = "SELECT * FROM public.\"users\" WHERE email = ?";
 
             String dateString = messageSplit[4];
@@ -1351,8 +1353,8 @@ public class ServerThread implements Runnable {
             String ADMIN_UPDATE_ACCOUNT_SQL;
             String ADMIN_CHECK_USERNAME;
 
-            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET name = ?, fullname = ?, address = ? WHERE email = ?";
-            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE name = ?";
+            ADMIN_UPDATE_ACCOUNT_SQL = "UPDATE public.\"users\" SET username = ?, fullname = ?, address = ? WHERE email = ?";
+            ADMIN_CHECK_USERNAME = "SELECT * FROM public.\"users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UPDATE_ACCOUNT_SQL);
@@ -1380,7 +1382,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_DELETE_ACCOUNT_SQL;
 
-            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"users\" WHERE name = ?";
+            ADMIN_DELETE_ACCOUNT_SQL = "DELETE FROM public.\"users\" WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_DELETE_ACCOUNT_SQL)) {
@@ -1399,7 +1401,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_LOCK_ACCOUNT_SQL;
 
-            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE name = ?";
+            ADMIN_LOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_LOCK_ACCOUNT_SQL)) {
@@ -1419,7 +1421,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_UNLOCK_ACCOUNT_SQL;
 
-            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE name = ?";
+            ADMIN_UNLOCK_ACCOUNT_SQL = "UPDATE public.\"users\" SET lock = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_UNLOCK_ACCOUNT_SQL)) {
@@ -1439,7 +1441,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_RENEW_PASSWORD_SQL;
 
-            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"users\" SET password = ? WHERE name = ?";
+            ADMIN_RENEW_PASSWORD_SQL = "UPDATE public.\"users\" SET password = ? WHERE username = ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_RENEW_PASSWORD_SQL)) {
@@ -1468,7 +1470,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListUser|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListUser|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1480,7 +1482,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListLoginHistory|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1506,7 +1508,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListFriend|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListFriend|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1518,7 +1520,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListFriend|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1529,7 +1531,7 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-    public static void AdminGetListLogin() {
+    public static void AdminGetListLogin(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_LOGIN_SQL;
@@ -1541,7 +1543,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListLogin|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListLogin|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1554,7 +1556,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListLogin|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1592,7 +1594,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListGroup|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListGroup|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1606,7 +1608,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListGroup|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1634,7 +1636,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListMemGroup|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListMemGroup|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1642,12 +1644,12 @@ public class ServerThread implements Runnable {
                         result.append("Thành viên");
 
                         String fullReturn = "AdminGetListMemGroup|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
 
                 if (!rsAd.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListMemGroup|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListMemGroup|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1659,7 +1661,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListMemGroup|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rsAd.next());
                 }
 
@@ -1687,7 +1689,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListAdmin|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListAdmin|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1698,7 +1700,7 @@ public class ServerThread implements Runnable {
                             result.append(rs.getString("groupname"));
                         }
                         String fullReturn = "AdminGetListAdmin|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1738,7 +1740,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListSpam|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListSpam|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1751,7 +1753,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListSpam|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1790,7 +1792,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListNew|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListNew|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1807,7 +1809,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListNew|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1839,7 +1841,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetChartNew|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetChartNew|no data|END");
                 } else {
                     StringBuilder result = new StringBuilder();
                     do {
@@ -1851,7 +1853,7 @@ public class ServerThread implements Runnable {
                         }
                     } while (rs.next());
                     String fullReturn = "AdminGetChartNew|" + result + "|" + messageSplit[1];
-                    Server.serverThreadBus.boardCast("1", fullReturn);
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -1887,7 +1889,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListFriendPlus|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListFriendPlus|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1900,7 +1902,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListFriendPlus|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -1911,7 +1913,6 @@ public class ServerThread implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     public static void AdminGetListOpen(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1973,7 +1974,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetListOpen|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetListOpen|no data|END");
                 } else {
                     do {
                         StringBuilder result = new StringBuilder();
@@ -1987,7 +1988,7 @@ public class ServerThread implements Runnable {
                         }
 
                         String fullReturn = "AdminGetListOpen|" + result;
-                        Server.serverThreadBus.boardCast("1", fullReturn);
+                        Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                     } while (rs.next());
                 }
             } catch (SQLException e) {
@@ -2019,7 +2020,7 @@ public class ServerThread implements Runnable {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
-                    Server.serverThreadBus.boardCast("1", "AdminGetChartOpen|no data|END");
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], "AdminGetChartOpen|no data|END");
                 } else {
                     StringBuilder result = new StringBuilder();
                     do {
@@ -2031,7 +2032,7 @@ public class ServerThread implements Runnable {
                         }
                     } while (rs.next());
                     String fullReturn = "AdminGetChartOpen|" + result + "|" + messageSplit[1];
-                    Server.serverThreadBus.boardCast("1", fullReturn);
+                    Server.serverThreadBus.boardCast(messageSplit[messageSplit.length - 1], fullReturn);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);

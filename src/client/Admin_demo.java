@@ -44,12 +44,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-public class Admin_demo {
+public class Admin_demo extends JPanel{
     private Thread thread;
     private BufferedWriter os;
     private BufferedReader is;
     private Socket socketOfClient;
-    private JFrame frame;
     private JTabbedPane allTab;
     private JTextField inputSearch;
     private JPanel listUser;
@@ -129,21 +128,21 @@ public class Admin_demo {
     private ChartPanel chartPanel1;
     private JTextField inputYearT9;
     private GridBagConstraints gbcMain;
-    private JPanel OuterMainPanel;
-
+    public Application parent;
     /**
      * Launch the application.
      */
-    public static void main(String[] args) {
-        Admin_demo window = new Admin_demo();
-        window.frame.setVisible(true);
-        window.setUpSocket();
-    }
+//    public static void main(String[] args) {
+//        Admin_demo window = new Admin_demo();
+//        window.frame.setVisible(true);
+//        window.setUpSocket();
+//    }
 
     /**
      * Create the application.
      */
-    public Admin_demo() {
+    public Admin_demo(Application app) {
+        this.parent = app;
         initialize();
     }
 
@@ -151,8 +150,6 @@ public class Admin_demo {
      * Initialize the contents of the frame.
      */
     private void initialize() {
-        frame = new JFrame();
-        OuterMainPanel = new JPanel();
 
         JPanel defaultPanel = new JPanel();
         JPanel panel1 = new JPanel();
@@ -189,10 +186,7 @@ public class Admin_demo {
         panel8.add(this.trang8());
         panel9.add(this.trang9());
 
-        OuterMainPanel.add(allTab);
-        frame.add(OuterMainPanel);
-        frame.setSize(1300, 1000);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.add(allTab);
         allTab.setSelectedIndex(0);
     }
 
@@ -807,7 +801,7 @@ public class Admin_demo {
                     status = "Offline";
                 }
                 try {
-                    write("AdminGetListUser|%s|%s|%s|%s|%s".formatted(tempCheckBoxUsername, tempCheckBoxSortName, tempCheckBoxSortCreate, nameToSearch, status));
+                    parent.write("AdminGetListUser|%s|%s|%s|%s|%s".formatted(tempCheckBoxUsername, tempCheckBoxSortName, tempCheckBoxSortCreate, nameToSearch, status));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -947,7 +941,7 @@ public class Admin_demo {
                     emailAddtf.setText("");
 
                     try {
-                        write("AdminAddNewAccount|%s|%s|%s|%s|%s|%s".formatted(unAdd, fnAdd, addrAdd, dobAdd, genderAdd, emailAdd));
+                        parent.write("AdminAddNewAccount|%s|%s|%s|%s|%s|%s".formatted(unAdd, fnAdd, addrAdd, dobAdd, genderAdd, emailAdd));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -970,7 +964,7 @@ public class Admin_demo {
                     emailUpdatetf.setText("");
 
                     try {
-                        write("AdminUpdateAccount|%s|%s|%s|%s".formatted(unUpdate, fnUpdate, addrUpdate, emailUpdate));
+                        parent.write("AdminUpdateAccount|%s|%s|%s|%s".formatted(unUpdate, fnUpdate, addrUpdate, emailUpdate));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -986,7 +980,7 @@ public class Admin_demo {
                 if (!unDel.isEmpty()) {
                     unDeltf.setText("");
                     try {
-                        write("AdminDeleteAccount|%s".formatted(unDel));
+                        parent.write("AdminDeleteAccount|%s".formatted(unDel));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1099,7 +1093,7 @@ public class Admin_demo {
                 if (!inputLock.getText().isEmpty()) {
                     String tempInputLock = inputLock.getText().trim();
                     try {
-                        write("AdminLockAccount|%s".formatted(tempInputLock));
+                        parent.write("AdminLockAccount|%s".formatted(tempInputLock));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1113,7 +1107,7 @@ public class Admin_demo {
                 if (!inputLock.getText().isEmpty()) {
                     String tempInputLock = inputLock.getText().trim();
                     try {
-                        write("AdminUnlockAccount|%s".formatted(tempInputLock));
+                        parent.write("AdminUnlockAccount|%s".formatted(tempInputLock));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1160,7 +1154,7 @@ public class Admin_demo {
                 String repw = inputLabelRePass.getText();
                 if (!pw.isEmpty() && !repw.isEmpty() && pw.equals(repw)) {
                     try {
-                        write("AdminRenewPassword|%s|%s".formatted(un, pw));
+                        parent.write("AdminRenewPassword|%s|%s".formatted(un, pw));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1249,7 +1243,7 @@ public class Admin_demo {
                 String un = inputUnameHist.getText();
                 if (!un.equals("Nhập tên đăng nhập")) {
                     try {
-                        write("AdminGetListLoginHistory|%s".formatted(un));
+                        parent.write("AdminGetListLoginHistory|%s".formatted(un));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1321,7 +1315,7 @@ public class Admin_demo {
                 String un = inputUnameFriend.getText();
                 if (!un.equals("Nhập tên đăng nhập")) {
                     try {
-                        write("AdminGetListFriend|%s".formatted(un));
+                        parent.write("AdminGetListFriend|%s".formatted(un));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1404,7 +1398,7 @@ public class Admin_demo {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    write("AdminGetListLogin|");
+                    parent.write("AdminGetListLogin|");
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1493,7 +1487,7 @@ public class Admin_demo {
                 String sortBy2 = btnSortDateCreate.isSelected() ? "1" : "0";
                 String tempInputGSearch = inputGSearch.getText();
                 try {
-                    write("AdminGetListGroup|%s|%s|%s".formatted(sortBy1, sortBy2, tempInputGSearch));
+                    parent.write("AdminGetListGroup|%s|%s|%s".formatted(sortBy1, sortBy2, tempInputGSearch));
                     inputGSearch.setText("");
                     btnSortName.setSelected(false);
                     btnSortDateCreate.setSelected(false);
@@ -1587,7 +1581,7 @@ public class Admin_demo {
                 String tempGName = inputMemGroupSearch.getText();
                 if (!tempGName.isEmpty()) {
                     try {
-                        write("AdminGetListMemGroup|%s".formatted(tempGName));
+                        parent.write("AdminGetListMemGroup|%s".formatted(tempGName));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1662,7 +1656,7 @@ public class Admin_demo {
             public void actionPerformed(ActionEvent e) {
                 String tempGName = inputAdminSearch.getText();
                 try {
-                    write("AdminGetListAdmin|%s".formatted(tempGName));
+                    parent.write("AdminGetListAdmin|%s".formatted(tempGName));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1753,14 +1747,14 @@ public class Admin_demo {
                 String tempInputSpamSearch = inputSpamSearch.getText();
                 if (filterBy.equals("0") && tempInputSpamSearch.isEmpty()) {
                     try {
-                        write("AdminGetListSpam|%s".formatted(sortBy));
+                        parent.write("AdminGetListSpam|%s".formatted(sortBy));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
                 else if (!filterBy.equals("0") && !tempInputSpamSearch.isEmpty()) {
                     try {
-                        write("AdminGetListSpam|%s|%s|%s".formatted(sortBy, filterBy, tempInputSpamSearch));
+                        parent.write("AdminGetListSpam|%s|%s|%s".formatted(sortBy, filterBy, tempInputSpamSearch));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1826,7 +1820,7 @@ public class Admin_demo {
                 String tempInputLockT4 = inputLockt4.getText();
                 if (!tempInputLockT4.isEmpty()) {
                     try {
-                        write("AdminLockAccount|%s".formatted(tempInputLockT4));
+                        parent.write("AdminLockAccount|%s".formatted(tempInputLockT4));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -1945,7 +1939,7 @@ public class Admin_demo {
 
                 if (!tempInputFromDate.isEmpty() && !tempInputToDate.isEmpty()) {
                     try {
-                        write("AdminGetListNew|%s|%s|%s|%s".formatted(tempInputFromDate, tempInputToDate, sortBy, tempInputNewSearch));
+                        parent.write("AdminGetListNew|%s|%s|%s|%s".formatted(tempInputFromDate, tempInputToDate, sortBy, tempInputNewSearch));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -2038,7 +2032,7 @@ public class Admin_demo {
                 if (!tempInputYear.isEmpty()) {
                     try {
                         int number = Integer.parseInt(tempInputYear);
-                        write("AdminGetChartNew|%d".formatted(number));
+                        parent.write("AdminGetChartNew|%d".formatted(number));
                     } catch (NumberFormatException | IOException ne) {
                         throw new RuntimeException(ne);
                     }
@@ -2134,20 +2128,20 @@ public class Admin_demo {
 
                 if (tempInputNameSearch.isEmpty()) {
                     try {
-                        write("AdminGetListFriendPlus|%s".formatted(sortBy));
+                        parent.write("AdminGetListFriendPlus|%s".formatted(sortBy));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 } else {
                     if (tempInputDir_fr.isEmpty()) {
                         try {
-                            write("AdminGetListFriendPlus|%s|%s".formatted(sortBy, tempInputNameSearch));
+                            parent.write("AdminGetListFriendPlus|%s|%s".formatted(sortBy, tempInputNameSearch));
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
                     } else {
                         try {
-                            write("AdminGetListFriendPlus|%s|%s|%s".formatted(sortBy, tempInputNameSearch, tempInputDir_fr));
+                            parent.write("AdminGetListFriendPlus|%s|%s|%s".formatted(sortBy, tempInputNameSearch, tempInputDir_fr));
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -2284,14 +2278,14 @@ public class Admin_demo {
                     if (tempInputNameSearch.isEmpty()) {
                         if (tempInputOpen.isEmpty()) {
                             try {
-                                write("AdminGetListOpen|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate));
+                                parent.write("AdminGetListOpen|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate));
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
                         }
                         else {
                             try {
-                                write("AdminGetListOpen|%s|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputOpen));
+                                parent.write("AdminGetListOpen|%s|%s|%s|%s".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputOpen));
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -2299,13 +2293,13 @@ public class Admin_demo {
                     } else {
                         if (tempInputOpen.isEmpty()) {
                             try {
-                                write("AdminGetListOpen|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch));
+                                parent.write("AdminGetListOpen|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch));
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
                         } else {
                             try {
-                                write("AdminGetListOpen|%s|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch, tempInputOpen));
+                                parent.write("AdminGetListOpen|%s|%s|%s|%s|%s|1".formatted(sortBy, tempInputFromDate, tempInputToDate, tempInputNameSearch, tempInputOpen));
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -2414,7 +2408,7 @@ public class Admin_demo {
                 if (!tempInputYear.isEmpty()) {
                     try {
                         int number = Integer.parseInt(tempInputYear);
-                        write("AdminGetChartOpen|%d".formatted(number));
+                        parent.write("AdminGetChartOpen|%d".formatted(number));
                     } catch (NumberFormatException | IOException ne) {
                         throw new RuntimeException(ne);
                     }
@@ -2871,126 +2865,88 @@ public class Admin_demo {
         return outerPanel9;
     }
 
-    private void write(String message) throws IOException {
-        os.write(message);
-        os.newLine();
-        os.flush();
-    }
+//    private void write(String message) throws IOException {
+//        os.write(message);
+//        os.newLine();
+//        os.flush();
+//    }
 
-    public void setUpSocket() {
-        try {
-            thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        // Gửi yêu cầu kết nối tới Server đang lắng nghe
-                        // trên máy 'localhost' cổng 7777.
-                        socketOfClient = new Socket("127.0.0.1", 7777);
-                        System.out.println("Kết nối thành công!");
-                        // Tạo luồng đầu ra tại client (Gửi dữ liệu tới server)
-                        os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));
-                        // Luồng đầu vào tại Client (Nhận dữ liệu từ server).
-                        is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
+    public void setUpSocket(String message) {
+        String dataPart = message.split("\\|")[1];
 
-                        String message;
+        String[] strings = dataPart.split(", ");
 
-                        while (true) {
-
-                            message = is.readLine();
-                            String dataPart = message.split("\\|")[1];
-
-                            String[] strings = dataPart.split(", ");
-
-                            ArrayList<String> result = new ArrayList<>(Arrays.asList(strings));
-                            if (message == null) {
-                                break;
-                            } else if (message.startsWith("AdminGetListUser|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListUser(result, 1);
-                                } else {
-                                    updateListUser(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListLoginHistory|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListLoginHist(result, 1);
-                                } else {
-                                    updateListLoginHist(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListFriend|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListFriend(result, 1);
-                                } else {
-                                    updateListFriend(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListLogin|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListLogin(result, 1);
-                                } else {
-                                    updateListLogin(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListGroup|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListGroup(result, 1);
-                                } else {
-                                    updateListGroup(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListMemGroup|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListMemGroup(result, 1);
-                                } else {
-                                    updateListMemGroup(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListAdmin|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListAdmin(result, 1);
-                                } else {
-                                    updateListAdmin(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListSpam|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListSpam(result, 1);
-                                } else {
-                                    updateListSpam(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetListNew|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListNew(result, 1);
-                                } else {
-                                    updateListNew(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetChartNew|")) {
-                                updateChartNew(result, message.split("\\|")[2]);
-                            } else if (message.startsWith("AdminGetListFriendPlus|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListFriendPlus(result, 1);
-                                } else {
-                                    updateListFriendPlus(result, 0);
-                                }
-                            } else if (message.startsWith("AdminGetChartOpen|")) {
-                                updateChartOpen(result, message.split("\\|")[2]);
-                            } else if (message.startsWith("AdminGetListOpen|")) {
-                                if (message.split("\\|").length > 2) {
-                                    updateListOpen(result, 1);
-                                } else {
-                                    updateListOpen(result, 0);
-                                }
-                            }
-                        }
-//                    os.close();
-//                    is.close();
-//                    socketOfClient.close();
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                        return;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                }
-            };
-            Thread.sleep(1000);
-            thread.run();
-        } catch (Exception e) {
+        ArrayList<String> result = new ArrayList<>(Arrays.asList(strings));
+        if (message.startsWith("AdminGetListUser|")) {
+            if (message.split("\\|").length > 2) {
+                updateListUser(result, 1);
+            } else {
+                updateListUser(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListLoginHistory|")) {
+            if (message.split("\\|").length > 2) {
+                updateListLoginHist(result, 1);
+            } else {
+                updateListLoginHist(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListFriend|")) {
+            if (message.split("\\|").length > 2) {
+                updateListFriend(result, 1);
+            } else {
+                updateListFriend(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListLogin|")) {
+            if (message.split("\\|").length > 2) {
+                updateListLogin(result, 1);
+            } else {
+                updateListLogin(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListGroup|")) {
+            if (message.split("\\|").length > 2) {
+                updateListGroup(result, 1);
+            } else {
+                updateListGroup(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListMemGroup|")) {
+            if (message.split("\\|").length > 2) {
+                updateListMemGroup(result, 1);
+            } else {
+                updateListMemGroup(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListAdmin|")) {
+            if (message.split("\\|").length > 2) {
+                updateListAdmin(result, 1);
+            } else {
+                updateListAdmin(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListSpam|")) {
+            if (message.split("\\|").length > 2) {
+                updateListSpam(result, 1);
+            } else {
+                updateListSpam(result, 0);
+            }
+        } else if (message.startsWith("AdminGetListNew|")) {
+            if (message.split("\\|").length > 2) {
+                updateListNew(result, 1);
+            } else {
+                updateListNew(result, 0);
+            }
+        } else if (message.startsWith("AdminGetChartNew|")) {
+            updateChartNew(result, message.split("\\|")[2]);
+        } else if (message.startsWith("AdminGetListFriendPlus|")) {
+            if (message.split("\\|").length > 2) {
+                updateListFriendPlus(result, 1);
+            } else {
+                updateListFriendPlus(result, 0);
+            }
+        } else if (message.startsWith("AdminGetChartOpen|")) {
+            updateChartOpen(result, message.split("\\|")[2]);
+        } else if (message.startsWith("AdminGetListOpen|")) {
+            if (message.split("\\|").length > 2) {
+                updateListOpen(result, 1);
+            } else {
+                updateListOpen(result, 0);
+            }
         }
     }
 }

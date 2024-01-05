@@ -70,16 +70,21 @@ public class Application {
     							chatting c = new chatting(app);
     							globalChatHistory gbc = new globalChatHistory(app);
     							ClearTab();
-    							try {
-    								write("Online|"+ currentUser.getId());
-    							}catch (IOException ex) {
-    								System.out.println("An error occurred");
-    								ex.printStackTrace();
-    							}
-    							applicationFrame.setLayout(new BorderLayout());
-    							//Application.getApplicationFrame().setVisible(true);
-    							ChangeTab(new home(app,applicationFrame,onlList, flist, c, gbc),600, 600);
-                            	//User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
+								boolean isAdmin = dataSplit[5].equals("true");
+								if (isAdmin) {
+									ChangeTab(new Admin_demo(app), 1000, 1300);
+								} else {
+									try {
+										write("Online|"+ currentUser.getId());
+									}catch (IOException ex) {
+										System.out.println("An error occurred");
+										ex.printStackTrace();
+									}
+									applicationFrame.setLayout(new BorderLayout());
+									//Application.getApplicationFrame().setVisible(true);
+									ChangeTab(new home(app,applicationFrame,onlList, flist, c, gbc),600, 600);
+									//User user = new User(Integer.toString(id) ,name.getText(),email.getText(),hashedPW);
+								}
                             }else if(dataSplit[0].equals("Reset_password")){
                             	JOptionPane.showMessageDialog(applicationFrame,"Please Check your email");
                         	}
@@ -203,7 +208,10 @@ public class Application {
                             	}
                             }else if(dataSplit[0].equals("AddFriendSuccess")) {
                             	JOptionPane.showMessageDialog(mainPanel, "You just added new friend to the friends list");
-                            }
+                            } else if (mainPanel instanceof Admin_demo) {
+								Admin_demo adminDemo = (Admin_demo) mainPanel;
+								adminDemo.setUpSocket(message);
+							}
                         }
                     os.close();
                     is.close();
