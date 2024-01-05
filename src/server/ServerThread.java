@@ -867,6 +867,8 @@ public class ServerThread implements Runnable {
             	ResultSet rs =ps.executeQuery();
             	if(rs.next()) {
             		String idString = rs.getString("id");
+            		String onlineList = GetListFriendsAndGroups(idString);
+            		Server.serverThreadBus.boardCastUser(idString,"OnlineList"+onlineList);
             		members.add(idString);
             	}
             }
@@ -874,7 +876,10 @@ public class ServerThread implements Runnable {
             preparedStatement.setArray(2, connection.createArrayOf("TEXT", user));
             preparedStatement.setString(3, group_name);
             preparedStatement.setArray(4, connection.createArrayOf("TEXT", members.toArray()));
-
+            
+            String onlineList = GetListFriendsAndGroups(creator);
+            Server.serverThreadBus.boardCastUser(creator,"OnlineList"+onlineList);
+            
             int count = preparedStatement.executeUpdate();
 
             return count > 0;
@@ -1117,12 +1122,14 @@ public class ServerThread implements Runnable {
     //Send message to group chat -- add to db
     public static boolean UpdateGroupChatMessage(String id, String content) {
         String UPDATE_MESSAGE_SQL = "Update public.\"groups\" SET content = array_append(content,?) WHERE groupid = ?";
+        String GET_MEMBER_MESSAGE_SQL = "SELECT users FROM public.\"groups\" WHERE groupid = ?";
         String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL);
+        		PreparedStatement smt = connection.prepareStatement(GET_MEMBER_MESSAGE_SQL);) {
             preparedStatement.setString(1, content);
             preparedStatement.setString(2, id);
-
+            
             int count = preparedStatement.executeUpdate();
 
             return count > 0;
