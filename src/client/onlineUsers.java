@@ -174,23 +174,7 @@ public class onlineUsers extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         searchBar.setSize(new Dimension(600, 200));
         SetPlaceholder(searchBar, "Chat With A Friend");
-        searchBar.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    JPopupMenu subMenu = new JPopupMenu();
-                    JMenuItem newGroup = new JMenuItem("Create A New Group Chat");
-                    newGroup.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            System.out.println("New Group Created");
-                        }
-                    });
-                    subMenu.add(newGroup);
-                    subMenu.show(searchBar, e.getX(), e.getY());
-                }
-            }
-        });
+
         searchBar.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void changedUpdate(DocumentEvent e) {
