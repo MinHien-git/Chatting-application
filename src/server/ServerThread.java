@@ -315,9 +315,6 @@ public class ServerThread implements Runnable {
             
             System.out.println(userID + " exited " + actual_userID);
         }
-        finally {
-
-        }
     }
 
     public void write(String message) throws IOException {

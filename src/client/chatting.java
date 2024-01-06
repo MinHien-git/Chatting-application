@@ -54,7 +54,7 @@ public class chatting extends JPanel {
     public boolean isGroup;
     JButton information;
     User lastChoice = null;
-    public User currentUser = null;
+    public User currentUser;
     
     static class CustomRenderer extends DefaultListCellRenderer {
         @Override
@@ -88,29 +88,6 @@ public class chatting extends JPanel {
         //setUpSocket();
     }
 
-    public chatting(String _id1, String _id2) {
-        initialize(_id1, _id2);
-    }
-    
-    private static String extractID(String input) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\((\\d+)\\)");
-        java.util.regex.Matcher matcher = pattern.matcher(input);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return "";
-    }
-
-    // Method to extract text after the dash "-"
-    private static String extractText(String input) {
-        String[] parts = input.split("-");
-        if (parts.length > 1) {
-            return parts[1];
-        }
-        return "";
-    }
-
-
     public void ClearChat() {
     	sideList.clear();
     	chatContent.clear();
@@ -120,10 +97,6 @@ public class chatting extends JPanel {
     	chatContent.add(newString);
     	sideList.addElement(newString);
     }
-
-//    public JTextArea getChatArea() {
-//        return chatArea;
-//    }
 
     /**
      * Initialize the contents of the frame.
@@ -208,8 +181,7 @@ public class chatting extends JPanel {
                 	if(!isGroup) {
 	                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
 	                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
-                        String fullName = ServerThread.idToFullName(parent.currentUser.getId());
-	                	sideList.addElement("(" + fullName + ") "+ chatInput.getText());
+	                	sideList.addElement("(" + parent.currentUser.fullname + ") "+ chatInput.getText());
                 	}else {
                 		String send = parent.currentUser.getName() + " - " + msg;
                 		parent.write("GroupChat|"+parent.focusIDString + "|" + send);
@@ -252,12 +224,9 @@ public class chatting extends JPanel {
              public void valueChanged(ListSelectionEvent e) {
                  if (!e.getValueIsAdjusting()) {
                      User selected = users.getSelectedValue();
- 	                  if(selected==null) {
- 	                	  
- 	                  }else {
-	                        currentUser = selected;
- 	                }
-
+ 	                  if(selected!=null) {
+                          currentUser = selected;
+ 	                  }
                  }
              }
          });
@@ -383,8 +352,6 @@ public class chatting extends JPanel {
             }
            
         });
-
-        
 
         popupMenu.add(remove);
         popupMenu.add(addAdmin);

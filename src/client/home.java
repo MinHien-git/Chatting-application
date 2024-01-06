@@ -102,31 +102,25 @@ public class home extends JPanel implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTextField name = new JTextField();
-				JLabel guide = new JLabel("Please type your friend name seperate by (|)");
-				JTextField memebers = new JTextField();
+				JLabel guide = new JLabel("Please type your friend name separated by (|)");
+				JTextField members = new JTextField();
 				Object[] message = {
 				    "Group name:", name,
 				    "Guide: ",guide,
-				    "Friend Names:", memebers
+				    "Friend Names:", members
 				};
 
 				int option = JOptionPane.showConfirmDialog(null, message, "Create Group", JOptionPane.OK_CANCEL_OPTION);
 				if (option == JOptionPane.OK_OPTION) {
-				    if (!name.getText().equals("") && !memebers.getText().equals("")) {
+				    if (!name.getText().equals("") && !members.getText().equals("")) {
 				        try {
-							parent.write("CreateGroup||"+ name.getText()+ "||" + parent.currentUser.id + "||" + memebers.getText() + "|" + parent.currentUser.id+ "|");
+							parent.write("CreateGroup||"+ name.getText()+ "||" + parent.currentUser.id + "||" + members.getText() + "|" + parent.currentUser.id+ "|");
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 				    }
 				}
-//				try {
-//					parent.write("ResetPassword|"+toEmail);
-//				}catch (IOException ex) {
-//					System.out.println("An error occurred");
-//					ex.printStackTrace();
-//				}
 			 }
 		});
         JPanel controlPanel = new JPanel();
