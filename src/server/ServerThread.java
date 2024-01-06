@@ -1836,7 +1836,7 @@ public class ServerThread implements Runnable {
             if (messageSplit[3].equals("1")) {
                 ADMIN_GET_LIST_NEW_SQL += " ORDER BY fullname ASC";
             } else if (messageSplit[3].equals("-1")) {
-                ADMIN_GET_LIST_NEW_SQL += " ORDER BY date ASC";
+                ADMIN_GET_LIST_NEW_SQL += " ORDER BY \"createAt\" ASC";
             }
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
@@ -1936,9 +1936,9 @@ public class ServerThread implements Runnable {
             }
 
             if (messageSplit[1].equals("1")) {
-                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY tu3.username";
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY username";
             } else if (messageSplit[1].equals("-1")) {
-                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY tu3.\"createAt\"";
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " ORDER BY \"createAt\"";
             }
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_PLUS_SQL)) {
