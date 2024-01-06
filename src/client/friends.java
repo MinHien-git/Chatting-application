@@ -169,7 +169,6 @@ public class friends extends JPanel {
                 if (!searchBar.getText().equals("") && app.currentUser != null) {
                     try {
                     	parent.write("AddFriend|" + fromUser + "|" + toUser);
-                        JOptionPane.showMessageDialog(friends.this, "Successfully added new friend to the friends list");
                         searchBar.setText("");
                     } catch (IOException ex) {
                         ex.getStackTrace();
