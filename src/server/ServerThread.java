@@ -1476,7 +1476,8 @@ public class ServerThread implements Runnable {
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_RENEW_PASSWORD_SQL)) {
-                preparedStatement.setString(1, messageSplit[2]);
+                String hash = hashPassword(messageSplit[2]);
+                preparedStatement.setString(1, hash);
                 preparedStatement.setString(2, messageSplit[1]);
 
                 int rowsAffected = preparedStatement.executeUpdate();
@@ -1529,7 +1530,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_FRIEND_SQL;
 
-            ADMIN_GET_LIST_FRIEND_SQL = "SELECT * FROM public.\"users\" as Fr WHERE Fr.username IN (SELECT unnest(array_agg(friends)) FROM public.\"users\" WHERE username = ? AND (SELECT COALESCE(ARRAY_LENGTH(friends, 1), 0) AS num_elements FROM public.\"users\" as Ch WHERE Ch.username = ?) > 0);";
+            ADMIN_GET_LIST_FRIEND_SQL = "SELECT * FROM public.\"users\" as Fr WHERE Fr.id IN (SELECT unnest(array_agg(friends)) FROM public.\"users\" WHERE username = ? AND (SELECT COALESCE(ARRAY_LENGTH(friends, 1), 0) AS num_elements FROM public.\"users\" as Ch WHERE Ch.username = ?) > 0);";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_SQL)) {
@@ -1603,7 +1604,18 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_GROUP_SQL;
 
-            ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" as createat FROM public.\"groups\" WHERE groupname ILIKE ?";
+            ADMIN_GET_LIST_GROUP_SQL = "SELECT\n" +
+                    "    g.groupname,\n" +
+                    "    ARRAY_TO_STRING(u.username_array, ' - ') AS ad,\n" +
+                    "    ARRAY_LENGTH(g.users, 1) AS mems,\n" +
+                    "    g.\"createAt\" AS createat\n" +
+                    "FROM\n" +
+                    "    public.\"groups\" g\n" +
+                    "LEFT JOIN LATERAL (\n" +
+                    "    SELECT ARRAY(SELECT username FROM public.users WHERE id = ANY(g.admin)) AS username_array\n" +
+                    ") u ON TRUE\n" +
+                    "WHERE\n" +
+                    "    g.groupname ILIKE ?\n";
 
             if (messageSplit[1].equals("1") && messageSplit[2].equals("1")) {
                 ADMIN_GET_LIST_GROUP_SQL += " ORDER BY groupname DESC, \"createAt\" DESC";
@@ -1643,20 +1655,37 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    } // checking
+    }
     public static void AdminGetListMemGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_MEM_GROUP_SQL = "SELECT * FROM (SELECT UNNEST(users) AS username FROM public.\"groups\" WHERE groupname ILIKE ? EXCEPT SELECT UNNEST(admin) FROM public.\"groups\" WHERE groupname ILIKE ?) AS unique_users";
-            String ADMIN_GET_LIST_MEM_GROUP_AD_SQL = "SELECT UNNEST(admin) AS username FROM public.\"groups\" WHERE groupname ILIKE ?";
+            String ADMIN_GET_LIST_MEM_GROUP_SQL = "SELECT\n" +
+                    "    ARRAY_TO_STRING(u.non_admin_users, ' - ') AS username\n" +
+                    "FROM\n" +
+                    "    public.\"groups\" g\n" +
+                    "LEFT JOIN LATERAL (\n" +
+                    "    SELECT\n" +
+                    "        ARRAY(SELECT username FROM public.users WHERE id = ANY(g.users) AND id <> ALL(g.admin)) AS non_admin_users\n" +
+                    ") u ON TRUE\n" +
+                    "WHERE\n" +
+                    "    g.groupname ILIKE ?\n";
+            String ADMIN_GET_LIST_MEM_GROUP_AD_SQL = "SELECT\n" +
+                    "    UNNEST(u.username_array) AS username\n" +
+                    "FROM\n" +
+                    "    public.\"groups\" g\n" +
+                    "LEFT JOIN LATERAL (\n" +
+                    "    SELECT\n" +
+                    "        ARRAY(SELECT username FROM public.users WHERE id = ANY(g.admin)) AS username_array\n" +
+                    ") u ON TRUE\n" +
+                    "WHERE\n" +
+                    "    g.groupname ILIKE ?\n";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_MEM_GROUP_SQL);
                  PreparedStatement preparedStatementAd = connection.prepareStatement(ADMIN_GET_LIST_MEM_GROUP_AD_SQL);) {
-                preparedStatement.setString(1, messageSplit[1] + "%");
-                preparedStatement.setString(2, messageSplit[1] + "%");
+                preparedStatement.setString(1, "%" + messageSplit[1] + "%");
 
-                preparedStatementAd.setString(1, messageSplit[1] + "%");
+                preparedStatementAd.setString(1, "%" + messageSplit[1] + "%");
                 ResultSet rsAd = preparedStatementAd.executeQuery();
                 ResultSet rs = preparedStatement.executeQuery();
 
@@ -1702,7 +1731,17 @@ public class ServerThread implements Runnable {
         try {
             System.out.println(Arrays.toString(messageSplit));
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_ADMIN_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad FROM public.\"groups\" WHERE groupname ILIKE ?";
+            String ADMIN_GET_LIST_ADMIN_SQL = "SELECT\n" +
+                    "    g.groupname,\n" +
+                    "    ARRAY_TO_STRING(u.username_array, ' - ') AS ad\n" +
+                    "FROM\n" +
+                    "    public.\"groups\" g\n" +
+                    "LEFT JOIN LATERAL (\n" +
+                    "    SELECT\n" +
+                    "        ARRAY(SELECT username FROM public.users WHERE id = ANY(g.admin)) AS username_array\n" +
+                    ") u ON TRUE\n" +
+                    "WHERE\n" +
+                    "    g.groupname ILIKE ?\n";
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_ADMIN_SQL)) {
                 preparedStatement.setString(1, "%" + messageSplit[1] + "%");
@@ -1731,7 +1770,7 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    } // checking
+    }
     public static void AdminGetListSpam(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1784,7 +1823,7 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    } // checking
+    }
     public static void AdminGetListNew(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1882,13 +1921,16 @@ public class ServerThread implements Runnable {
     public static void AdminGetListFriendPlus(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM (SELECT tu1.username, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM users tu1 LEFT JOIN users tu2 ON tu2.username = ANY(tu1.friends) GROUP BY tu1.username, tu1.friends) AS fr JOIN users tu3 ON tu3.username = fr.username";
+            String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM \n" +
+                    "(\n" +
+                    "\tSELECT * FROM (SELECT tu1.id, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM users tu1 LEFT JOIN users tu2 ON tu2.id = ANY(tu1.friends) GROUP BY tu1.id, tu1.friends) AS fr JOIN users tu3 ON tu3.id = fr.id\n" +
+                    ") AS newtable ";
 
             if (messageSplit.length >= 4) {
-                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE fr.username ILIKE ?";
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE username ILIKE ?";
             }
             if (messageSplit.length == 5) {
-                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " AND fr.dirfr " + messageSplit[3].charAt(0) + " " + Integer.parseInt(messageSplit[3].substring(1));
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " AND dirfr " + messageSplit[3];
             }
 
             if (messageSplit[1].equals("1")) {
@@ -1928,7 +1970,7 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    } // checking
+    }
     public static void AdminGetListOpen(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
@@ -1960,8 +2002,10 @@ public class ServerThread implements Runnable {
                     "    WHERE username ILIKE ? AND date(systems.time AT TIME ZONE 'UTC+7') BETWEEN ?::DATE AND ?::DATE AND type = 2\n" + // 8 - 9 - 10
                     "    GROUP BY username\n" +
                     ") AS groupchat  ON createat.username = groupchat.username\n";
-            if (messageSplit.length == 6 || messageSplit.length == 8) {
-                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[messageSplit.length - 2] + "\n";
+            if (messageSplit.length == 6) {
+                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[4] + "\n";
+            } else if (messageSplit.length == 8) {
+                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[5] + "\n";
             }
 
             if (messageSplit[1].equals("1")) {
