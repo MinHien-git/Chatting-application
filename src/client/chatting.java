@@ -1,5 +1,7 @@
 package client;
 
+import server.ServerThread;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -151,7 +153,7 @@ public class chatting extends JPanel {
         jList.setSize(new Dimension(360, 500));
         this.add(chatArea, BorderLayout.CENTER);
         container.setLayout(new FlowLayout());
-        information = new JButton("Thông tin");
+        information = new JButton("Information");
        
         container.add(information);
 //        if(isGroup) {
@@ -206,7 +208,8 @@ public class chatting extends JPanel {
                 	if(!isGroup) {
 	                    String send = parent.currentUser.getId() + " - " + msg; //identify send format here
 	                    parent.write("DirectMessage|"+parent.currentUser.getId()+"|"+parent.focusIDString+"|"+send);
-	                	sideList.addElement("(" +parent.currentUser.fullname + ") "+ chatInput.getText());
+                        String fullName = ServerThread.idToFullName(parent.currentUser.getId());
+	                	sideList.addElement("(" + fullName + ") "+ chatInput.getText());
                 	}else {
                 		String send = parent.currentUser.getName() + " - " + msg;
                 		parent.write("GroupChat|"+parent.focusIDString + "|" + send);
@@ -226,15 +229,15 @@ public class chatting extends JPanel {
         this.add(inputPanel, BorderLayout.SOUTH);
     }
     public void openMemberList() {
-    	JFrame frame = new JFrame("Thông tin nhóm");
+    	JFrame frame = new JFrame("Group Info");
 
     	JList<User> users = new JList<User>(Lmembers);
     	users.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     	users.setCellRenderer(new CustomRenderer());
     	JScrollPane scrollPane = new JScrollPane(users);
     	scrollPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
-    	JButton changeNameButton = new JButton("Đổi tên");
-    	JButton addMemberButton = new JButton("Thêm thành viên");
+    	JButton changeNameButton = new JButton("Change group name");
+    	JButton addMemberButton = new JButton("Add member");
     	JPanel controllerJPanel = new JPanel();
     	controllerJPanel.setLayout(new FlowLayout());
     	
@@ -293,9 +296,9 @@ public class chatting extends JPanel {
     	addMemberButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String newMemeber = JOptionPane.showInputDialog("Enter User name to add member");
+				String newMember = JOptionPane.showInputDialog("Enter User name to add member");
 				try {
-					parent.write("AddMemberToGroup|"+parent.focusIDString+"|"+newMemeber);
+					parent.write("AddMemberToGroup|"+parent.focusIDString+"|"+newMember);
 				}catch (IOException ex) {
 					System.out.println("An error occurred");
 					ex.printStackTrace();
@@ -310,9 +313,9 @@ public class chatting extends JPanel {
     
     private void showPopupMenuDirect(int x, int y, JList<User> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem remove = new JMenuItem("Xoá người dùng");
-        JMenuItem addAdmin = new JMenuItem("Gán quyền admin");
-        JMenuItem deleteAdmin = new JMenuItem("Xoá quyền admin");
+        JMenuItem remove = new JMenuItem("Delete user");
+        JMenuItem addAdmin = new JMenuItem("Assign admin privileges");
+        JMenuItem deleteAdmin = new JMenuItem("Remove admin privileges");
 
         remove.addActionListener(e -> {
             Object selected = list.getSelectedValue();

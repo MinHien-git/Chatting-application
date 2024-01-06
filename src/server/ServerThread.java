@@ -325,6 +325,26 @@ public class ServerThread implements Runnable {
         os.newLine();
         os.flush();
     }
+
+    public static String idToFullName(String id) {
+        String FIND_FULLNAME_SQL = "SELECT fullname FROM public.\"users\" WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
+             PreparedStatement stmt = connection.prepareStatement(FIND_FULLNAME_SQL)) {
+                 stmt.setString(1, id);
+
+                 ResultSet rs = stmt.executeQuery();
+                 if (rs.next()) {
+                     return rs.getString("fullname");
+                 }
+        }
+        catch (SQLException sql) {
+            System.out.println("Unable to connect to database");
+            sql.printStackTrace();
+            System.exit(1);
+            return null;
+        }
+        return null;
+    }
     //Register -- add to db (done)
     public static boolean Register(String id,String name,String fullname,String email,String password) {
     	String INSERT_USERS_SQL = "INSERT INTO public.\"users\" (id, username,fullname, email, password, \"createAt\") values (?,?,?,?,?,?)";
@@ -490,7 +510,7 @@ public class ServerThread implements Runnable {
 	     message.addRecipient(Message.RecipientType.TO,new InternetAddress(email));
 	     message.setSubject("Reset Password");
 	     String password = generateRandomPassword(15);
-	     message.setText("Your updated password is :" + password);
+	     message.setText("You received this email because you issued a password reset through this email\n"+"Your updated password is :" + password + "\nIf you did not request this, please send us an email to this email");
 	     UpdatePassword(email,hashPassword(password));
 	    //send the message
 	     Transport.send(message);
@@ -691,7 +711,7 @@ public class ServerThread implements Runnable {
     public static boolean UpdateExistsMessage(String id, String id2, String content) {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
-        String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content =array_append(content,?) WHERE idChat = ? or idChat = ?";
+        String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content =array_append(content,?) WHERE \"idChat\" = ? or \"idChat\" = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
             preparedStatement.setString(1, content);
@@ -746,7 +766,7 @@ public class ServerThread implements Runnable {
             String username = "";
             String idChat = "";
             if (resultSet.next()) {
-                idChat = resultSet.getString("\"idChat\"");
+                idChat = resultSet.getString("idChat");
             }
             if (resultSet1.next()) {
                 username = resultSet1.getString("fullname");

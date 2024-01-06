@@ -66,7 +66,6 @@ public class onlineUsers extends JPanel {
     private void showPopupMenuDirect(int x, int y, JList<Object> list, User user) {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem spam = new JMenuItem("Report For Spam");
-        JMenuItem viewChatHistory = new JMenuItem("View Chat History");
         JMenuItem clearChatHistory = new JMenuItem("Clear Chat History");
         JMenuItem searchChatHistory = new JMenuItem("Search Chat History");
 
@@ -88,26 +87,23 @@ public class onlineUsers extends JPanel {
             }
         });
 
-        viewChatHistory.addActionListener(e -> {
-            // You can perform an action here, e.g., based on the selected item
-            System.out.println("Perform action on: ");
-        });
-
         clearChatHistory.addActionListener(e -> {
         	Object selected = list.getSelectedValue();
         	if (selected != null && selected instanceof User) {
         		 User u = (User) selected;
 	            // You can perform an action here, e.g., based on the selected item
-	            System.out.println("Perform action on: ");
 	
 	            int choice = JOptionPane.showConfirmDialog(this, "Would you like to clear all of the chat history? (You cannot undo after this)", "Clear Chat History?", JOptionPane.YES_NO_OPTION);
 	            //Deal with task in accordance to choice
-	            try {
-					parent.write("DeleteMessage|"+parent.currentUser.getId() + "|" + u.getId());
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+                if (choice == JOptionPane.YES_OPTION) {
+                    try {
+                        parent.write("DeleteMessage|" + parent.currentUser.getId() + "|" + u.getId());
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    JOptionPane.showMessageDialog(this, "Chat history cleared");
+                }
             }
         });
 
@@ -117,7 +113,6 @@ public class onlineUsers extends JPanel {
         });
 
         popupMenu.add(spam);
-        popupMenu.add(viewChatHistory);
         popupMenu.add(clearChatHistory);
         popupMenu.add(searchChatHistory);
         popupMenu.show(list, x, y);
