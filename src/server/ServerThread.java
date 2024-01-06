@@ -108,6 +108,8 @@ public class ServerThread implements Runnable {
                             String onlineList = GetListFriendsAndGroups(actual_userID);
                             Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1], "OnlineList"+onlineList);
                         }
+                	}else {
+                		Server.serverThreadBus.boardCast(messageSplit[messageSplit.length -1],"LoginFailed");
                 	}
                 }else if(commandString.equals("Register")) {
                 	if(Register(messageSplit[1],messageSplit[2],messageSplit[3],messageSplit[4],messageSplit[5])) {
@@ -368,7 +370,7 @@ public class ServerThread implements Runnable {
     
    //Login -- add to db (done)
     public static String Login(String email,String password) {
-    	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where (email = ? or username = ?) and password = ?";
+    	String FIND_USERS_SQL = "SELECT * FROM public.\"users\" where (email = ? or username = ?) and password = ? and lock = FALSE";
         String ADD_TO_LOGS_SQL = "INSERT INTO logs (username, logdate) VALUES (?, ?)";
     	try (Connection connection = DriverManager.getConnection(URL, USER, PW);
    			 // Step 2:Create a statement using connection object

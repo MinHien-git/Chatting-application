@@ -84,6 +84,8 @@ public class Application {
 									applicationFrame.setLayout(new BorderLayout());
 									ChangeTab(new home(app,applicationFrame,onlList, flist, c, gbc),600, 600);
 								}
+                            }else if(dataSplit[0].equals("LoginFailed")) {
+                            	JOptionPane.showMessageDialog(applicationFrame, "User got locked or entered the wrong password");
                             }else if(dataSplit[0].equals("Reset_password")){
                             	JOptionPane.showMessageDialog(applicationFrame,"Please Check your email");
                         	}
