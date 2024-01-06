@@ -190,8 +190,8 @@ public class chatting extends JPanel {
                     try {
                         if (!isGroup) {
                             String send = parent.currentUser.getId() + " - " + msg; //identify send format here
-                            parent.write("DirectMessage|" + parent.currentUser.getId() + "|" + parent.focusNameString + "|" + send);
-                            sideList.addElement("(" + parent.currentUser.fullname + ") " + chatInput.getText());
+                            parent.write("DirectMessage|" + parent.currentUser.getId() + "|" + parent.focusIDString + "|" + send);
+                            sideList.addElement("(" + parent.currentUser.name + ") " + chatInput.getText());
                         } else {
                             String send = parent.currentUser.getName() + " - " + msg;
                             parent.write("GroupChat|" + parent.focusIDString + "|" + send);
@@ -253,6 +253,7 @@ public class chatting extends JPanel {
                             users.setSelectedIndex(index);
                             showPopupMenuDirect(e.getX(), e.getY(), users, currentUser);
                         }
+                        else showPopupOptions(e.getX(), e.getY(), users, currentUser);
                     }
                     else showPopupOptions(e.getX(), e.getY(), users, currentUser);
                 }
@@ -405,8 +406,9 @@ public class chatting extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Lmembers.clear();
                 String groupID = parent.focusIDString;
+                ClearChat();
                 try {
-                    parent.write("UpdateMemberList|" + groupID);
+                    parent.write("MessageData" + "|" + "group" + "|" + groupID);
                 } catch (IOException ex) {
                     System.out.println("Unable to write");
                     ex.printStackTrace();

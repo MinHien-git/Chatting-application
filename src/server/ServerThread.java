@@ -203,9 +203,6 @@ public class ServerThread implements Runnable {
                     String groupid = messageSplit[1];
                     String id = messageSplit[2];
                     AddMemberToGroup(groupid, id);
-                }else if (commandString.equals("UpdateMemberList")) {
-                    String groupid = messageSplit[1];
-                    GetGroup(groupid);
                 }else if (commandString.equals("SetAdminGroup")) {
                     String groupid = messageSplit[1];
                     String id = messageSplit[2];
@@ -326,26 +323,6 @@ public class ServerThread implements Runnable {
         os.write(message);
         os.newLine();
         os.flush();
-    }
-
-    public static String idToFullName(String id) {
-        String FIND_FULLNAME_SQL = "SELECT fullname FROM public.\"users\" WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement stmt = connection.prepareStatement(FIND_FULLNAME_SQL)) {
-                 stmt.setString(1, id);
-
-                 ResultSet rs = stmt.executeQuery();
-                 if (rs.next()) {
-                     return rs.getString("fullname");
-                 }
-        }
-        catch (SQLException sql) {
-            System.out.println("Unable to connect to database");
-            sql.printStackTrace();
-            System.exit(1);
-            return null;
-        }
-        return null;
     }
     //Register -- add to db (done)
     public static boolean Register(String id,String name,String fullname,String email,String password) {
