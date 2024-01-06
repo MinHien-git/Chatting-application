@@ -107,27 +107,6 @@ public class login extends JPanel {
 						System.out.println("An error occurred");
 						ex.printStackTrace();
 					}
-//					if(!_id.equals("")) {
-//						if (user.update())
-//						{
-//							onlineUsers onlList = new onlineUsers(Application.getApplicationFrame(), user);
-//							friends flist = new friends(user);
-//							chatting c = new chatting();
-//							globalChatHistory gbc = new globalChatHistory();
-//							home h = new home(Application.getApplicationFrame(), onlList, flist, c, gbc);
-//							try {
-//								Application.write("Online|"+user.getId());
-//							}catch (IOException ex) {
-//								System.out.println("An error occurred");
-//								ex.printStackTrace();
-//							}
-//							Application.getApplicationFrame().setVisible(true);
-//							frmLogin.dispose();
-//						}
-//					}
-//					else {
-//						JOptionPane.showMessageDialog(Application.getApplicationFrame(), "Invalid credentials, try again");
-//					}
 				}
 			}
 		});

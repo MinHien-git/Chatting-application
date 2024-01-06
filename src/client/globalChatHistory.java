@@ -62,36 +62,16 @@ public class globalChatHistory extends JPanel {
             if (e.getSource() == searchBar) {
                 String id = parent.currentUser.getId();
                 String content = searchBar.getText();
-//                User newFriend = UserAuthentication.idToUser(toUser);
 
                 if (!searchBar.getText().equals("") && parent.currentUser != null) {
                     try {
                     	parent.write("GlobalSearch|" + id + "|" + content);
-                        //JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
-                        //UserAuthentication.updateFriendsList(user);
                         searchBar.setText("");
                     } catch (IOException ex) {
                         ex.getStackTrace();
                         System.out.println("Unable to carry out action");
                     }
                 }
-            }
-        });
-        //add event for enter key -> query user -> add...
-        searchBar.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
             }
         });
 

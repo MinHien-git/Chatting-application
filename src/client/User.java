@@ -172,14 +172,4 @@ public class User {
 			}
 		}
 	}
-
-//	public boolean SignUp() {
-//		return UserAuthentication.SignUp(this);
-//	}
-//
-//	public String LogIn() {
-//		return UserAuthentication.SignIn(this);
-//	}
-
-	//public boolean update() { return UserAuthentication.updateUser(this); }
 }

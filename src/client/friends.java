@@ -96,7 +96,6 @@ public class friends extends JPanel {
                     try {
                     	parent.write("DeleteFriend|"+fromUser+"|"+deletedUser);
                         JOptionPane.showMessageDialog(this, "Successfully removed " + deletedFriend.getName() + " from the friends list");
-                        //UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(deletedFriend);
                     } catch (IOException ex) {
@@ -119,8 +118,6 @@ public class friends extends JPanel {
                     try {
                     	parent.write("BlockAccount|"+fromUser+"|"+blockedUser);
                         JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + " blocked from the friends list");
-//                        UserAuthentication.updateBlockList(user);
-//                        UserAuthentication.updateFriendsList(user);
 
                         allFriends.removeElement(blockedFriend);
                     } catch (IOException ex) {
@@ -141,8 +138,6 @@ public class friends extends JPanel {
         JMenuItem refresh = new JMenuItem("Refresh");
 
         refresh.addActionListener(e -> {
-//            UserAuthentication.updateBlockList(user);
-//            UserAuthentication.updateFriendsList(user);
             allFriends.clear();
             for (User friend : user.getFriends()) {
                 allFriends.addElement(friend);
@@ -174,8 +169,7 @@ public class friends extends JPanel {
                 if (!searchBar.getText().equals("") && app.currentUser != null) {
                     try {
                     	parent.write("AddFriend|" + fromUser + "|" + toUser);
-                        //JOptionPane.showMessageDialog(friends.this, "Successfully added " + newFriend.getName() + " to the friends list");
-                        //UserAuthentication.updateFriendsList(user);
+                        JOptionPane.showMessageDialog(friends.this, "Successfully added new friend to the friends list");
                         searchBar.setText("");
                     } catch (IOException ex) {
                         ex.getStackTrace();

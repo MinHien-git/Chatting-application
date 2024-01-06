@@ -93,7 +93,6 @@ public class register extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if(name.getText() != "" && password.getText() != "" && email.getText() != "") {
 					String id = UUID.randomUUID().toString();
-//					int id = (int) (Math.random() * (maxUserID - minUserID + 1)) + minUserID;
 					String hashedPW = User.hashPassword(password.getText());
 
 					if (hashedPW == null) hashedPW = password.getText();
