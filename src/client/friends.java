@@ -118,7 +118,7 @@ public class friends extends JPanel {
                 {
                     try {
                     	parent.write("BlockAccount|"+fromUser+"|"+blockedUser);
-                        JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + "blocked from the friends list");
+                        JOptionPane.showMessageDialog(this, "User " + blockedFriend.getName() + " blocked from the friends list");
 //                        UserAuthentication.updateBlockList(user);
 //                        UserAuthentication.updateFriendsList(user);
 
