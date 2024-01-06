@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.DoubleToIntFunction;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -29,6 +30,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import client.groupChat;
+import com.sun.tools.jconsole.JConsolePlugin;
 
 public class ServerThread implements Runnable {
     static final String URL = "jdbc:postgresql://localhost:5432/chatting-application";
@@ -561,11 +563,15 @@ public class ServerThread implements Runnable {
   //Get Message Data
     public static String[] GetMessage(String id) {
         String FIND_MESSAGE_SQL = "SELECT \"idChat\",content FROM public.\"messages\" where \"idChat\" = ?";
+        String GET_USER1_SQL = "SELECT username FROM users WHERE id = ?";
+        String GET_USER2_SQL = "SELECT username FROM users WHERE id = ?";
 
         String[] result = new String[2];
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
 
-             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_MESSAGE_SQL);
+             PreparedStatement preparedStatement1 = connection.prepareStatement(GET_USER1_SQL);
+             PreparedStatement preparedStatement2 = connection.prepareStatement(GET_USER2_SQL)) {
             preparedStatement.setString(1, id);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -582,7 +588,28 @@ public class ServerThread implements Runnable {
                 	else
                 		result[1] += m[i] + "|";
                 }
-                System.out.println(result[1]);
+                System.out.println("TESTING");
+                System.out.println(result[0]);
+                System.out.println("DONE TESTING");
+
+                String[] getAllId = result[0].split("\\|");
+
+                preparedStatement1.setString(1, getAllId[0]);
+                preparedStatement2.setString(1, getAllId[1]);
+
+                ResultSet resultSet = preparedStatement1.executeQuery();
+                ResultSet resultSet1 = preparedStatement2.executeQuery();
+                String username1 = "";
+                String username2 = "";
+                if (resultSet.next() && resultSet1.next()) {
+                    username1 = resultSet.getString("username");
+                    username2 = resultSet1.getString("username");
+                }
+
+                System.out.println(username1 + " " + username2);
+
+                result[1] = result[1].replace(getAllId[0] + " -", "(" + username1 + ")");
+                result[1] = result[1].replace(getAllId[1] + " -", "(" + username2 + ")");
 
 
             } else {
@@ -709,11 +736,35 @@ public class ServerThread implements Runnable {
         String idChat1 = id + "|" + id2;
         String idChat2 = id2 + "|" + id;
         String UPDATE_MESSAGE_SQL = "Update public.\"messages\" SET content =array_append(content,?) WHERE \"idChat\" = ? or \"idChat\" = ?";
+        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
+        String GET_USER_SQL = "SELECT username FROM users WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL);
+             PreparedStatement preparedStatement1 = connection.prepareStatement(GET_USER_SQL);
+             PreparedStatement preparedStatement2 = connection.prepareStatement(ADD_TO_SYSTEMS_SQL)) {
             preparedStatement.setString(1, content);
             preparedStatement.setString(2, idChat1);
             preparedStatement.setString(3, idChat2);
+
+            preparedStatement1.setString(1, id);
+            ResultSet resultSet = preparedStatement1.executeQuery();
+            String usernameToAdd = "";
+
+            if (resultSet.next()) {
+                usernameToAdd = resultSet.getString("username");
+            }
+
+            ZoneId utc = ZoneId.of("UTC+7");
+            ZonedDateTime curDate = ZonedDateTime.now(utc);
+            LocalDateTime localDateTime = curDate.toLocalDateTime();
+            Timestamp timestamp = Timestamp.valueOf(localDateTime);
+
+            preparedStatement2.setString(1, usernameToAdd);
+            preparedStatement2.setInt(2, 1);
+            preparedStatement2.setString(3, idChat1);
+            preparedStatement2.setTimestamp(4, timestamp);
+
+            int rowsAffected = preparedStatement2.executeUpdate();
 
             int count = preparedStatement.executeUpdate();
 
@@ -732,14 +783,13 @@ public class ServerThread implements Runnable {
         String INSERT_MESSAGE_SQL = "INSERT INTO public.\"messages\" (\"idChat\",users,content) values (?,?,?)";
         String GET_IDCHAT_SQL = "SELECT \"idChat\" FROM messages WHERE users && ?";
         String GET_USERNAME_SQL = "SELECT fullname FROM users WHERE id = ?";
-        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_MESSAGE_SQL);
              PreparedStatement preparedStatement1 = connection.prepareStatement(INSERT_MESSAGE_SQL);
              PreparedStatement preparedStatement2 = connection.prepareStatement(GET_IDCHAT_SQL);
              PreparedStatement preparedStatement3 = connection.prepareStatement(GET_USERNAME_SQL);
-             PreparedStatement preparedStatement4 = connection.prepareStatement(ADD_TO_SYSTEMS_SQL)) {
+             ) {
             String[] contents = new String[1];
             contents[0] = content;
             Array array = connection.createArrayOf("TEXT", contents);
@@ -758,6 +808,7 @@ public class ServerThread implements Runnable {
 
             preparedStatement2.setArray(1, u);
             preparedStatement3.setString(1, id);
+
             ResultSet resultSet = preparedStatement2.executeQuery();
             ResultSet resultSet1 = preparedStatement3.executeQuery();
             String username = "";
@@ -768,18 +819,6 @@ public class ServerThread implements Runnable {
             if (resultSet1.next()) {
                 username = resultSet1.getString("fullname");
             }
-
-            ZoneId utc = ZoneId.of("UTC+7");
-            ZonedDateTime curDate = ZonedDateTime.now(utc);
-            LocalDateTime localDateTime = curDate.toLocalDateTime();
-            Timestamp timestamp = Timestamp.valueOf(localDateTime);
-
-            preparedStatement4.setString(1, username);
-            preparedStatement4.setInt(2, 1);
-            preparedStatement4.setString(3, idChat);
-            preparedStatement4.setTimestamp(4, timestamp);
-
-            int rowsAffected = preparedStatement4.executeUpdate();
 
             int count = preparedStatement.executeUpdate();
             int count2 = preparedStatement1.executeUpdate();
@@ -1137,11 +1176,10 @@ public class ServerThread implements Runnable {
         }
     }
 
-    //Send message to group chat -- add to db
+    //Send message to group chat
     public static boolean UpdateGroupChatMessage(String id, String content) {
         String UPDATE_MESSAGE_SQL = "Update public.\"groups\" SET content = array_append(content,?) WHERE groupid = ?";
         String GET_MEMBER_MESSAGE_SQL = "SELECT users FROM public.\"groups\" WHERE groupid = ?";
-        String ADD_TO_SYSTEMS_SQL = "INSERT INTO systems (username, type, \"idChat\", time) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(URL, USER, PW);
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_MESSAGE_SQL);
         		PreparedStatement smt = connection.prepareStatement(GET_MEMBER_MESSAGE_SQL);) {
@@ -1217,9 +1255,9 @@ public class ServerThread implements Runnable {
             } else {
                 if (messageSplit[1].equals("1")) {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username ILIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE username ILIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
@@ -1231,9 +1269,9 @@ public class ServerThread implements Runnable {
                     }
                 } else {
                     if (Objects.equals(messageSplit[5], "Both")) {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname LIKE ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname ILIKE ?";
                     } else {
-                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname LIKE ? AND \"isOnline\" = ?";
+                        ADMIN_GET_LIST_USER_SQL = "SELECT * FROM public.\"users\" WHERE fullname ILIKE ? AND \"isOnline\" = ?";
                     }
 
                     if (messageSplit[2].equals("1") && messageSplit[3].equals("1")) {
@@ -1585,11 +1623,7 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_GROUP_SQL;
 
-            if (messageSplit.length != 4) {
-                ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" FROM public.\"groups\"";
-            } else {
-                ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" as createat FROM public.\"groups\" WHERE groupname LIKE ?";
-            }
+            ADMIN_GET_LIST_GROUP_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad, ARRAY_LENGTH(users, 1) AS mems, \"createAt\" as createat FROM public.\"groups\" WHERE groupname ILIKE ?";
 
             if (messageSplit[1].equals("1") && messageSplit[2].equals("1")) {
                 ADMIN_GET_LIST_GROUP_SQL += " ORDER BY groupname DESC, \"createAt\" DESC";
@@ -1601,9 +1635,7 @@ public class ServerThread implements Runnable {
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_GROUP_SQL)) {
-                if (messageSplit.length == 4) {
-                    preparedStatement.setString(1, messageSplit[3] + "%");
-                }
+                preparedStatement.setString(1, "%" + messageSplit[3] + "%");
                 ResultSet rs = preparedStatement.executeQuery();
 
                 if (!rs.next()) {
@@ -1631,12 +1663,12 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
+    } // checking
     public static void AdminGetListMemGroup(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_MEM_GROUP_SQL = "SELECT * FROM (SELECT UNNEST(users) AS username FROM public.\"groups\" WHERE groupname LIKE ? EXCEPT SELECT UNNEST(admin) FROM public.\"groups\" WHERE groupname LIKE ?) AS unique_users";
-            String ADMIN_GET_LIST_MEM_GROUP_AD_SQL = "SELECT UNNEST(admin) AS username FROM public.\"groups\" WHERE groupname LIKE ?";
+            String ADMIN_GET_LIST_MEM_GROUP_SQL = "SELECT * FROM (SELECT UNNEST(users) AS username FROM public.\"groups\" WHERE groupname ILIKE ? EXCEPT SELECT UNNEST(admin) FROM public.\"groups\" WHERE groupname ILIKE ?) AS unique_users";
+            String ADMIN_GET_LIST_MEM_GROUP_AD_SQL = "SELECT UNNEST(admin) AS username FROM public.\"groups\" WHERE groupname ILIKE ?";
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_MEM_GROUP_SQL);
@@ -1690,14 +1722,10 @@ public class ServerThread implements Runnable {
         try {
             System.out.println(Arrays.toString(messageSplit));
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_ADMIN_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad FROM public.\"groups\" WHERE groupname LIKE ?";
+            String ADMIN_GET_LIST_ADMIN_SQL = "SELECT groupname, ARRAY_TO_STRING(admin, ' - ') AS ad FROM public.\"groups\" WHERE groupname ILIKE ?";
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_ADMIN_SQL)) {
-                if (messageSplit.length != 1) {
-                    preparedStatement.setString(1, messageSplit[1] + "%");
-                } else {
-                    preparedStatement.setString(1, "%");
-                }
+                preparedStatement.setString(1, "%" + messageSplit[1] + "%");
 
                 ResultSet rs = preparedStatement.executeQuery();
 
@@ -1723,17 +1751,17 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
+    } // checking
     public static void AdminGetListSpam(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_SPAM_SQL = "SELECT * FROM public.\"spams\"";
 
-            if (messageSplit.length == 2) {} else {
+            if (messageSplit.length == 3) {} else {
                 if (messageSplit[2].equals("1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " WHERE username LIKE ?";
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE username ILIKE ?";
                 } else if (messageSplit[2].equals("-1")) {
-                    ADMIN_GET_LIST_SPAM_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT LIKE ?";
+                    ADMIN_GET_LIST_SPAM_SQL += " WHERE EXTRACT(YEAR FROM date)::TEXT ILIKE ?";
                 }
             }
 
@@ -1746,8 +1774,8 @@ public class ServerThread implements Runnable {
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_SPAM_SQL)) {
 
-                if (messageSplit.length != 2) {
-                    preparedStatement.setString(1, messageSplit[3] + "%");
+                if (messageSplit.length != 3) {
+                    preparedStatement.setString(1, "%" + messageSplit[3] + "%");
                 }
 
                 ResultSet rs = preparedStatement.executeQuery();
@@ -1776,18 +1804,15 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
+    } // checking
     public static void AdminGetListNew(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_NEW_SQL = "SELECT * FROM public.\"users\"";
+            System.out.println(Arrays.toString(messageSplit));
 
-            if (messageSplit.length == 4) {
-                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE";
-            } else {
-                ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE AND username LIKE ?";
-            }
-            if (messageSplit[1].equals("1")) {
+            ADMIN_GET_LIST_NEW_SQL += " WHERE \"createAt\" BETWEEN ?::DATE AND ?::DATE AND username ILIKE ?";
+            if (messageSplit[3].equals("1")) {
                 ADMIN_GET_LIST_NEW_SQL += " ORDER BY fullname ASC";
             } else if (messageSplit[3].equals("-1")) {
                 ADMIN_GET_LIST_NEW_SQL += " ORDER BY date ASC";
@@ -1798,9 +1823,7 @@ public class ServerThread implements Runnable {
 
                 preparedStatement.setString(1, messageSplit[1]);
                 preparedStatement.setString(2, messageSplit[2]);
-                if (messageSplit.length != 4) {
-                    preparedStatement.setString(3, messageSplit[3]);
-                }
+                preparedStatement.setString(3, "%" + messageSplit[4] + "%");
 
                 ResultSet rs = preparedStatement.executeQuery();
 
@@ -1881,10 +1904,10 @@ public class ServerThread implements Runnable {
             Class.forName(JDBC_DRIVER);
             String ADMIN_GET_LIST_FRIEND_PLUS_SQL = "SELECT * FROM (SELECT tu1.username, array_length(tu1.friends, 1) AS dirfr, SUM(array_length(tu2.friends, 1)) AS total FROM users tu1 LEFT JOIN users tu2 ON tu2.username = ANY(tu1.friends) GROUP BY tu1.username, tu1.friends) AS fr JOIN users tu3 ON tu3.username = fr.username";
 
-            if (messageSplit.length >= 3) {
-                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE fr.username LIKE ?";
+            if (messageSplit.length >= 4) {
+                ADMIN_GET_LIST_FRIEND_PLUS_SQL += " WHERE fr.username ILIKE ?";
             }
-            if (messageSplit.length == 4) {
+            if (messageSplit.length == 5) {
                 ADMIN_GET_LIST_FRIEND_PLUS_SQL += " AND fr.dirfr " + messageSplit[3].charAt(0) + " " + Integer.parseInt(messageSplit[3].substring(1));
             }
 
@@ -1895,7 +1918,7 @@ public class ServerThread implements Runnable {
             }
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_FRIEND_PLUS_SQL)) {
-                if (messageSplit.length >= 3) {
+                if (messageSplit.length >= 4) {
                     preparedStatement.setString(1, messageSplit[2] + "%");
                 }
 
@@ -1925,64 +1948,68 @@ public class ServerThread implements Runnable {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
+    } // checking
     public static void AdminGetListOpen(String[] messageSplit) {
         try {
             Class.forName(JDBC_DRIVER);
-            String ADMIN_GET_LIST_OPEN_SQL = "SELECT username, \"openApp\", \"singleChat\", \"groupChat\", \"createAt\"\n" +
+            String ADMIN_GET_LIST_OPEN_SQL = "SELECT createat.username,\n" +
+                    "    COALESCE(\"openApp\", 0) AS \"openApp\",\n" +
+                    "    COALESCE(\"singleChat\", 0) AS \"singleChat\",\n" +
+                    "    COALESCE(\"groupChat\", 0) AS \"groupChat\",\n" +
+                    "    createat.\"createAt\"\n" +
                     "FROM (\n" +
                     "    SELECT username, COUNT(*) AS \"openApp\"\n" +
                     "    FROM logs\n" +
-                    "    WHERE username ILIKE ? AND logs.logdate::DATE BETWEEN ?::DATE AND ?::DATE\n" +
+                    "    WHERE username ILIKE ? AND logs.logdate::DATE BETWEEN ?::DATE AND ?::DATE\n" + // 1 - 2 - 3
                     "    GROUP BY username\n" +
                     ") AS openapp\n" +
-                    "NATURAL JOIN (\n" +
+                    "JOIN (\n" +
+                    "    SELECT username, \"createAt\"\n" +
+                    "    FROM users\n" +
+                    "    WHERE username ILIKE ?\n" + // 4
+                    ") AS createat ON openapp.username = createat.username\n" +
+                    "LEFT JOIN (\n" +
                     "    SELECT username, COUNT(DISTINCT \"idChat\") AS \"singleChat\"\n" +
                     "    FROM systems\n" +
-                    "    WHERE username ILIKE ? AND systems.time::DATE BETWEEN ?::DATE AND ?::DATE AND type = 1\n" +
+                    "    WHERE username ILIKE ? AND date(systems.time AT TIME ZONE 'UTC+7') BETWEEN ?::DATE AND ?::DATE AND type = 1\n" + // 5 - 6 - 7
                     "    GROUP BY username\n" +
-                    ") AS singlechat\n" +
-                    "NATURAL JOIN (\n" +
+                    ") AS singlechat ON createat.username = singlechat.username\n" +
+                    "LEFT JOIN (\n" +
                     "    SELECT username, COUNT(DISTINCT \"idChat\") AS \"groupChat\"\n" +
                     "    FROM systems\n" +
-                    "    WHERE username ILIKE ? AND systems.time::DATE BETWEEN ?::DATE AND ?::DATE AND type = 2\n" +
+                    "    WHERE username ILIKE ? AND date(systems.time AT TIME ZONE 'UTC+7') BETWEEN ?::DATE AND ?::DATE AND type = 2\n" + // 8 - 9 - 10
                     "    GROUP BY username\n" +
-                    ") AS groupchat\n" +
-                    "NATURAL JOIN (\n" +
-                    "    SELECT name as username, \"createAt\"\n" +
-                    "    FROM users\n" +
-                    "    WHERE name ILIKE ?\n" +
-                    ") AS createat\n";
-            if (messageSplit.length == 5 || messageSplit.length == 7) {
-                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[messageSplit.length - 1] + "\n";
+                    ") AS groupchat  ON createat.username = groupchat.username\n";
+            if (messageSplit.length == 6 || messageSplit.length == 8) {
+                ADMIN_GET_LIST_OPEN_SQL += "WHERE \"openApp\" " + messageSplit[messageSplit.length - 2] + "\n";
             }
 
             if (messageSplit[1].equals("1")) {
-                ADMIN_GET_LIST_OPEN_SQL += "ORDER BY username";
+                ADMIN_GET_LIST_OPEN_SQL += " ORDER BY username";
             } else if (messageSplit[1].equals("-1")) {
-                ADMIN_GET_LIST_OPEN_SQL += "ORDER BY \"createAt\"";
+                ADMIN_GET_LIST_OPEN_SQL += " ORDER BY \"createAt\"";
             }
 
             try (Connection connection = DriverManager.getConnection(URL, USER, PW);
                  PreparedStatement preparedStatement = connection.prepareStatement(ADMIN_GET_LIST_OPEN_SQL)) {
-                if (messageSplit.length == 4 || messageSplit.length == 5) {
+                if (messageSplit.length == 5 || messageSplit.length == 6) {
                     preparedStatement.setString(1, "%");
                     preparedStatement.setString(4, "%");
-                    preparedStatement.setString(7, "%");
-                    preparedStatement.setString(10, "%");
-                } else if (messageSplit.length == 6 || messageSplit.length == 7) {
+                    preparedStatement.setString(5, "%");
+                    preparedStatement.setString(8, "%");
+                } else if (messageSplit.length == 7 || messageSplit.length == 8) {
                     preparedStatement.setString(1, "%" + messageSplit[4] + "%");
                     preparedStatement.setString(4, "%" + messageSplit[4] + "%");
-                    preparedStatement.setString(7, "%" + messageSplit[4] + "%");
-                    preparedStatement.setString(10, "%" + messageSplit[4] + "%");
+                    preparedStatement.setString(5, "%" + messageSplit[4] + "%");
+                    preparedStatement.setString(8, "%" + messageSplit[4] + "%");
                 }
 
                 preparedStatement.setString(2, messageSplit[2]);
                 preparedStatement.setString(3, messageSplit[3]);
-                preparedStatement.setString(5, messageSplit[2]);
-                preparedStatement.setString(6, messageSplit[3]);
-                preparedStatement.setString(8, messageSplit[2]);
-                preparedStatement.setString(9, messageSplit[3]);
+                preparedStatement.setString(6, messageSplit[2]);
+                preparedStatement.setString(7, messageSplit[3]);
+                preparedStatement.setString(9, messageSplit[2]);
+                preparedStatement.setString(10, messageSplit[3]);
 
                 ResultSet rs = preparedStatement.executeQuery();
 

@@ -148,8 +148,7 @@ public class Application {
                             		for (String messageString : messageStrings) {
                             			String msg = messageString.replace(app.focusIDString +" -","("+app.focusNameString+")")
                             					.replace(app.currentUser.getId() +" -","("+app.currentUser.fullname+")");
-
-                            			chatting.AddChat(msg);
+                            			chatting.AddChat(messageString);
                             		}
                             	}
                             }else if(dataSplit[0].equals("GroupData")) {
