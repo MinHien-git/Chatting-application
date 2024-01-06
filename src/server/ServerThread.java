@@ -203,6 +203,9 @@ public class ServerThread implements Runnable {
                     String groupid = messageSplit[1];
                     String id = messageSplit[2];
                     AddMemberToGroup(groupid, id);
+                }else if (commandString.equals("UpdateMemberList")) {
+                    String groupid = messageSplit[1];
+                    GetGroup(groupid);
                 }else if (commandString.equals("SetAdminGroup")) {
                     String groupid = messageSplit[1];
                     String id = messageSplit[2];
